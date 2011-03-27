@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ExpeditionJournal" language="groovy" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="170"/>
+	<parameter name="docnumber" class="java.lang.String"/>
+	<parameter name="purpose" class="java.lang.String"/>
+	<parameter name="reportplace" class="java.lang.String"/>
+	<parameter name="logo" class="java.awt.Image"/>
+	<parameter name="statename" class="java.lang.String"/>
+	<parameter name="governname" class="java.lang.String"/>
+	<parameter name="governaddress" class="java.lang.String"/>
+	<parameter name="capital" class="java.lang.String"/>
+	<parameter name="letternumber" class="java.lang.String"/>
+	<parameter name="expnumber" class="java.lang.String"/>
+	<parameter name="subreport" class="net.sf.jasperreports.engine.JasperReport"/>
+	<parameter name="datasource" class="net.sf.jasperreports.engine.JRDataSource"/>
+	<parameter name="subreport2" class="net.sf.jasperreports.engine.JasperReport"/>
+	<parameter name="datasource2" class="net.sf.jasperreports.engine.JRDataSource"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="138" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="78" width="555" height="30"/>
+				<textElement textAlignment="Center" verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="13" isBold="true" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[LAPORAN PERJALANAN DINAS]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="0" y="108" width="555" height="30"/>
+				<box leftPadding="3"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["NOMOR : "+$P{docnumber}]]></textFieldExpression>
+			</textField>
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="77" width="555" height="1"/>
+				<graphicElement>
+					<pen lineWidth="3.0" lineStyle="Double"/>
+				</graphicElement>
+			</line>
+			<textField>
+				<reportElement x="106" y="56" width="449" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{capital}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="106" y="38" width="449" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
+					<font fontName="Times New Roman" size="11" isBold="false" isItalic="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{governaddress}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="106" y="20" width="449" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
+					<font fontName="Times New Roman" size="12" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{governname}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="106" y="0" width="449" height="20"/>
+				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
+					<font fontName="Times New Roman" size="14" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["PEMERINTAH "+$P{statename}]]></textFieldExpression>
+			</textField>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Top" isUsingCache="true">
+				<reportElement x="35" y="0" width="71" height="71" forecolor="#FFFFFF"/>
+				<imageExpression class="java.awt.Image"><![CDATA[$P{logo}]]></imageExpression>
+			</image>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="523">
+			<staticText>
+				<reportElement x="25" y="0" width="530" height="20"/>
+				<box leftPadding="2" rightPadding="0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[DASAR]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="0" width="25" height="60"/>
+				<box leftPadding="3" rightPadding="0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[I.]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="50" y="20" width="505" height="20"/>
+				<box leftPadding="3" bottomPadding="0"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{letternumber}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="25" y="20" width="25" height="20"/>
+				<box leftPadding="3" rightPadding="0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
+				<text><![CDATA[A.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="25" y="40" width="25" height="20"/>
+				<box leftPadding="3" rightPadding="0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
+				<text><![CDATA[B.]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="50" y="40" width="505" height="20"/>
+				<box leftPadding="3" bottomPadding="0"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{expnumber}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="60" width="25" height="56"/>
+				<box leftPadding="3" rightPadding="0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[II.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="25" y="60" width="530" height="20"/>
+				<box leftPadding="2" rightPadding="0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MAKSUD DAN TUJUAN]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="25" y="80" width="530" height="36"/>
+				<box leftPadding="3" bottomPadding="0" rightPadding="10"/>
+				<textElement textAlignment="Justified" verticalAlignment="Top">
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{purpose}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="116" width="25" height="44"/>
+				<box leftPadding="3" rightPadding="0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[III.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="25" y="116" width="530" height="20"/>
+				<box leftPadding="2" rightPadding="0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[MATERI DAN NARASUMBER]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="25" y="136" width="530" height="24"/>
+				<box leftPadding="3" rightPadding="3"/>
+				<textElement textAlignment="Justified" verticalAlignment="Top" markup="none">
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
+				<text><![CDATA[Terlampir]]></text>
+			</staticText>
+			<staticText>
+				<reportElement stretchType="RelativeToBandHeight" x="0" y="160" width="25" height="105"/>
+				<box leftPadding="3" rightPadding="0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[IV.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="25" y="160" width="530" height="20"/>
+				<box leftPadding="2" rightPadding="0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[HASIL PELAKSANAAN PERJALANAN DINAS]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToBandHeight" x="25" y="265" width="530" height="20"/>
+				<box leftPadding="2" rightPadding="0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[PENUTUP]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToBandHeight" x="0" y="265" width="25" height="57"/>
+				<box leftPadding="3" rightPadding="0"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[V.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToBandHeight" x="25" y="285" width="530" height="37"/>
+				<box leftPadding="3" rightPadding="20"/>
+				<textElement textAlignment="Justified" verticalAlignment="Top" markup="none">
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
+				<text><![CDATA[Demikian Laporan Perjalanan Dinas ini dibuat sebagai bagian yang tidak terpisahkan dari Surat Tugas dan Surat Perjalanan Dinas]]></text>
+			</staticText>
+			<subreport>
+				<reportElement stretchType="RelativeToBandHeight" x="25" y="180" width="530" height="85"/>
+				<dataSourceExpression><![CDATA[$P{datasource}]]></dataSourceExpression>
+				<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{subreport}]]></subreportExpression>
+			</subreport>
+			<subreport isUsingCache="false">
+				<reportElement positionType="FixRelativeToBottom" x="277" y="370" width="278" height="153"/>
+				<dataSourceExpression><![CDATA[$P{datasource2}]]></dataSourceExpression>
+				<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{subreport2}]]></subreportExpression>
+			</subreport>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToBandHeight" x="277" y="333" width="278" height="20"/>
+				<box leftPadding="0" bottomPadding="0"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Times New Roman" size="12" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{reportplace}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+</jasperReport>
