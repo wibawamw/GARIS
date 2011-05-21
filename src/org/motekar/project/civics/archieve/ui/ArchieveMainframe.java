@@ -33,6 +33,7 @@ import java.util.logging.Level;
 import javax.imageio.ImageIO;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -186,8 +187,8 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener{
         mainTabPane.addPropertyChangeListener(TabbedPaneFactory.PROP_CLOSE, new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 JTabbedPane pane = (JTabbedPane) evt.getSource();
-                int sel = pane.getSelectedIndex();
-                pane.removeTabAt(sel);
+                JComponent c = (JComponent) evt.getNewValue();
+                pane.remove(c);
                 setFocusTraversalPolicy(null);
             }
         });
