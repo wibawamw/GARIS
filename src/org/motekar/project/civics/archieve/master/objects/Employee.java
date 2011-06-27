@@ -33,7 +33,9 @@ public class Employee {
         "KEPALA SEKSI",
         "KEPALA SUB BAGIAN",
         "KEPALA SUB BIDANG",
-        "KEPALA SUB SEKSI"};
+        "KEPALA SUB SEKSI",
+        "SEKRETARIS DINAS"
+    };
 
 
     public static final String[] ESELON = new String[]{"", "IA", "IB",
