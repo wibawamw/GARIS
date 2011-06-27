@@ -644,6 +644,7 @@ public class ArchieveTableCreatorSQL {
                 append("pptk bigint,").
                 append("clerk bigint,").
                 append("paidto bigint,").
+                append("budgettype smallint,").
                 append("CONSTRAINT expeditioncheque_pkey PRIMARY KEY (autoindex),").
                 append("CONSTRAINT expeditioncheque_expedition_fkey FOREIGN KEY (expeditionindex)").
                 append("    REFERENCES expedition (autoindex) MATCH SIMPLE,").
