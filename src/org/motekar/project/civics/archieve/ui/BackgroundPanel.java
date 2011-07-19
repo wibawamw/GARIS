@@ -19,7 +19,6 @@ import org.jdesktop.swingx.painter.MattePainter;
 import org.jdesktop.swingx.painter.TextPainter;
 import org.jdesktop.swingx.painter.effects.AreaEffect;
 import org.jdesktop.swingx.painter.effects.GlowPathEffect;
-import org.motekar.project.civics.archieve.utils.misc.ArchieveProperties;
 import org.openide.util.Exceptions;
 import org.pushingpixels.lafwidget.contrib.blogofbug.utility.ImageUtilities;
 import org.pushingpixels.substance.api.DecorationAreaType;
@@ -33,19 +32,15 @@ import org.pushingpixels.substance.api.SubstanceSkin;
  */
 public class BackgroundPanel extends JXPanel {
 
-    private ArchieveProperties properties;
-    private JXPanel topLeftPanel = new JXPanel();
     private JXPanel rightBottomPanel = new JXPanel();
 
-    public BackgroundPanel(ArchieveProperties properties) {
-        this.properties = properties;
+    public BackgroundPanel() {
         construct();
     }
 
     private void construct() {
         try {
             paintMainPanel();
-            repaintTopLeftPanel();
             repaintRightBottomPanel();
 
             Rectangle r = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
@@ -59,9 +54,7 @@ public class BackgroundPanel extends JXPanel {
             setDoubleBuffered(true);
             removeAll();
             setLayout(null);
-            add(topLeftPanel);
             add(rightBottomPanel);
-            topLeftPanel.setBounds(x, y, 500, 120);
             rightBottomPanel.setBounds(x2, y2, 400, 256);
 
             repaint();
@@ -85,87 +78,8 @@ public class BackgroundPanel extends JXPanel {
         setBackgroundPainter(matte);
     }
 
-    private void repaintTopLeftPanel() throws IOException {
-        BufferedImage buff = ImageIO.read(properties.getLogo3());
-        BufferedImage scaledImage = ImageUtilities.scaledImage(buff, 80, 80);
-
-        int imageWidth = scaledImage.getWidth();
-
-        ImagePainter painter = new ImagePainter(scaledImage, HorizontalAlignment.LEFT, VerticalAlignment.TOP);
-        painter.setAntialiasing(true);
-        painter.setScaleType(ImagePainter.ScaleType.InsideFit);
-
-        ShadowFilter shadow = new ShadowFilter();
-        painter.setFilters(shadow);
-        topLeftPanel.setAlpha(0.65f);
-
-        Object value = javax.swing.UIManager.get("CommandButtonPanel.font");
-
-        Font defFont = new Font("Times New Roman", Font.BOLD, 16);
-
-        if (value instanceof Font) {
-            defFont = (Font) value;
-        }
-
-        TextPainter txtPainter = new TextPainter(getTextStateName());
-        txtPainter.setFont(new Font(defFont.getName(), Font.BOLD, 16));
-        txtPainter.setHorizontalAlignment(HorizontalAlignment.LEFT);
-        txtPainter.setVerticalAlignment(VerticalAlignment.TOP);
-        txtPainter.setFilters(shadow);
-
-        TextPainter txtPainter2 = new TextPainter(getTextDinasName());
-        txtPainter2.setFont(new Font(defFont.getName(), Font.BOLD, 14));
-        txtPainter2.setHorizontalAlignment(HorizontalAlignment.LEFT);
-        txtPainter2.setVerticalAlignment(VerticalAlignment.TOP);
-        txtPainter2.setFilters(shadow);
-
-        TextPainter txtPainter3 = new TextPainter(getTextAddress());
-        txtPainter3.setFont(new Font(defFont.getName(), Font.PLAIN, 12));
-        txtPainter3.setHorizontalAlignment(HorizontalAlignment.LEFT);
-        txtPainter3.setVerticalAlignment(VerticalAlignment.TOP);
-        txtPainter3.setFilters(shadow);
-
-        txtPainter.setInsets(new Insets(5, imageWidth + 10, 0, 0));
-        txtPainter2.setInsets(new Insets(25, imageWidth + 10, 0, 0));
-        txtPainter3.setInsets(new Insets(45, imageWidth + 10, 0, 0));
-
-        CompoundPainter cmpPainter = new CompoundPainter<Object>(painter, txtPainter, txtPainter2, txtPainter3);
-
-        topLeftPanel.setBackgroundPainter(cmpPainter);
-    }
-
-    private String getTextStateName() {
-        StringBuilder builder = new StringBuilder();
-
-        if (properties.getStateType().equals(ArchieveProperties.KABUPATEN)) {
-            builder.append("PEMERINTAH KABUPATEN ").
-                    append(properties.getState().toUpperCase());
-        } else {
-            builder.append("PEMERINTAH KOTA ").
-                    append(properties.getState().toUpperCase());
-        }
-
-        return builder.toString().toUpperCase();
-    }
-
-    private String getTextDinasName() {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append(properties.getCompany());
-
-        return builder.toString();
-    }
-
-    private String getTextAddress() {
-        StringBuilder builder = new StringBuilder();
-
-        builder.append(properties.getAddress());
-
-        return builder.toString();
-    }
-
     private void repaintRightBottomPanel() throws IOException {
-        BufferedImage buff = ImageIO.read(ArchieveMainframe.class.getResource("/resource/Magnolia.png"));
+        BufferedImage buff = ImageIO.read(ArchieveMainframe.class.getResource("/resource/eGov 150p.png"));
         BufferedImage scaledImage = ImageUtilities.scaledImage(buff, 100, 100);
 
         int imageWidth = scaledImage.getWidth();
@@ -188,22 +102,22 @@ public class BackgroundPanel extends JXPanel {
             defFont = (Font) value;
         }
 
-        TextPainter txtPainter = new TextPainter("G    A    R    I    S");
+        TextPainter txtPainter = new TextPainter("G A R I S  1.0.3");
         txtPainter.setFont(new Font(defFont.getName(), Font.BOLD, 28));
         txtPainter.setHorizontalAlignment(HorizontalAlignment.RIGHT);
         txtPainter.setVerticalAlignment(VerticalAlignment.TOP);
         txtPainter.setFilters(shadow);
         txtPainter.setAreaEffects(effect);
 
-        TextPainter txtPainter2 = new TextPainter("Government Archieves Information System");
-        txtPainter2.setFont(new Font(defFont.getName(), Font.BOLD, 14));
+        TextPainter txtPainter2 = new TextPainter("by. VMT Software");
+        txtPainter2.setFont(new Font(defFont.getName(), Font.BOLD, 16));
         txtPainter2.setHorizontalAlignment(HorizontalAlignment.RIGHT);
         txtPainter2.setVerticalAlignment(VerticalAlignment.TOP);
         txtPainter2.setFilters(shadow);
         txtPainter2.setAreaEffects(effect);
 
-        TextPainter txtPainter3 = new TextPainter("Versi 1.0.3");
-        txtPainter3.setFont(new Font(defFont.getName(), Font.BOLD, 16));
+        TextPainter txtPainter3 = new TextPainter("www.vmt.co.id | office@vmt.co.id");
+        txtPainter3.setFont(new Font(defFont.getName(), Font.BOLD, 14));
         txtPainter3.setHorizontalAlignment(HorizontalAlignment.RIGHT);
         txtPainter3.setVerticalAlignment(VerticalAlignment.TOP);
         txtPainter3.setFilters(shadow);
@@ -211,7 +125,7 @@ public class BackgroundPanel extends JXPanel {
 
         txtPainter.setInsets(new Insets(0, 0, 0, imageWidth + 10));
         txtPainter2.setInsets(new Insets(40, 0, 0, imageWidth + 10));
-        txtPainter3.setInsets(new Insets(60, 0, 0, imageWidth + 10));
+        txtPainter3.setInsets(new Insets(65, 0, 0, imageWidth + 10));
 
         CompoundPainter cmpPainter = new CompoundPainter<Object>(painter, txtPainter, txtPainter2, txtPainter3);
 
@@ -223,7 +137,4 @@ public class BackgroundPanel extends JXPanel {
         construct();
     }
 
-    public void setProperties(ArchieveProperties properties) {
-        this.properties = properties;
-    }
 }

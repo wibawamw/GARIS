@@ -562,6 +562,7 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
                 fieldRepDate.setDate(selectedJournal.getReportDate());
 
                 AssignmentLetter letter = selectedJournal.getLetter();
+                letter.setStyled(false);
 
                 comboLetter.setSelectedItem(letter);
 

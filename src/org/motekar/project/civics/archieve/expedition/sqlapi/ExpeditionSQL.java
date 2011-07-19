@@ -359,6 +359,8 @@ public class ExpeditionSQL extends CommonSQL {
                     append("where autoindex in ").
                     append("(select letterindex from expeditionjournal)) al  ").
                     append("on al.autoindex = exp.letterindex ").
+                    append(" left join assignmentletter al2 ").
+                    append("on al2.autoindex = exp.letterindex ").
                     append("where date_part('year',startdate) = ").
                     append(year);
         } else {

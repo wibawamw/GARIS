@@ -117,7 +117,7 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener {
 
     public ArchieveMainframe() {
         super("Government Archieves Information System (GARIS) 1.0.3");
-        setApplicationIcon(Mainframe.getResizableIconFromSource("resource/mail_logo.png"));
+        setApplicationIcon(Mainframe.getResizableIconFromSource("resource/eGov 150p.png"));
         constructMainframe();
         constructAndShowLoginPane();
     }
@@ -187,7 +187,7 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener {
             }
         });
 
-        background = new BackgroundPanel(getProperties());
+        background = new BackgroundPanel();
 
         constructCardPanel();
     }
@@ -207,8 +207,8 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener {
         MailRibbonBand mail = new MailRibbonBand(this);
         ReportRibbonBand report = new ReportRibbonBand(this);
 
-        JRibbonBand rBandDB = new JRibbonBand("Database", null);
-        rBandDB.setResizePolicies((List) Arrays.asList(new IconRibbonBandResizePolicy(rBandDB.getControlPanel())));
+//        JRibbonBand rBandDB = new JRibbonBand("Database", null);
+//        rBandDB.setResizePolicies((List) Arrays.asList(new IconRibbonBandResizePolicy(rBandDB.getControlPanel())));
 
         JRibbonBand rBandHelp = new JRibbonBand("Bantuan", null);
         rBandHelp.setResizePolicies((List) Arrays.asList(new IconRibbonBandResizePolicy(rBandHelp.getControlPanel())));
@@ -265,14 +265,14 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener {
         btHelp.addActionListener(this);
         btAbout.addActionListener(this);
 
-        rBandDB.addCommandButton(btBackupDB, RibbonElementPriority.TOP);
-        rBandDB.addCommandButton(btRestoreDB, RibbonElementPriority.MEDIUM);
+//        rBandDB.addCommandButton(btBackupDB, RibbonElementPriority.TOP);
+//        rBandDB.addCommandButton(btRestoreDB, RibbonElementPriority.MEDIUM);
 
         rBandHelp.addCommandButton(btHelp, RibbonElementPriority.TOP);
         rBandHelp.addCommandButton(btAbout, RibbonElementPriority.MEDIUM);
 
-        rBandDB.setResizePolicies((List) Arrays.asList(new CoreRibbonResizePolicies.None(rBandDB.getControlPanel()),
-                new IconRibbonBandResizePolicy(rBandDB.getControlPanel())));
+//        rBandDB.setResizePolicies((List) Arrays.asList(new CoreRibbonResizePolicies.None(rBandDB.getControlPanel()),
+//                new IconRibbonBandResizePolicy(rBandDB.getControlPanel())));
         rBandHelp.setResizePolicies((List) Arrays.asList(new CoreRibbonResizePolicies.None(rBandHelp.getControlPanel()),
                 new IconRibbonBandResizePolicy(rBandHelp.getControlPanel())));
 
@@ -298,7 +298,8 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener {
 
         RibbonTask task2 = new RibbonTask("Laporan-Laporan", nav2, report.getDataMasterRibbon(), report.getMailReportRibbon(),
                 report.getExpeditionReport());
-        RibbonTask task3 = new RibbonTask("Konfigurasi & Bantuan", nav3, rBandDB, rBandHelp, skinBand);
+//        RibbonTask task3 = new RibbonTask("Konfigurasi & Bantuan", nav3, rBandDB, rBandHelp, skinBand);
+        RibbonTask task3 = new RibbonTask("Konfigurasi & Bantuan", nav3, rBandHelp, skinBand);
 
         ribbon.addTask(task1);
         ribbon.addTask(task2);
@@ -316,7 +317,7 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener {
             }
         };
 
-        inactive = new InactivityListener(act, 1);
+        inactive = new InactivityListener(act, 15);
         inactive.start();
     }
 
@@ -474,7 +475,6 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener {
                         OptionDialog dlg = new OptionDialog(ArchieveMainframe.this, properties);
                         dlg.showDialog();
                         if (dlg.getResponse() == JOptionPane.YES_OPTION) {
-                            background.setProperties(dlg.getProperties());
                             repaintBackground();
                         }
                     }
@@ -508,8 +508,8 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener {
         });
 
         RibbonApplicationMenu applicationMenu = new RibbonApplicationMenu();
-        applicationMenu.addMenuEntry(amEntryBackupDB);
-        applicationMenu.addMenuEntry(amEntryRestoreDB);
+//        applicationMenu.addMenuEntry(amEntryBackupDB);
+//        applicationMenu.addMenuEntry(amEntryRestoreDB);
         applicationMenu.addMenuSeparator();
         applicationMenu.addMenuEntry(amEntryHelp);
         applicationMenu.addMenuSeparator();
