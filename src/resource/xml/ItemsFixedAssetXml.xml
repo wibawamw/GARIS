@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : ItemsFixedAssetXml.xml
+    Created on : 06 Desember 2011, 14:26
+    Author     : Muhamad Wibawa
+    Description:
+        Purpose of the document follows.
+-->
+
+<workbook>
+    <worksheet name="Sheet1">
+        <section startRow="0" endRow="6">  
+            <mapping cell="C5">unit.unitCode</mapping>
+        </section> 
+        <loop startRow="7" endRow="7" items="itemsfixedassets" var="itemsfixedasset" varType="org.motekar.project.civics.archieve.assets.inventory.objects.ItemsFixedAsset">
+            <section startRow="7" endRow="7">
+                <mapping row="7" col="1">itemsfixedasset.itemName</mapping>
+                <mapping row="7" col="2">itemsfixedasset.itemCode</mapping>
+                <mapping row="7" col="3">itemsfixedasset.regNumber</mapping>
+                <mapping row="7" col="4">itemsfixedasset.bookAuthor</mapping>
+                <mapping row="7" col="5">itemsfixedasset.bookSpec</mapping>
+                <mapping row="7" col="6">itemsfixedasset.artRegion</mapping>
+                <mapping row="7" col="7">itemsfixedasset.artAuthor</mapping>
+                <mapping row="7" col="8">itemsfixedasset.artMaterial</mapping>
+                <mapping row="7" col="9">itemsfixedasset.cattleType</mapping>
+                <mapping row="7" col="10">itemsfixedasset.cattleSize</mapping>
+                <mapping row="7" col="11">itemsfixedasset.acquisitionYear</mapping>
+                <mapping row="7" col="12">itemsfixedasset.acquisitionWay</mapping>
+                <mapping row="7" col="13">itemsfixedasset.price</mapping>
+                <mapping row="7" col="14">itemsfixedasset.description</mapping>
+            </section>
+            <loopbreakcondition>
+                <rowcheck offset="0">
+                    <cellcheck offset="0"/>
+                </rowcheck>
+            </loopbreakcondition>
+        </loop>
+    </worksheet>
+</workbook>

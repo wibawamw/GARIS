@@ -16,8 +16,10 @@ import org.jdesktop.swingx.JXTextField;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.autocomplete.ObjectToStringConverter;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.master.objects.Employee;
 import org.motekar.project.civics.archieve.master.sqlapi.MasterBusinessLogic;
+import org.motekar.util.user.objects.UserGroup;
 import org.openide.util.Exceptions;
 
 /**
@@ -31,17 +33,31 @@ public class EmployeeCellPanel extends JXPanel {
     private ArrayList<Employee> employeeData = new ArrayList<Employee>();
     private JXComboBox comboEmployee = new JXComboBox();
     private JXTextField fieldGrade = new JXTextField();
+    private Unit unit = null;
+    private UserGroup userGroup = null;
 
-    public EmployeeCellPanel(Connection conn, Long session) {
+    public EmployeeCellPanel(Connection conn, Long session, UserGroup userGroup, Unit unit) {
         this.employeeData = new ArrayList<Employee>();
         this.session = session;
+        this.userGroup = userGroup;
         logic = new MasterBusinessLogic(conn);
         construct();
     }
 
-    public EmployeeCellPanel(ArrayList<Employee> employeeData) {
+    public EmployeeCellPanel(ArrayList<Employee> employeeData, UserGroup userGroup, Unit unit) {
         this.employeeData = employeeData;
+        this.userGroup = userGroup;
         construct();
+    }
+
+    private String generateUnitModifier() {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            query.append(" where unit = ").append(unit.getIndex());
+        }
+
+        return query.toString();
     }
 
     private void construct() {
@@ -85,7 +101,7 @@ public class EmployeeCellPanel extends JXPanel {
 
                 AutoCompleteDecorator.decorate(comboEmployee, new EmployeeConverter());
             } else {
-                employeeData = logic.getAssignedEmployee(session);
+                employeeData = logic.getAssignedEmployee(session,generateUnitModifier());
                 for (Employee e : employeeData) {
                     e.setStyled(false);
                 }

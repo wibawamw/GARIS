@@ -3,6 +3,7 @@ package org.motekar.project.civics.archieve.mail.objects;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.master.objects.Division;
 
 /**
@@ -21,9 +22,11 @@ public class Inbox {
     private Division receipient = null;
 
     private boolean styled = false;
-    private static SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     private ArrayList<InboxFile> inboxFiles = new ArrayList<InboxFile>();
+    
+    private Unit unit = null;
 
     public Inbox() {
     }
@@ -108,6 +111,14 @@ public class Inbox {
         this.inboxFiles = inboxFiles;
     }
 
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
+    }
+    
     @Override
     public String toString() {
         if (isStyled()) {

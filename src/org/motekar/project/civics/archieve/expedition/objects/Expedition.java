@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.StringTokenizer;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.master.objects.Account;
 import org.motekar.project.civics.archieve.master.objects.Activity;
 import org.motekar.project.civics.archieve.master.objects.Employee;
@@ -40,6 +41,7 @@ public class Expedition {
     private ArrayList<ExpeditionFollower> follower = new ArrayList<ExpeditionFollower>();
 
     private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+    private Unit unit = null;
 
     public Expedition() {
     }
@@ -215,7 +217,7 @@ public class Expedition {
             arrayTokens.add(token.nextToken());
         }
 
-        if (!arrayTokens.isEmpty()) {
+        if (!arrayTokens.isEmpty() ) {
             it = arrayTokens.get(1);
         }
 
@@ -240,6 +242,14 @@ public class Expedition {
         return it;
     }
 
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

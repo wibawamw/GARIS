@@ -1,26 +1,71 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <MenuTemplate>
-	<Menu MenuName="Master Data">
-            <Menu MenuName="SKPD"></Menu>
-            <Menu MenuName="Pegawai"></Menu>
-		 <Menu MenuName="Standar Harga"></Menu>		
-     </Menu>
-	<Menu MenuName="Perjalanan Dinas">
-            <Menu MenuName="Surat Perjalanan Dinas"></Menu>
-            <Menu MenuName="Laporan Perjalanan Dinas"></Menu>
-            <Menu MenuName="Status Perjalanan Dinas"></Menu>
-            <Menu MenuName="Statistik Perjalanan Dinas"></Menu>
-     </Menu>
-	<Menu MenuName="Pengelolaan Surat Masuk">
-           <Menu MenuName="Surat Masuk"></Menu>
-		<Menu MenuName="Status Surat Masuk"></Menu>
-      	<Menu MenuName="Laporan Surat Masuk"></Menu>
-      	<Menu MenuName="Statistik Surat Masuk"></Menu>
-     </Menu>
-	<Menu MenuName="Pengelolaan Surat Keluar">
-		<Menu MenuName="Surat Keluar"></Menu>
-		<Menu MenuName="Status Surat Keluar"></Menu>
-		<Menu MenuName="Laporan Surat Keluar"></Menu>
-      	<Menu MenuName="Statistik Surat Keluar"></Menu>
-     </Menu>
+    <Menu MenuName="Master Data">
+        <Menu MenuName="Pegawai"></Menu>
+        <Menu MenuName="Bagian"></Menu>
+        <Menu MenuName="Standar Harga"></Menu>		
+        <Menu MenuName="Program dan Kegiatan"></Menu>		
+        <Menu MenuName="Struktur Rekening"></Menu>
+        <Menu MenuName="Anggaran"></Menu>
+    </Menu>
+    <Menu MenuName="Pengelolaan Surat Masuk">
+        <Menu MenuName="Surat Masuk"></Menu>
+        <Menu MenuName="Status Surat Masuk"></Menu>
+    </Menu>
+    <Menu MenuName="Pengelolaan Surat Keluar">
+        <Menu MenuName="Surat Keluar"></Menu>
+        <Menu MenuName="Status Surat Keluar"></Menu>
+    </Menu>
+    <Menu MenuName="Dokumen">
+        <Menu MenuName="Upload Dokumen"></Menu>
+    </Menu>
+    <Menu MenuName="Perjalanan Dinas">
+        <Menu MenuName="Surat Tugas"></Menu>
+        <Menu MenuName="Surat Perintah Perjalanan Dinas"></Menu>
+        <Menu MenuName="Pertanggungjawaban Perjalanan Dinas"></Menu>
+        <Menu MenuName="Kwitansi Pembayaran"></Menu>
+    </Menu>
+    <Menu MenuName="Laporan-laporan">
+        <Menu MenuName="Data Urutan Kepangkatan"></Menu>
+        <Menu MenuName="Laporan Surat Masuk"></Menu>
+        <Menu MenuName="Laporan Surat Keluar"></Menu>
+        <Menu MenuName="Daftar Perjalanan Dinas"></Menu>
+        <Menu MenuName="Realisasi Anggaran"></Menu>
+    </Menu>
+    <Menu MenuName="Aset Master Data">
+        <Menu MenuName="Kecamatan / Kelurahan"></Menu>
+        <Menu MenuName="UPB / Sub UPB"></Menu>
+        <Menu MenuName="Bidang Barang"></Menu>		
+        <Menu MenuName="Kondisi Barang"></Menu>		
+        <Menu MenuName="Ruangan"></Menu>
+    </Menu>
+    <Menu MenuName="Inventarisasi">
+        <Menu MenuName="Kartu Inventaris Barang (KIB)">
+            <Menu MenuName="KIB-A (Bidang Tanah)"></Menu>
+            <Menu MenuName="KIB-B (Bidang Peralatan dan Mesin)"></Menu>
+            <Menu MenuName="KIB-C (Bidang Gedung dan Bangunan)"></Menu>
+            <Menu MenuName="KIB-D (Bidang Jalan,Irigasi,Jembatan)"></Menu>
+            <Menu MenuName="KIB-E (Bidang Aset Tetap Lainnya)"></Menu>
+            <Menu MenuName="KIB-E (Bidang Konstruksi dalam Pengerjaan)"></Menu>
+        </Menu>
+        <Menu MenuName="Buku Inventaris"></Menu>
+        <Menu MenuName="Rekap Buku Inventaris"></Menu>		
+        <Menu MenuName="Kartu Inventaris Ruang (KIR)"></Menu>	
+    </Menu>
+    <Menu MenuName="Pengadaan Aset">
+        <Menu MenuName="Daftar Hasil Pengadaan Barang"></Menu>
+        <Menu MenuName="Buku Penerimaan Barang"></Menu>
+        <Menu MenuName="Buku Pengeluaran Barang"></Menu>
+        <Menu MenuName="Buku Barang Pakai Habis"></Menu>
+        <Menu MenuName="Kartu Persediaan Barang"></Menu>
+        <Menu MenuName="Daftar Penerimaan Barang Dari Pihak Ketiga"></Menu>
+    </Menu>
+    <Menu MenuName="Laporan Aset">
+        <Menu MenuName="Laporan Penerimaan &amp; Pengeluaran Barang"></Menu>
+    </Menu>
+    <Menu MenuName="Pengelolaan Aset">
+        <Menu MenuName="Daftar BMD Yang Digunausahakan"></Menu>
+        <Menu MenuName="Daftar Usulan BMD Yang Akan Dihapus"></Menu>
+        <Menu MenuName="Status Penggunaan BMD"></Menu>
+    </Menu>
 </MenuTemplate>

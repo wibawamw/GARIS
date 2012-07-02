@@ -1,17 +1,21 @@
 package org.motekar.project.civics.archieve.report.ui;
 
+import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import javax.imageio.ImageIO;
 import org.motekar.project.civics.archieve.expedition.ui.ExpeditionReportPanel;
 import org.motekar.project.civics.archieve.mail.ui.InboxReportPanel;
 import org.motekar.project.civics.archieve.mail.ui.OutboxReportPanel;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
+import org.motekar.project.civics.archieve.utils.misc.ButtonComparator;
 import org.motekar.util.user.ui.Mainframe;
 import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
@@ -27,7 +31,7 @@ import org.pushingpixels.flamingo.api.ribbon.resize.IconRibbonBandResizePolicy;
  */
 public class ReportRibbonBand implements ActionListener {
 
-    private JCommandButton btDUKReport = new JCommandButton("Data Urutan Kepangkatan",
+    private JCommandButton btDUKReport = new JCommandButton("Daftar Urutan Kepangkatan",
             Mainframe.getResizableIconFromSource("resource/duk.png"));
 
     private JCommandButton btInboxReport = new JCommandButton("Laporan Surat Masuk",
@@ -51,6 +55,7 @@ public class ReportRibbonBand implements ActionListener {
      * 
      */
     private ArchieveMainframe mainframe;
+    private List<JCommandButton> btArrays = new ArrayList<JCommandButton>();
 
     public ReportRibbonBand(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
@@ -74,6 +79,8 @@ public class ReportRibbonBand implements ActionListener {
         btDUKReport.setActionRichTooltip(dukTooltip);
 
         masterReport.addCommandButton(btDUKReport, RibbonElementPriority.TOP);
+        
+        btArrays.add(btDUKReport);
 
         btDUKReport.addActionListener(this);
 
@@ -151,6 +158,11 @@ public class ReportRibbonBand implements ActionListener {
         btInboxStatistics.addActionListener(this);
         btOutboxReport.addActionListener(this);
         btOutboxStatistics.addActionListener(this);
+        
+        btArrays.add(btInboxReport);
+//        btArrays.add(btInboxStatistics);
+        btArrays.add(btOutboxReport);
+//        btArrays.add(btOutboxStatistics);
 
         mailReport.setResizePolicies((List) Arrays.asList(new CoreRibbonResizePolicies.None(mailReport.getControlPanel()),
                 new IconRibbonBandResizePolicy(mailReport.getControlPanel())));
@@ -206,6 +218,10 @@ public class ReportRibbonBand implements ActionListener {
         btExpeditionReport.addActionListener(this);
         btExpeditionStatistics.addActionListener(this);
         btBudgetRealization.addActionListener(this);
+        
+        btArrays.add(btExpeditionReport);
+//        btArrays.add(btExpeditionStatistics);
+        btArrays.add(btBudgetRealization);
 
         expeditionReport.addCommandButton(btExpeditionReport, RibbonElementPriority.TOP);
         expeditionReport.addCommandButton(btBudgetRealization, RibbonElementPriority.MEDIUM);
@@ -220,20 +236,63 @@ public class ReportRibbonBand implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
+        Cursor old = mainframe.getCursor();
         if (source == btInboxReport) {
+            mainframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             mainframe.addChildFrame(btInboxReport.getText(), new InboxReportPanel(mainframe));
+            mainframe.setCursor(old);
         } else if (source == btInboxStatistics) {
+            
         } else if (source == btOutboxReport) {
+            mainframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             mainframe.addChildFrame(btOutboxReport.getText(), new OutboxReportPanel(mainframe));
+            mainframe.setCursor(old);
         } else if (source == btOutboxStatistics) {
         } else if (source == btExpeditionReport) {
+            mainframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             mainframe.addChildFrame(btExpeditionReport.getText(), new ExpeditionReportPanel(mainframe));
+            mainframe.setCursor(old);
         } else if (source == btExpeditionStatistics) {
 
         } else if (source == btBudgetRealization) {
+            mainframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             mainframe.addChildFrame(btBudgetRealization.getText(), new BudgetRealizationPanel(mainframe));
+            mainframe.setCursor(old);
         } else if (source == btDUKReport) {
+            mainframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             mainframe.addChildFrame(btDUKReport.getText(), new EmployeeReportPanel(mainframe));
+            mainframe.setCursor(old);
         }
+    }
+    
+    public void setButtonEnable(String name, boolean visible) {
+        Collections.sort(btArrays,new ButtonComparator());
+        
+        JCommandButton comButton = new JCommandButton(name);
+        int index  = Collections.binarySearch(btArrays, comButton, new ButtonComparator());
+        if (index >= 0) {
+            btArrays.get(index).setEnabled(visible);
+        }
+    }
+    
+    public void setAllEnable() {
+        if (!btArrays.isEmpty()) {
+            for (JCommandButton bt : btArrays) {
+                bt.setEnabled(true);
+            }
+        }
+        
+    }
+    
+    public boolean isAllDisable() {
+        boolean disableAll = false;
+        
+        if (!btArrays.isEmpty()) {
+            for (JCommandButton bt : btArrays) {
+                disableAll = bt.isEnabled() == false;
+            }
+        }
+        
+        return disableAll;
     }
 }

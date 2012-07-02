@@ -2,6 +2,7 @@ package org.motekar.project.civics.archieve.expedition.objects;
 
 import java.util.ArrayList;
 import java.util.Date;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.master.objects.Employee;
 
 /**
@@ -14,12 +15,18 @@ public class AssignmentLetter {
     private String documentNumber = "";
     private Employee commander = null;
     private String purpose = "";
+    private String goals = "";
+    private Date startDate = null;
+    private String notes = "";
+    private Date endDate = null;
     private boolean styled = false;
     private String approvalPlace = "";
     private Date approvalDate = null;
 
     private ArrayList<Employee> assignedEmployee = new ArrayList<Employee>();
     private ArrayList<String>  carbonCopy = new ArrayList<String>();
+    
+    private Unit unit = null;
 
     public AssignmentLetter() {
     }
@@ -100,6 +107,46 @@ public class AssignmentLetter {
         this.assignedEmployee = assignedEmployee;
     }
 
+    public Date getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(Date endDate) {
+        this.endDate = endDate;
+    }
+
+    public String getGoals() {
+        return goals;
+    }
+
+    public void setGoals(String goals) {
+        this.goals = goals;
+    }
+
+    public Date getStartDate() {
+        return startDate;
+    }
+
+    public void setStartDate(Date startDate) {
+        this.startDate = startDate;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+    
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
+    }
+    
     @Override
     public boolean equals(Object obj) {
         if (obj == null) return false;

@@ -85,6 +85,7 @@ import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.FormatStringValue;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.renderer.StringValue;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.expedition.objects.Expedition;
 import org.motekar.project.civics.archieve.expedition.objects.ExpeditionCheque;
 import org.motekar.project.civics.archieve.expedition.objects.ExpeditionFollower;
@@ -97,10 +98,11 @@ import org.motekar.project.civics.archieve.master.objects.StandardPrice;
 import org.motekar.project.civics.archieve.master.sqlapi.MasterBusinessLogic;
 import org.motekar.project.civics.archieve.master.ui.StandardPricePickDlg;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
-import org.motekar.project.civics.archieve.utils.misc.ArchieveProperties;
+import org.motekar.project.civics.archieve.utils.misc.ProfileAccount;
 import org.motekar.project.civics.archieve.utils.report.ViewerPanel;
 import org.motekar.util.user.misc.MotekarException;
 import org.motekar.util.user.misc.MotekarFocusTraversalPolicy;
+import org.motekar.util.user.objects.UserGroup;
 import org.motekar.util.user.ui.Mainframe;
 import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
@@ -158,17 +160,62 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
     private JasperPrint jasperPrint = new JasperPrint();
     private LoadPrintPanel printWorker;
     private JasperProgressListener jpListener;
-    private ArchieveProperties properties;
+    private ProfileAccount profileAccount;
     private StandardPrice amount = null;
     private ExpeditionCheque selectedCheque = null;
+    //
+    private Unit unit = null;
 
     public ExpeditionChequePanel(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
-        this.properties = mainframe.getProperties();
+        this.profileAccount = mainframe.getProfileAccount();
         logic = new ExpeditionBusinessLogic(mainframe.getConnection());
         mLogic = new MasterBusinessLogic(mainframe.getConnection());
         construct();
-        chequeList.loadData();
+        checkLogin();
+    }
+    
+    private void checkLogin() {
+        UserGroup userGroup = mainframe.getUserGroup();
+        if (userGroup.getGroupName().equals("Administrator")) {
+            chequeList.loadData("");
+        } else {
+            unit = mainframe.getUnit();
+            String modifier = generateUnitModifier3(unit);
+            chequeList.loadData(modifier);
+        }
+    }
+
+    private String generateUnitModifier(Unit unit) {
+        StringBuilder query = new StringBuilder();
+        
+        if (unit != null) {
+            query.append(" where unit = ").append(unit.getIndex());
+        }
+
+        return query.toString();
+    }
+    
+    private String generateUnitModifier2(Unit unit) {
+        StringBuilder query = new StringBuilder();
+        
+        if (unit != null) {
+            query.append(" and unit = ").append(unit.getIndex());
+
+        }
+
+        return query.toString();
+    }
+    
+    private String generateUnitModifier3(Unit unit) {
+        StringBuilder query = new StringBuilder();
+        
+        if (unit != null) {
+            query.append(" where ec.unit = ").append(unit.getIndex());
+
+        }
+
+        return query.toString();
     }
 
     private JXPanel createLeftComponent() {
@@ -314,9 +361,18 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
 
         builder.addLabel("Untuk Keperluan", cc.xy(1, 21));
         builder.add(scPane, cc.xywh(3, 21, 2, 3));
+        
+        JScrollPane scPane3 = new JScrollPane();
+        scPane3.setViewportView(builder.getPanel());
+        
+        JScrollPane scPane4 = new JScrollPane();
+        scPane4.setViewportView(createMainPanelPage2());
+        
+        scPane3.getVerticalScrollBar().setUnitIncrement(20);
+        scPane4.getVerticalScrollBar().setUnitIncrement(20);
 
-        tabPane.addTab("Input Hal. 1", builder.getPanel());
-        tabPane.addTab("Input Hal. 2", createMainPanelPage2());
+        tabPane.addTab("Input Hal. 1", scPane3);
+        tabPane.addTab("Input Hal. 2", scPane4);
         tabPane.addTab("Cetak", createPrintPanel());
 
         return tabPane;
@@ -379,22 +435,22 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
             double vgapScaleFactor) {
 
         RichTooltip addTooltip = new RichTooltip();
-        addTooltip.setTitle("Tambah SPPD");
+        addTooltip.setTitle("Tambah Kwitansi");
 
         btAdd.setActionRichTooltip(addTooltip);
 
         RichTooltip editTooltip = new RichTooltip();
-        editTooltip.setTitle("Ubah SPPD");
+        editTooltip.setTitle("Ubah Kwitansi");
 
         btEdit.setActionRichTooltip(editTooltip);
 
         RichTooltip saveTooltip = new RichTooltip();
-        saveTooltip.setTitle("Simpan SPPD");
+        saveTooltip.setTitle("Simpan Kwitansi");
 
         btSave.setActionRichTooltip(saveTooltip);
 
         RichTooltip deleteTooltip = new RichTooltip();
-        deleteTooltip.setTitle("Hapus SPPD");
+        deleteTooltip.setTitle("Hapus Kwitansi");
 
         btDelete.setActionRichTooltip(deleteTooltip);
 
@@ -588,8 +644,18 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
 
     private void loadComboEmployee() {
         try {
-            ArrayList<Employee> commanderEmployee = mLogic.getCommanderEmployee(mainframe.getSession());
-            ArrayList<Employee> assignedEmployee = mLogic.getAssignedEmployee(mainframe.getSession());
+            ArrayList<Employee> commanderEmployee = new ArrayList<Employee>();
+            ArrayList<Employee> assignedEmployee = new ArrayList<Employee>();
+            
+            UserGroup userGroup = mainframe.getUserGroup();
+            if (userGroup.getGroupName().equals("Administrator")) {
+                commanderEmployee = mLogic.getCommanderEmployee(mainframe.getSession(),"");
+                assignedEmployee = mLogic.getAssignedEmployee(mainframe.getSession(),"");
+            } else {
+                unit = mainframe.getUnit();
+                commanderEmployee = mLogic.getCommanderEmployee(mainframe.getSession(),generateUnitModifier2(unit));
+                assignedEmployee = mLogic.getAssignedEmployee(mainframe.getSession(),generateUnitModifier2(unit));
+            }
 
             if (!commanderEmployee.isEmpty()) {
                 for (Employee e : commanderEmployee) {
@@ -619,7 +685,16 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
 
     private void loadComboExpedition() {
         try {
-            ArrayList<Expedition> expeditions = logic.getExpedition(mainframe.getSession());
+
+            ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
+
+            UserGroup userGroup = mainframe.getUserGroup();
+            if (userGroup.getGroupName().equals("Administrator")) {
+                expeditions = logic.getExpedition(mainframe.getSession(), "");
+            } else {
+                unit = mainframe.getUnit();
+                expeditions = logic.getExpedition(mainframe.getSession(), generateUnitModifier(unit));
+            }
 
             if (!expeditions.isEmpty()) {
                 for (Expedition e : expeditions) {
@@ -922,6 +997,12 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
         cheque.setClerk(clerk);
         cheque.setPaidTo(paidTo);
         cheque.setBudgetType(bugdetType);
+        
+        if (selectedCheque != null) {
+            cheque.setUnit(selectedCheque.getUnit());
+        } else {
+            cheque.setUnit(unit);
+        }
 
         return cheque;
 
@@ -1198,11 +1279,11 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
             setModel(model);
         }
 
-        public void loadData() {
+        public void loadData(String modifier) {
             if (worker != null) {
                 worker.cancel(true);
             }
-            worker = new LoadExpeditionCheque((DefaultListModel) getModel());
+            worker = new LoadExpeditionCheque((DefaultListModel) getModel(),modifier);
             progressListener = new ExpeditionChequesProgressListener(pbar);
             worker.addPropertyChangeListener(progressListener);
             worker.execute();
@@ -1271,9 +1352,11 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
 
         private DefaultListModel model;
         private Exception exception;
+        private String modifier = "";
 
-        public LoadExpeditionCheque(DefaultListModel model) {
+        public LoadExpeditionCheque(DefaultListModel model,String modifier) {
             this.model = model;
+            this.modifier = modifier;
             model.clear();
         }
 
@@ -1296,7 +1379,7 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
         @Override
         protected DefaultListModel doInBackground() throws Exception {
             try {
-                ArrayList<ExpeditionCheque> cheques = logic.getExpeditionCheque(mainframe.getSession());
+                ArrayList<ExpeditionCheque> cheques = logic.getExpeditionCheque(mainframe.getSession(),modifier);
 
                 double progress = 0.0;
                 if (!cheques.isEmpty()) {
@@ -1669,27 +1752,32 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
 
             StringBuilder stateName = new StringBuilder();
 
-            if (properties.getStateType().equals(ArchieveProperties.KABUPATEN)) {
-                stateName.append(ArchieveProperties.KABUPATEN.toUpperCase()).append(" ").
-                        append(properties.getState().toUpperCase());
+            if (profileAccount.getStateType().equals(ProfileAccount.KABUPATEN)) {
+                stateName.append(ProfileAccount.KABUPATEN.toUpperCase()).append(" ").
+                        append(profileAccount.getState().toUpperCase());
+            } else {
+                stateName.append(ProfileAccount.KOTAMADYA.toUpperCase()).append(" ").
+                        append(profileAccount.getState().toUpperCase());
             }
 
-            File file = properties.getLogo();
+            ImageIcon ico = null;
 
-            if (!file.exists()) {
-                file = new File("./images/logo_daerah.jpg");
+            if (profileAccount == null) {
+                File file = new File("./images/logo_daerah.jpg");
+                ico = new ImageIcon(file.getPath());
+            } else {
+                byte[] imageStream = profileAccount.getByteLogo();
+                ico = new ImageIcon(imageStream);
             }
-
-            ImageIcon ico = new ImageIcon(file.getPath());
 
             param.put("statename", stateName.toString());
-            param.put("governname", properties.getCompany().toUpperCase());
-            param.put("governaddress", properties.getAddress().toUpperCase());
-            param.put("capital", properties.getCapital().toUpperCase());
+            param.put("governname", profileAccount.getCompany().toUpperCase());
+            param.put("governaddress", profileAccount.getAddress().toUpperCase());
+            param.put("capital", profileAccount.getCapital().toUpperCase());
 
             param.put("logo", ico.getImage());
 
-            param.put("dinasname", properties.getCompany().toUpperCase());
+            param.put("dinasname", profileAccount.getCompany().toUpperCase());
             param.put("dinascode", "");
 
             Expedition expedition = cheque.getExpedition();

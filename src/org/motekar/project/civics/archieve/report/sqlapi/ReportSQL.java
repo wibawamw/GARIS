@@ -136,13 +136,14 @@ public class ReportSQL {
         return realizations;
     }
 
-    ArrayList<Employee> getEmployeeReport(Connection conn) throws SQLException {
+    ArrayList<Employee> getEmployeeReport(Connection conn,String modifier) throws SQLException {
         ArrayList<Employee> employees = new ArrayList<Employee>();
 
         StringBuilder query = new StringBuilder();
         query.append("select * from employee ").
                 append("where isgorvernor = false ").
-                append("order by grade desc,eselon");
+                append(modifier).
+                append(" order by grade desc,eselon");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
@@ -166,11 +167,19 @@ public class ReportSQL {
             employee.setSoulmate(rs.getString("soulmate"));
             employee.setChildren(rs.getInt("children"));
             employee.setEducation(rs.getInt("education"));
+            employee.setDepartment(rs.getString("department"));
+            employee.setGraduatedYear(rs.getInt("graduatedyear"));
             employee.setEselon(rs.getInt("eselon"));
             employee.setCpnsTMT(rs.getDate("cpnstmt"));
             employee.setPnsTMT(rs.getDate("pnstmt"));
             employee.setGradeTMT(rs.getDate("gradetmt"));
             employee.setEselonTMT(rs.getDate("eselontmt"));
+            employee.setMkYear(rs.getInt("mkyear"));
+            employee.setMkMonth(rs.getInt("mkmonth"));
+            
+            employee.setReligion(rs.getInt("religion"));
+            employee.setMutation(rs.getString("mutation"));
+            employee.setEmployeeStatus(rs.getInt("employeestatus"));
 
             employee.setStyled(true);
 

@@ -14,7 +14,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Days;
 import org.motekar.project.civics.archieve.expedition.objects.Expedition;
 import org.motekar.project.civics.archieve.master.objects.Employee;
-import org.motekar.project.civics.archieve.utils.misc.ArchieveProperties;
+import org.motekar.project.civics.archieve.utils.misc.ProfileAccount;
 import org.motekar.project.civics.archieve.utils.report.AbstractJasper;
 import org.openide.util.Exceptions;
 
@@ -27,11 +27,11 @@ public class ExpeditionJasper extends AbstractJasper {
     private Expedition expedition;
     private JasperReport jasperReport;
     private Map params = new HashMap();
-    private ArchieveProperties properties;
+    private ProfileAccount profileAccount;
 
-    public ExpeditionJasper(Expedition expedition, ArchieveProperties properties) {
+    public ExpeditionJasper(Expedition expedition, ProfileAccount profileAccount) {
         this.expedition = expedition;
-        this.properties = properties;
+        this.profileAccount = profileAccount;
         createJasperPrint();
     }
 
@@ -43,8 +43,8 @@ public class ExpeditionJasper extends AbstractJasper {
                 @Override
                 protected JasperReport doInBackground() throws Exception {
                     try {
-                        String filename = "Expedition.jrxml";
-                        jasperReport = JasperCompileManager.compileReport("printing/" + filename);
+                        String filename = System.getProperty("user.dir")+File.separator+File.separator+"printing"+File.separator+"Expedition.jrxml";
+                        jasperReport = JasperCompileManager.compileReport(filename);
                     } catch (Exception ex) {
                         Exceptions.printStackTrace(ex);
                     }
@@ -88,11 +88,13 @@ public class ExpeditionJasper extends AbstractJasper {
                         } else {
                             position.append(assinedEmployee.getStrukturalAsString());
                             if (position.toString().equalsIgnoreCase(Employee.SEKRETARIS_DAERAH)) {
-                                position.append(" ").append(properties.getStateType()).
-                                        append(" ").append(properties.getState());
+                                position.append(" ").append(profileAccount.getStateType()).
+                                        append(" ").append(profileAccount.getState());
                             } else if (position.toString().equalsIgnoreCase(Employee.KEPALA_DINAS)
                                     || position.toString().equalsIgnoreCase(Employee.KEPALA_BADAN)) {
-                                position.append(" ").append(properties.getCompany());
+                                position.append(" ").append(profileAccount.getCompany());
+                            } else {
+                                position.append(" ").append(assinedEmployee.getPositionNotes());
                             }
                         }
 
@@ -101,7 +103,8 @@ public class ExpeditionJasper extends AbstractJasper {
                             pos.append(commander.getFungsionalAsString()).
                                     append(" ").append(commander.getPositionNotes());
                         } else {
-                            pos.append(commander.getStrukturalAsString());
+                            pos.append(commander.getStrukturalAsString()).
+                                    append(" ").append(commander.getPositionNotes());
                         }
 
 
@@ -112,40 +115,49 @@ public class ExpeditionJasper extends AbstractJasper {
                         ExpeditionFollowerJasper fjp = new ExpeditionFollowerJasper(expedition.getFollower(), expedition.getStartDate());
 
 
-                        File file = properties.getLogo();
+                        ImageIcon ico = null;
 
-                        if (!file.exists()) {
-                            file = new File("./images/logo_daerah.jpg");
+                        if (profileAccount == null) {
+                            File file = new File("./images/logo_daerah.jpg");
+                            ico = new ImageIcon(file.getPath());
+                        } else {
+                            byte[] imageStream = profileAccount.getByteLogo();
+                            ico = new ImageIcon(imageStream);
                         }
-
-                        ImageIcon ico = new ImageIcon(file.getPath());
 
                         param.put("subreport", fjp.loadReportFile());
                         param.put("datasource", fjp.getDataSource());
 
                         StringBuilder stateName = new StringBuilder();
 
-                        if (properties.getStateType().equals(ArchieveProperties.KABUPATEN)) {
-                            stateName.append(ArchieveProperties.KABUPATEN.toUpperCase()).append(" ").
-                                    append(properties.getState().toUpperCase());
+                        if (profileAccount.getStateType().equals(ProfileAccount.KABUPATEN)) {
+                            stateName.append(ProfileAccount.KABUPATEN.toUpperCase()).append(" ").
+                                    append(profileAccount.getState().toUpperCase());
+                        } else {
+                            stateName.append(ProfileAccount.KOTAMADYA.toUpperCase()).append(" ").
+                                    append(profileAccount.getState().toUpperCase());
                         }
 
                         param.put("statename", stateName.toString());
-                        param.put("governname", properties.getCompany().toUpperCase());
-                        param.put("governaddress", properties.getAddress().toUpperCase());
-                        param.put("capital", properties.getCapital().toUpperCase());
+                        param.put("governname", profileAccount.getCompany().toUpperCase());
+                        param.put("governaddress", profileAccount.getAddress().toUpperCase());
+                        param.put("capital", profileAccount.getCapital().toUpperCase());
 
                         param.put("logo", ico.getImage());
-
+                        
+                        StringBuilder struk = new StringBuilder();
+                        struk.append(commander.getStrukturalAsString()).append(" ").
+                                append(commander.getPositionNotes());
+                        
                         param.put("docnumber", expedition.getDocumentNumber());
-                        param.put("commander", initCaps(commander.getStrukturalAsString()));
-                        param.put("assignedemployee", assinedEmployee.getName());
+                        param.put("commander", initCaps(struk.toString()));
+                        param.put("assignedemployee", assinedEmployee.getName()+" / "+assinedEmployee.getNip());
                         param.put("grades", assinedEmployee.getGradeAsString());
                         param.put("position", initCaps(position.toString()));
                         param.put("departure", expedition.getDeparture());
                         param.put("destination", expedition.getDestination());
                         param.put("transportation", expedition.getTransportationAsString());
-                        param.put("duration", String.valueOf(day.getDays()));
+                        param.put("duration", String.valueOf(day.getDays()+1));
                         param.put("startdate", expedition.getStartDate());
                         param.put("enddate", expedition.getEndDate());
                         param.put("purpose", expedition.getLetter().getPurpose());
@@ -205,7 +217,9 @@ public class ExpeditionJasper extends AbstractJasper {
             caps.append(" ");
         }
 
-        caps.deleteCharAt(caps.length() - 1);
+        if (caps.length() > 0) {
+            caps.deleteCharAt(caps.length() - 1);
+        }
 
         return caps.toString();
     }

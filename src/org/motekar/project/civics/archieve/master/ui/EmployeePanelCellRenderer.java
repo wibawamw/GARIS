@@ -5,6 +5,7 @@ import java.sql.Connection;
 import javax.swing.JTable;
 import javax.swing.table.TableCellRenderer;
 import org.motekar.project.civics.archieve.master.objects.Employee;
+import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
 
 /**
  *
@@ -12,8 +13,8 @@ import org.motekar.project.civics.archieve.master.objects.Employee;
  */
 public class EmployeePanelCellRenderer extends EmployeeCellPanel implements TableCellRenderer {
 
-    public EmployeePanelCellRenderer(Connection conn, Long session) {
-        super(conn, session);
+    public EmployeePanelCellRenderer(Connection conn, ArchieveMainframe mainframe) {
+        super(conn, mainframe.getSession(),mainframe.getUserGroup(),mainframe.getUnit());
     }
 
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {

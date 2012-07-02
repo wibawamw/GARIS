@@ -1,129 +1,85 @@
 package org.motekar.project.civics.archieve.utils.misc;
 
 import java.io.File;
-import org.motekar.util.user.misc.MotekarProperties;
 
 /**
  *
  * @author Muhamad Wibawa
  */
-public class ArchieveProperties extends MotekarProperties{
+public class ArchieveProperties {
 
-    public static final String KABUPATEN = "Kabupaten";
-    public static final String KOTAMADYA = "Kotamadya";
+    private String serverName = "";
+    private String database = "";
+    
+    private String applicationName = "";
+    private String applicationVersion = "";
+    protected File propFile = null;
+    private String userName = "";
+    private String password = "";
 
-    private String state = "";
-    private String stateType = "";
-    private String capital = "";
-    private String province = "";
-
-    private String divisionCode = "";
-    private String divisionName = "";
-
-    private File logo = new File("images/logo_daerah.jpg");
-    private File logo2 = new File("images/logo_daerah.jpg");
-    private File logo3 = new File("images/logo_daerah.jpg");
 
     public ArchieveProperties() {
     }
 
     public ArchieveProperties(String fileName) {
-        super(fileName);
+        if (fileName != null) {
+            propFile = new File(fileName);
+        }
     }
 
-    public String getDivisionCode() {
-        return divisionCode;
+    public String getApplicationName() {
+        return applicationName;
     }
 
-    public void setDivisionCode(String divisionCode) {
-        this.divisionCode = divisionCode;
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
     }
 
-    public String getDivisionName() {
-        return divisionName;
+    public String getApplicationVersion() {
+        return applicationVersion;
     }
 
-    public void setDivisionName(String divisionName) {
-        this.divisionName = divisionName;
+    public void setApplicationVersion(String applicationVersion) {
+        this.applicationVersion = applicationVersion;
     }
 
-    public String getProvince() {
-        return province;
+    public String getDatabase() {
+        return database;
     }
 
-    public void setProvince(String province) {
-        this.province = province;
+    public void setDatabase(String database) {
+        this.database = database;
     }
 
-    public String getStateType() {
-        return stateType;
+    public File getXMLFile() {
+        return propFile;
     }
 
-    public void setStateType(String stateType) {
-        this.stateType = stateType;
+    public void setXMLFile(File propFile) {
+        this.propFile = propFile;
     }
 
-    public String getState() {
-        return state;
+    public String getServerName() {
+        return serverName;
     }
 
-    public void setState(String state) {
-        this.state = state;
+    public void setServerName(String serverName) {
+        this.serverName = serverName;
     }
 
-    public String getCapital() {
-        return capital;
+    public String getPassword() {
+        return password;
     }
 
-    public void setCapital(String capital) {
-        this.capital = capital;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public File getLogo() {
-        return logo;
+    public String getUserName() {
+        return userName;
     }
 
-    public String getLogoFileName() {
-        return logo.getPath();
-    }
-
-    public void setLogo(File logo) {
-        this.logo = logo;
-    }
-
-    public void setLogo(String fileName) {
-        this.logo = new File(fileName);
-    }
-
-    public File getLogo2() {
-        return logo2;
-    }
-
-    public void setLogo2(File logo2) {
-        this.logo2 = logo2;
-    }
-
-    public String getLogo2FileName() {
-        return logo2.getPath();
-    }
-
-    public void setLogo2(String fileName) {
-        this.logo2 = new File(fileName);
-    }
-
-    public File getLogo3() {
-        return logo3;
-    }
-
-    public void setLogo3(File logo3) {
-        this.logo3 = logo3;
-    }
-
-    public String getLogo3FileName() {
-        return logo3.getPath();
-    }
-
-    public void setLogo3(String fileName) {
-        this.logo3 = new File(fileName);
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

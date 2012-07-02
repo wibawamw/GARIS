@@ -48,12 +48,14 @@ import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.error.ErrorInfo;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.mail.objects.Inbox;
 import org.motekar.project.civics.archieve.mail.objects.InboxDisposition;
 import org.motekar.project.civics.archieve.mail.sqlapi.MailBusinessLogic;
 import org.motekar.project.civics.archieve.master.objects.Division;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
 import org.motekar.project.civics.archieve.utils.report.ViewerPanel;
+import org.motekar.util.user.objects.UserGroup;
 import org.openide.util.Exceptions;
 
 /**
@@ -79,11 +81,32 @@ public class InboxReportPanel extends JXPanel implements ActionListener {
     private JasperPrint jasperPrint = new JasperPrint();
     private LoadPrintPanel printWorker;
     private JasperProgressListener jpListener;
+    //
+    private Unit unit = null;
 
     public InboxReportPanel(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
         logic = new MailBusinessLogic(mainframe.getConnection());
         construct();
+    }
+
+    private void checkLogin() {
+        UserGroup userGroup = mainframe.getUserGroup();
+        if (userGroup.getGroupName().equals("Administrator")) {
+            unit = null;
+        } else {
+            unit = mainframe.getUnit();
+        }
+    }
+
+    private String generateUnitModifier(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            query.append(" i.and unit = ").append(unit.getIndex());
+        }
+
+        return query.toString();
     }
 
     private JXPanel createCenterComponent() {
@@ -165,24 +188,26 @@ public class InboxReportPanel extends JXPanel implements ActionListener {
         startDate.addActionListener(this);
         endDate.addActionListener(this);
 
+        checkLogin();
+
         monthChooser.addPropertyChangeListener("month", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                reloadPrintPanel();
+                reloadPrintPanel(generateUnitModifier(unit));
             }
         });
 
         yearChooser.addPropertyChangeListener("year", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                reloadPrintPanel();
+                reloadPrintPanel(generateUnitModifier(unit));
             }
         });
 
         yearChooser2.addPropertyChangeListener("year", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                reloadPrintPanel();
+                reloadPrintPanel(generateUnitModifier(unit));
             }
         });
 
@@ -257,13 +282,13 @@ public class InboxReportPanel extends JXPanel implements ActionListener {
         return builder.getPanel();
     }
 
-    public void reloadPrintPanel() {
+    public void reloadPrintPanel(String modifier) {
         if (checkBox.isSelected()) {
-            printWorker = new LoadPrintPanel(jasperPrint, panelViewer, startDate.getDate(), endDate.getDate());
+            printWorker = new LoadPrintPanel(jasperPrint, panelViewer, startDate.getDate(), endDate.getDate(), modifier);
         } else if (checkBox2.isSelected()) {
-            printWorker = new LoadPrintPanel(jasperPrint, panelViewer, monthChooser.getMonth() + 1, yearChooser.getYear());
+            printWorker = new LoadPrintPanel(jasperPrint, panelViewer, monthChooser.getMonth() + 1, yearChooser.getYear(), modifier);
         } else {
-            printWorker = new LoadPrintPanel(jasperPrint, panelViewer, yearChooser2.getYear());
+            printWorker = new LoadPrintPanel(jasperPrint, panelViewer, yearChooser2.getYear(), modifier);
         }
 
         jpListener = new JasperProgressListener(viewerBar);
@@ -279,25 +304,25 @@ public class InboxReportPanel extends JXPanel implements ActionListener {
             monthChooser.setEnabled(checkBox2.isSelected());
             yearChooser.setEnabled(checkBox2.isSelected());
             yearChooser2.setEnabled(checkBox3.isSelected());
-            reloadPrintPanel();
+            reloadPrintPanel(generateUnitModifier(unit));
         } else if (source == checkBox2) {
             startDate.setEnabled(checkBox.isSelected());
             endDate.setEnabled(checkBox.isSelected());
             monthChooser.setEnabled(checkBox2.isSelected());
             yearChooser.setEnabled(checkBox2.isSelected());
             yearChooser2.setEnabled(checkBox3.isSelected());
-            reloadPrintPanel();
+            reloadPrintPanel(generateUnitModifier(unit));
         } else if (source == checkBox3) {
             startDate.setEnabled(checkBox.isSelected());
             endDate.setEnabled(checkBox.isSelected());
             monthChooser.setEnabled(checkBox2.isSelected());
             yearChooser.setEnabled(checkBox2.isSelected());
             yearChooser2.setEnabled(checkBox3.isSelected());
-            reloadPrintPanel();
+            reloadPrintPanel(generateUnitModifier(unit));
         } else if (source == startDate) {
-            reloadPrintPanel();
+            reloadPrintPanel(generateUnitModifier(unit));
         } else if (source == endDate) {
-            reloadPrintPanel();
+            reloadPrintPanel(generateUnitModifier(unit));
         }
     }
 
@@ -310,27 +335,32 @@ public class InboxReportPanel extends JXPanel implements ActionListener {
         private Integer year = Integer.valueOf(0);
         private Date startDate = null;
         private Date endDate = null;
+        //
+        private String modifier = "";
 
-        public LoadPrintPanel(JasperPrint jasperPrint, ViewerPanel viewerPanel, Integer month, Integer year) {
+        public LoadPrintPanel(JasperPrint jasperPrint, ViewerPanel viewerPanel, Integer month, Integer year, String modifier) {
             this.jasperPrint = jasperPrint;
             this.viewerPanel = viewerPanel;
             this.month = month;
             this.year = year;
+            this.modifier = modifier;
             clearAll();
         }
 
-        public LoadPrintPanel(JasperPrint jasperPrint, ViewerPanel viewerPanel, Integer year) {
+        public LoadPrintPanel(JasperPrint jasperPrint, ViewerPanel viewerPanel, Integer year, String modifier) {
             this.jasperPrint = jasperPrint;
             this.viewerPanel = viewerPanel;
             this.year = year;
+            this.modifier = modifier;
             clearAll();
         }
 
-        public LoadPrintPanel(JasperPrint jasperPrint, ViewerPanel viewerPanel, Date startDate, Date endDate) {
+        public LoadPrintPanel(JasperPrint jasperPrint, ViewerPanel viewerPanel, Date startDate, Date endDate, String modifier) {
             this.jasperPrint = jasperPrint;
             this.viewerPanel = viewerPanel;
             this.startDate = startDate;
             this.endDate = endDate;
+            this.modifier = modifier;
             clearAll();
         }
 
@@ -389,22 +419,22 @@ public class InboxReportPanel extends JXPanel implements ActionListener {
                         receiver = division.getName();
                     }
 
-                    ArrayList<InboxDisposition> dispositions = logic.getInboxDisposition(mainframe.getSession(),inbox.getIndex());
+                    ArrayList<InboxDisposition> dispositions = logic.getInboxDisposition(mainframe.getSession(), inbox.getIndex());
 
                     if (!dispositions.isEmpty()) {
                         for (InboxDisposition dispo : dispositions) {
-                                model.addRow(new Object[]{Integer.valueOf(i + 1), inbox.getMailDate(),
-                                            inbox.getMailNumber(), inbox.getSubject(), inbox.getSender(),
-                                            inbox.getDispositionDate(), receiver,
-                                            dispo.getDivision().toString(),
-                                            dispo.getReceiveDate(),
-                                            dispo.getStatusAsString(),"\u2022"});
+                            model.addRow(new Object[]{Integer.valueOf(i + 1), inbox.getMailDate(),
+                                        inbox.getMailNumber(), inbox.getSubject(), inbox.getSender(),
+                                        inbox.getDispositionDate(), receiver,
+                                        dispo.getDivision().toString(),
+                                        dispo.getReceiveDate(),
+                                        dispo.getStatusAsString(), "\u2022"});
                         }
 
                     } else {
                         model.addRow(new Object[]{Integer.valueOf(i + 1), inbox.getMailDate(),
-                                inbox.getMailNumber(), inbox.getSubject(), inbox.getSender(),
-                                inbox.getDispositionDate(), receiver,null,null,null,null});
+                                    inbox.getMailNumber(), inbox.getSubject(), inbox.getSender(),
+                                    inbox.getDispositionDate(), receiver, null, null, null, null});
                     }
 
 
@@ -476,9 +506,9 @@ public class InboxReportPanel extends JXPanel implements ActionListener {
                 ArrayList<Inbox> inbox = new ArrayList<Inbox>();
 
                 if (startDate != null && endDate != null) {
-                    inbox = logic.getInbox(mainframe.getSession(), startDate, endDate);
+                    inbox = logic.getInbox(mainframe.getSession(), startDate, endDate, modifier);
                 } else if (month != 0 || year != 0) {
-                    inbox = logic.getInbox(mainframe.getSession(), month, year);
+                    inbox = logic.getInbox(mainframe.getSession(), month, year, modifier);
                 }
 
                 if (!inbox.isEmpty()) {

@@ -40,8 +40,11 @@ import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.renderer.StringValue;
 import org.jdesktop.swingx.util.WindowUtils;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.master.objects.Employee;
 import org.motekar.project.civics.archieve.master.sqlapi.MasterBusinessLogic;
+import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
+import org.motekar.util.user.objects.UserGroup;
 import org.motekar.util.user.ui.Mainframe;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
 import org.pushingpixels.flamingo.api.common.RichTooltip;
@@ -73,7 +76,28 @@ public class EmployeePickDlg implements ActionListener {
         this.session = session;
         this.multi = multi;
         logic = new MasterBusinessLogic(conn);
-        employeeList.loadData();
+        checkLogin();
+    }
+
+    private void checkLogin() {
+        UserGroup userGroup = ((ArchieveMainframe)frame).getUserGroup();
+        if (userGroup.getGroupName().equals("Administrator")) {
+            employeeList.loadData("");
+        } else {
+            Unit unit = ((ArchieveMainframe)frame).getUnit();
+            String modifier = generateUnitModifier(unit);
+            employeeList.loadData(modifier);
+        }
+    }
+
+    private String generateUnitModifier(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            query.append(" and unit = ").append(unit.getIndex());
+        }
+
+        return query.toString();
     }
 
     public void showDialog() {
@@ -241,8 +265,8 @@ public class EmployeePickDlg implements ActionListener {
             setModel(model);
         }
 
-        public void loadData() {
-            worker = new LoadEmployee((DefaultListModel) getModel());
+        public void loadData(String modifier) {
+            worker = new LoadEmployee((DefaultListModel) getModel(), modifier);
             progressListener = new EmployeeProgressListener(pBar);
             worker.addPropertyChangeListener(progressListener);
             worker.execute();
@@ -316,9 +340,11 @@ public class EmployeePickDlg implements ActionListener {
 
         private DefaultListModel model;
         private Exception exception;
+        private String modifier = "";
 
-        public LoadEmployee(DefaultListModel model) {
+        public LoadEmployee(DefaultListModel model, String modifier) {
             this.model = model;
+            this.modifier = modifier;
             model.clear();
         }
 
@@ -339,7 +365,7 @@ public class EmployeePickDlg implements ActionListener {
         @Override
         protected DefaultListModel doInBackground() throws Exception {
             try {
-                ArrayList<Employee> employees = logic.getAssignedEmployee(session);
+                ArrayList<Employee> employees = logic.getAssignedEmployee(session, modifier);
 
                 double progress = 0.0;
                 if (!employees.isEmpty()) {

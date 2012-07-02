@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+    Document   : ItemsMachineXml.xml
+    Created on : 29 November 2011, 22:34
+    Author     : Muhamad Wibawa
+    Description:
+        Purpose of the document follows.
+-->
+
+<workbook>
+    <worksheet name="Sheet1">
+        <section startRow="0" endRow="6">  
+            <mapping cell="C5">unit.unitCode</mapping>
+        </section> 
+        <loop startRow="7" endRow="7" items="itemsmachines" var="itemsmachine" varType="org.motekar.project.civics.archieve.assets.inventory.objects.ItemsMachine">
+            <section startRow="7" endRow="7">
+                <mapping row="7" col="1">itemsmachine.itemName</mapping>
+                <mapping row="7" col="2">itemsmachine.itemCode</mapping>
+                <mapping row="7" col="3">itemsmachine.regNumber</mapping>
+                <mapping row="7" col="4">itemsmachine.machineType</mapping>
+                <mapping row="7" col="5">itemsmachine.volume</mapping>
+                <mapping row="7" col="6">itemsmachine.material</mapping>
+                <mapping row="7" col="7">itemsmachine.acquisitionYear</mapping>
+                <mapping row="7" col="8">itemsmachine.factoryNumber</mapping>
+                <mapping row="7" col="9">itemsmachine.fabricNumber</mapping>
+                <mapping row="7" col="10">itemsmachine.machineNumber</mapping>
+                <mapping row="7" col="11">itemsmachine.policeNumber</mapping>
+                <mapping row="7" col="12">itemsmachine.bpkbNumber</mapping>
+                <mapping row="7" col="13">itemsmachine.acquisitionWay</mapping>
+                <mapping row="7" col="14">itemsmachine.price</mapping>
+                <mapping row="7" col="15">itemsmachine.adminCost</mapping>
+                <mapping row="7" col="16">itemsmachine.totalPrice</mapping>
+                <mapping row="7" col="17">itemsmachine.description</mapping>
+            </section>
+            <loopbreakcondition>
+                <rowcheck offset="0">
+                    <cellcheck offset="0"/>
+                </rowcheck>
+            </loopbreakcondition>
+        </loop>
+    </worksheet>
+</workbook>

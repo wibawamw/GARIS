@@ -47,12 +47,14 @@ import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.JXTitledPanel;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.error.ErrorInfo;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.expedition.objects.AssignmentLetter;
 import org.motekar.project.civics.archieve.expedition.objects.Expedition;
 import org.motekar.project.civics.archieve.expedition.sqlapi.ExpeditionBusinessLogic;
 import org.motekar.project.civics.archieve.master.objects.Employee;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
 import org.motekar.project.civics.archieve.utils.report.ViewerPanel;
+import org.motekar.util.user.objects.UserGroup;
 import org.openide.util.Exceptions;
 
 /**
@@ -167,21 +169,21 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
         monthChooser.addPropertyChangeListener("month", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                reloadPrintPanel();
+                checkLogin();
             }
         });
 
         yearChooser.addPropertyChangeListener("year", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                reloadPrintPanel();
+                checkLogin();
             }
         });
 
         yearChooser2.addPropertyChangeListener("year", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                reloadPrintPanel();
+                checkLogin();
             }
         });
 
@@ -210,6 +212,27 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
         add(splitPane, BorderLayout.CENTER);
         add(createStatusBar(), BorderLayout.SOUTH);
 
+    }
+
+    private void checkLogin() {
+        UserGroup userGroup = mainframe.getUserGroup();
+        if (userGroup.getGroupName().equals("Administrator")) {
+            reloadPrintPanel("");
+        } else {
+            Unit unit = mainframe.getUnit();
+            String modifier = generateUnitModifier(unit);
+            reloadPrintPanel(modifier);
+        }
+    }
+
+    private String generateUnitModifier(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            query.append(" and exp.unit = ").append(unit.getIndex());
+        }
+
+        return query.toString();
     }
 
     private JPanel createSearchPanel() {
@@ -256,13 +279,13 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
         return builder.getPanel();
     }
 
-    public void reloadPrintPanel() {
+    public void reloadPrintPanel(String modifier) {
         if (checkBox.isSelected()) {
             printWorker = new LoadPrintPanel(jasperPrint, panelViewer, startDate.getDate(), endDate.getDate());
         } else if (checkBox2.isSelected()) {
-            printWorker = new LoadPrintPanel(jasperPrint, panelViewer, monthChooser.getMonth()+1, yearChooser.getYear());
+            printWorker = new LoadPrintPanel(jasperPrint, panelViewer, monthChooser.getMonth() + 1, yearChooser.getYear(), modifier);
         } else {
-            printWorker = new LoadPrintPanel(jasperPrint, panelViewer, yearChooser2.getYear());
+            printWorker = new LoadPrintPanel(jasperPrint, panelViewer, yearChooser2.getYear(), modifier);
         }
 
         jpListener = new JasperProgressListener(viewerBar);
@@ -278,25 +301,25 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
             monthChooser.setEnabled(checkBox2.isSelected());
             yearChooser.setEnabled(checkBox2.isSelected());
             yearChooser2.setEnabled(checkBox3.isSelected());
-            reloadPrintPanel();
+            checkLogin();
         } else if (source == checkBox2) {
             startDate.setEnabled(checkBox.isSelected());
             endDate.setEnabled(checkBox.isSelected());
             monthChooser.setEnabled(checkBox2.isSelected());
             yearChooser.setEnabled(checkBox2.isSelected());
             yearChooser2.setEnabled(checkBox3.isSelected());
-            reloadPrintPanel();
+            checkLogin();
         } else if (source == checkBox3) {
             startDate.setEnabled(checkBox.isSelected());
             endDate.setEnabled(checkBox.isSelected());
             monthChooser.setEnabled(checkBox2.isSelected());
             yearChooser.setEnabled(checkBox2.isSelected());
             yearChooser2.setEnabled(checkBox3.isSelected());
-            reloadPrintPanel();
+            checkLogin();
         } else if (source == startDate) {
-            reloadPrintPanel();
+            checkLogin();
         } else if (source == endDate) {
-            reloadPrintPanel();
+            checkLogin();
         }
     }
 
@@ -309,19 +332,22 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
         private Integer year = Integer.valueOf(0);
         private Date startDate = null;
         private Date endDate = null;
+        private String modifier = "";
 
-        public LoadPrintPanel(JasperPrint jasperPrint, ViewerPanel viewerPanel, Integer month, Integer year) {
+        public LoadPrintPanel(JasperPrint jasperPrint, ViewerPanel viewerPanel, Integer month, Integer year, String modifier) {
             this.jasperPrint = jasperPrint;
             this.viewerPanel = viewerPanel;
             this.month = month;
             this.year = year;
+            this.modifier = modifier;
             clearAll();
         }
 
-        public LoadPrintPanel(JasperPrint jasperPrint, ViewerPanel viewerPanel, Integer year) {
+        public LoadPrintPanel(JasperPrint jasperPrint, ViewerPanel viewerPanel, Integer year, String modifier) {
             this.jasperPrint = jasperPrint;
             this.viewerPanel = viewerPanel;
             this.year = year;
+            this.modifier = modifier;
             clearAll();
         }
 
@@ -390,7 +416,7 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
 
                     model.addRow(new Object[]{Integer.valueOf(i + 1), exp.getDocumentNumber(),
                                 assEmp.getNip(), assEmp.getName(), exp.getStartDate(), exp.getEndDate(),
-                                exp.getDestination(),letter.getPurpose(), status});
+                                exp.getDestination(), letter.getPurpose(), status});
 
                     progress = 50 * (i + 1) / data.size();
                     setProgress((int) progress);
@@ -417,7 +443,7 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
                         append(sdf.format(endDate));
             } else if (month != 0) {
                 sdf = new SimpleDateFormat("MMMM yyyy", new Locale("in", "id", "id"));
-                GregorianCalendar cal = new GregorianCalendar(year, month-1, 1);
+                GregorianCalendar cal = new GregorianCalendar(year, month - 1, 1);
                 builder.append(sdf.format(cal.getTime()));
             } else {
                 builder.append(year);
@@ -459,9 +485,9 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
                 ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
                 if (startDate != null && endDate != null) {
-                    expeditions = logic.getExpedition(mainframe.getSession(), startDate, endDate);
+                    expeditions = logic.getExpedition(mainframe.getSession(), startDate, endDate, modifier);
                 } else if (month != 0 || year != 0) {
-                    expeditions = logic.getExpedition(mainframe.getSession(), month, year);
+                    expeditions = logic.getExpedition(mainframe.getSession(), month, year, modifier);
                 }
 
                 if (!expeditions.isEmpty()) {

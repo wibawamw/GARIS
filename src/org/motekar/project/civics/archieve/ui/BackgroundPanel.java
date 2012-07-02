@@ -102,7 +102,7 @@ public class BackgroundPanel extends JXPanel {
             defFont = (Font) value;
         }
 
-        TextPainter txtPainter = new TextPainter("G A R I S  1.0.3");
+        TextPainter txtPainter = new TextPainter("G A R I S  1.1.0");
         txtPainter.setFont(new Font(defFont.getName(), Font.BOLD, 28));
         txtPainter.setHorizontalAlignment(HorizontalAlignment.RIGHT);
         txtPainter.setVerticalAlignment(VerticalAlignment.TOP);

@@ -63,14 +63,6 @@ public class ArchievePropertiesReader {
         setDatabase(xml);
         setUserName(xml);
         setPassword(xml);
-        setCompany(xml);
-        setCapital(xml);
-        setState(xml);
-        setProvince(xml);
-        setDivision(xml);
-        setLogo(xml);
-        setLogo2(xml);
-        setLogo3(xml);
     }
 
     /**
@@ -119,103 +111,6 @@ public class ArchievePropertiesReader {
         String password = SimpleStringCipher.decrypt(child.getContent());
 
         prop.setPassword(password);
-    }
-
-    /**
-     *
-     * @param parent
-     * @throws java.lang.Exception
-     */
-    private void setCompany(XMLElement parent) throws XMLException {
-        ArrayList<XMLElement> v = parent.getChildrenNamed("Company");
-        XMLElement child = (XMLElement) v.get(0);
-        if (child.getChildrenCount() < 0) {
-            prop.setCompany(child.getContent());
-        } else {
-            prop.setCompany(child.getAttribute("Name", ""));
-            setAddress(child);
-        }
-    }
-
-    /**
-     *
-     * @param parent
-     * @throws java.lang.Exception
-     */
-    private void setAddress(XMLElement parent) throws XMLException {
-        ArrayList<XMLElement> v = parent.getChildrenNamed("Address");
-        XMLElement child = (XMLElement) v.get(0);
-        prop.setAddress(child.getContent());
-    }
-
-    /**
-     *
-     * @param parent
-     * @throws java.lang.Exception
-     */
-    private void setCapital(XMLElement parent) throws XMLException {
-        ArrayList<XMLElement> v = parent.getChildrenNamed("Capital");
-        XMLElement child = (XMLElement) v.get(0);
-        prop.setCapital(child.getContent());
-    }
-
-    /**
-     *
-     * @param parent
-     * @throws java.lang.Exception
-     */
-    private void setState(XMLElement parent) throws XMLException {
-        ArrayList<XMLElement> v = parent.getChildrenNamed("State");
-        XMLElement child = (XMLElement) v.get(0);
-        prop.setStateType(child.getAttribute("Type", ""));
-        prop.setState(child.getContent());
-    }
-
-    /**
-     *
-     * @param parent
-     * @throws java.lang.Exception
-     */
-    private void setProvince(XMLElement parent) throws XMLException {
-        ArrayList<XMLElement> v = parent.getChildrenNamed("Province");
-        XMLElement child = (XMLElement) v.get(0);
-        prop.setProvince(child.getContent());
-    }
-
-    /**
-     *
-     * @param parent
-     * @throws java.lang.Exception
-     */
-    private void setDivision(XMLElement parent) throws XMLException {
-        ArrayList<XMLElement> v = parent.getChildrenNamed("Division");
-        XMLElement child = (XMLElement) v.get(0);
-        prop.setDivisionCode(child.getAttribute("Code", ""));
-        prop.setDivisionName(child.getAttribute("Name", ""));
-    }
-
-    private void setLogo(XMLElement parent) throws XMLException {
-        ArrayList<XMLElement> v = parent.getChildrenNamed("Logos");
-        XMLElement child = (XMLElement) v.get(0);
-        String fileName = child.getAttribute("Name", "");
-
-        prop.setLogo(fileName);
-    }
-
-    private void setLogo2(XMLElement parent) throws XMLException {
-        ArrayList<XMLElement> v = parent.getChildrenNamed("Logos2");
-        XMLElement child = (XMLElement) v.get(0);
-        String fileName = child.getAttribute("Name", "");
-
-        prop.setLogo2(fileName);
-    }
-
-    private void setLogo3(XMLElement parent) throws XMLException {
-        ArrayList<XMLElement> v = parent.getChildrenNamed("Logos3");
-        XMLElement child = (XMLElement) v.get(0);
-        String fileName = child.getAttribute("Name", "");
-
-        prop.setLogo3(fileName);
     }
 
     /**

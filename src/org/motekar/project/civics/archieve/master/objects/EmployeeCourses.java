@@ -9,33 +9,53 @@ import java.util.Arrays;
  */
 public class EmployeeCourses {
 
-    public static final String[] COURSES = new String[]{"", "PERJENJANG",
-        "FUNGSIONAL", "TEKNIS"};
+    public static final String[] COURSES = new String[]{"", "Jabatan",
+        "Fungsional", "Teknis"};
     private Long parentIndex = Long.valueOf(0);
-    private Integer courses = Integer.valueOf(0);
-    private boolean attending = false;
+    private String coursesName = "";
+    private Integer yearAttended = Integer.valueOf(0);
+    private Integer totalHour = Integer.valueOf(0);
+    private Integer coursesType = Integer.valueOf(0);
 
-    public static final Integer PERJENJANG = 1;
+    public static final Integer JABATAN = 1;
     public static final Integer FUNGSIONAL = 2;
     public static final Integer TEKNIS = 3;
+    
+    private boolean selected = false;
 
     public EmployeeCourses() {
     }
 
-    public boolean isAttending() {
-        return attending;
+    public String getCoursesName() {
+        return coursesName;
     }
 
-    public void setAttending(boolean attending) {
-        this.attending = attending;
+    public void setCoursesName(String coursesName) {
+        this.coursesName = coursesName;
     }
 
-    public Integer getCourses() {
-        return courses;
+    public Integer getCoursesType() {
+        return coursesType;
     }
 
-    public void setCourses(Integer courses) {
-        this.courses = courses;
+    public void setCoursesType(Integer coursesType) {
+        this.coursesType = coursesType;
+    }
+
+    public Integer getTotalHour() {
+        return totalHour;
+    }
+
+    public void setTotalHour(Integer totalHour) {
+        this.totalHour = totalHour;
+    }
+
+    public Integer getYearAttended() {
+        return yearAttended;
+    }
+
+    public void setYearAttended(Integer yearAttended) {
+        this.yearAttended = yearAttended;
     }
 
     public Long getParentIndex() {
@@ -46,8 +66,8 @@ public class EmployeeCourses {
         this.parentIndex = parentIndex;
     }
 
-    public String getCoursesAsString() {
-        return COURSES[courses];
+    public String getCoursesTypeAsString() {
+        return COURSES[coursesType];
     }
 
     public static ArrayList<String> coursesAsList() {
@@ -57,26 +77,17 @@ public class EmployeeCourses {
         return courses;
     }
 
-    public static ArrayList<EmployeeCourses> createCourses() {
-        ArrayList<EmployeeCourses> courseses = new ArrayList<EmployeeCourses>();
-
-        ArrayList<String> cList = coursesAsList();
-
-        for (int i=0;i<cList.size();i++) {
-            if (!cList.get(i).equals("")) {
-                EmployeeCourses courses = new EmployeeCourses();
-                courses.setCourses(Integer.valueOf(i));
-                courses.setAttending(false);
-                courseses.add(courses);
-            }
-        }
-
-        return courseses;
+    public boolean isSelected() {
+        return selected;
     }
 
+    public void setSelected(boolean selected) {
+        this.selected = selected;
+    }
+    
     @Override
     public String toString() {
-        return getCoursesAsString();
+        return coursesName;
     }
     
 }

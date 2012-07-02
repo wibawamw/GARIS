@@ -38,7 +38,7 @@ public class NodeIndex {
 
         if (!nodeIndexs.isEmpty()) {
             for (NodeIndex idx : nodeIndexs) {
-                if (idx.getIndex() == parentIndex) {
+                if (idx.getIndex().equals(parentIndex)) {
                     nodeIndex = idx;
                     break;
                 }

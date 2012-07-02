@@ -73,6 +73,7 @@ import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.FormatStringValue;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.renderer.StringValue;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.expedition.objects.Approval;
 import org.motekar.project.civics.archieve.expedition.objects.AssignmentLetter;
 import org.motekar.project.civics.archieve.expedition.objects.Expedition;
@@ -90,10 +91,11 @@ import org.motekar.project.civics.archieve.master.objects.StandardPrice;
 import org.motekar.project.civics.archieve.master.sqlapi.MasterBusinessLogic;
 import org.motekar.project.civics.archieve.master.ui.EmployeePickDlg;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
-import org.motekar.project.civics.archieve.utils.misc.ArchieveProperties;
+import org.motekar.project.civics.archieve.utils.misc.ProfileAccount;
 import org.motekar.project.civics.archieve.utils.report.ViewerPanel;
 import org.motekar.util.user.misc.MotekarException;
 import org.motekar.util.user.misc.MotekarFocusTraversalPolicy;
+import org.motekar.util.user.objects.UserGroup;
 import org.motekar.util.user.ui.Mainframe;
 import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
@@ -169,15 +171,62 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
     private JasperPrint jasperPrint = new JasperPrint();
     private LoadPrintPanel printWorker;
     private JasperProgressListener jpListener;
-    private ArchieveProperties properties;
+    private ProfileAccount profileAccount;
+    //
+    private Unit unit = null;
 
     public ExpeditionPanel(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
-        this.properties = mainframe.getProperties();
+        this.profileAccount = mainframe.getProfileAccount();
         logic = new ExpeditionBusinessLogic(mainframe.getConnection());
         mLogic = new MasterBusinessLogic(mainframe.getConnection());
         construct();
-        expeditionList.loadData();
+        checkLogin();
+    }
+
+    private void checkLogin() {
+        UserGroup userGroup = mainframe.getUserGroup();
+        if (userGroup.getGroupName().equals("Administrator")) {
+            expeditionList.loadData("");
+        } else {
+            unit = mainframe.getUnit();
+            String modifier = generateUnitModifier(unit);
+            expeditionList.loadData(modifier);
+        }
+    }
+
+    private String generateUnitModifier(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            if (checkBox.isSelected()) {
+                query.append(" and exp.unit = ").append(unit.getIndex());
+            } else {
+                query.append(" where unit = ").append(unit.getIndex());
+            }
+        }
+
+        return query.toString();
+    }
+
+    private String generateUnitModifier2(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            query.append(" where unit = ").append(unit.getIndex());
+        }
+
+        return query.toString();
+    }
+
+    private String generateUnitModifier3(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            query.append(" and unit = ").append(unit.getIndex());
+        }
+
+        return query.toString();
     }
 
     private JXPanel createLeftComponent() {
@@ -400,10 +449,23 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
 
         builder.addLabel("Tanggal Selesai", cc.xy(1, 25));
         builder.add(fieldEndDate, cc.xyw(3, 25, 2));
+        
+        JScrollPane scPane3 = new JScrollPane();
+        scPane3.setViewportView(builder.getPanel());
+        
+        JScrollPane scPane4 = new JScrollPane();
+        scPane4.setViewportView(createMainPanelPage2());
+        
+        JScrollPane scPane5 = new JScrollPane();
+        scPane5.setViewportView(createMainPanelPage3());
+        
+        scPane3.getVerticalScrollBar().setUnitIncrement(20);
+        scPane4.getVerticalScrollBar().setUnitIncrement(20);
+        scPane5.getVerticalScrollBar().setUnitIncrement(20);
 
-        tabPane.addTab("Input Data Hal. 1", builder.getPanel());
-        tabPane.addTab("Input Data Hal. 2", createMainPanelPage2());
-        tabPane.addTab("Input Data Hal. 3", createMainPanelPage3());
+        tabPane.addTab("Input Data Hal. 1", scPane3);
+        tabPane.addTab("Input Data Hal. 2", scPane4);
+        tabPane.addTab("Input Data Hal. 3", scPane5);
         tabPane.addTab("Cetak", createPrintPanel());
 
         return tabPane;
@@ -654,14 +716,14 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
         monthChooser.addPropertyChangeListener("month", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                expeditionList.loadData();
+                expeditionList.loadData(generateUnitModifier(unit));
             }
         });
 
         yearChooser.addPropertyChangeListener("year", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                expeditionList.loadData();
+                expeditionList.loadData(generateUnitModifier(unit));
             }
         });
 
@@ -874,15 +936,28 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
         comboCommander.removeAllItems();
         comboAssinedEmp.removeAllItems();
         try {
-            ArrayList<Employee> commanderEmployee = mLogic.getCommanderEmployee(mainframe.getSession());
-            ArrayList<Employee> assignedEmployee = mLogic.getEmployee(mainframe.getSession());
+            ArrayList<Employee> commanderEmployee = new ArrayList<Employee>();
+            ArrayList<Employee> assignedEmployee = new ArrayList<Employee>();
+
+            UserGroup userGroup = mainframe.getUserGroup();
+            if (userGroup.getGroupName().equals("Administrator")) {
+                commanderEmployee = mLogic.getCommanderEmployee(mainframe.getSession(), "");
+                assignedEmployee = mLogic.getEmployee(mainframe.getSession(), "");
+            } else {
+                unit = mainframe.getUnit();
+                commanderEmployee = mLogic.getCommanderEmployee(mainframe.getSession(), generateUnitModifier3(unit));
+                assignedEmployee = mLogic.getEmployee(mainframe.getSession(), generateUnitModifier2(unit));
+            }
 
             if (!commanderEmployee.isEmpty()) {
                 for (Employee e : commanderEmployee) {
                     e.setStyled(false);
                 }
-                for (Employee e : assignedEmployee) {
-                    e.setStyled(false);
+
+                if (!assignedEmployee.isEmpty()) {
+                    for (Employee e : assignedEmployee) {
+                        e.setStyled(false);
+                    }
                 }
 
                 commanderEmployee.add(0, new Employee());
@@ -908,7 +983,15 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
     private void loadComboLetter() {
         comboLetter.removeAllItems();
         try {
-            ArrayList<AssignmentLetter> letter = logic.getAssignmentLetter(mainframe.getSession());
+            ArrayList<AssignmentLetter> letter = new ArrayList<AssignmentLetter>();
+
+            UserGroup userGroup = mainframe.getUserGroup();
+            if (userGroup.getGroupName().equals("Administrator")) {
+                letter = logic.getAssignmentLetter(mainframe.getSession(), "");
+            } else {
+                unit = mainframe.getUnit();
+                letter = logic.getAssignmentLetter(mainframe.getSession(), generateUnitModifier2(unit));
+            }
 
             if (!letter.isEmpty()) {
 
@@ -1037,7 +1120,8 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
                     position.append(selectedExpedition.getAssignedEmployee().getFungsionalAsString()).
                             append(" ").append(selectedExpedition.getAssignedEmployee().getPositionNotes());
                 } else {
-                    position.append(selectedExpedition.getAssignedEmployee().getStrukturalAsString());
+                    position.append(selectedExpedition.getAssignedEmployee().getStrukturalAsString()).
+                            append(" ").append(selectedExpedition.getAssignedEmployee().getPositionNotes());
                 }
 
                 fieldPosition.setText(position.toString());
@@ -1058,10 +1142,10 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
                     linkApprover.setText(commander.getName());
                     linkApproverGrade.setVisible(false);
                     linkApproverNIP.setVisible(false);
-                    if (properties.getStateType().equals(ArchieveProperties.KABUPATEN)) {
-                        linkApproverTitle.setText("BUPATI " + properties.getState().toUpperCase());
+                    if (profileAccount.getStateType().equals(ProfileAccount.KABUPATEN)) {
+                        linkApproverTitle.setText("BUPATI " + profileAccount.getState().toUpperCase());
                     } else {
-                        linkApproverTitle.setText("WALIKOTA " + properties.getState().toUpperCase());
+                        linkApproverTitle.setText("WALIKOTA " + profileAccount.getState().toUpperCase());
                     }
                 } else {
                     StringBuilder pos = new StringBuilder();
@@ -1069,7 +1153,8 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
                         pos.append(commander.getFungsionalAsString()).
                                 append(" ").append(commander.getPositionNotes());
                     } else {
-                        pos.append(commander.getStrukturalAsString());
+                        pos.append(commander.getStrukturalAsString()).
+                                append(" ").append(commander.getPositionNotes());
                     }
                     linkApproverTitle.setText(pos.toString());
                     linkApproverGrade.setVisible(true);
@@ -1400,7 +1485,7 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
         } else if (obj == checkBox) {
             monthChooser.setEnabled(checkBox.isSelected());
             yearChooser.setEnabled(checkBox.isSelected());
-            expeditionList.loadData();
+            expeditionList.loadData(generateUnitModifier(unit));
         } else if (obj == fieldStartDate) {
             checkExpeditionDate();
         } else if (obj == fieldEndDate) {
@@ -1509,11 +1594,11 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
             setModel(model);
         }
 
-        public void loadData() {
+        public void loadData(String modifier) {
             if (worker != null) {
                 worker.cancel(true);
             }
-            worker = new LoadExpedition((DefaultListModel) getModel());
+            worker = new LoadExpedition((DefaultListModel) getModel(), modifier);
             progressListener = new ExpeditionProgressListener(pbar);
             worker.addPropertyChangeListener(progressListener);
             worker.execute();
@@ -1582,9 +1667,11 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
 
         private DefaultListModel model;
         private Exception exception;
+        private String modifier = "";
 
-        public LoadExpedition(DefaultListModel model) {
+        public LoadExpedition(DefaultListModel model, String modifier) {
             this.model = model;
+            this.modifier = modifier;
             model.clear();
         }
 
@@ -1610,9 +1697,9 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
                 ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
                 if (checkBox.isSelected()) {
-                    expeditions = logic.getExpedition(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear());
+                    expeditions = logic.getExpedition(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear(), modifier);
                 } else {
-                    expeditions = logic.getExpedition(mainframe.getSession());
+                    expeditions = logic.getExpedition(mainframe.getSession(), modifier);
                 }
 
                 double progress = 0.0;
@@ -1937,6 +2024,7 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
     }
 
     private class ExpeditionAction extends AbstractAction {
+
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
             if (source == comboAssinedEmp) {
@@ -1965,10 +2053,10 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
                             linkApprover.setText(commander.getName());
                             linkApproverGrade.setVisible(false);
                             linkApproverNIP.setVisible(false);
-                            if (properties.getStateType().equals(ArchieveProperties.KABUPATEN)) {
-                                linkApproverTitle.setText("BUPATI " + properties.getState().toUpperCase());
+                            if (profileAccount.getStateType().equals(ProfileAccount.KABUPATEN)) {
+                                linkApproverTitle.setText("BUPATI " + profileAccount.getState().toUpperCase());
                             } else {
-                                linkApproverTitle.setText("WALIKOTA " + properties.getState().toUpperCase());
+                                linkApproverTitle.setText("WALIKOTA " + profileAccount.getState().toUpperCase());
                             }
                         } else if (!commander.getName().equals("")) {
                             StringBuilder pos = new StringBuilder();
@@ -1976,7 +2064,8 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
                                 pos.append(commander.getFungsionalAsString()).
                                         append(" ").append(commander.getPositionNotes());
                             } else {
-                                pos.append(commander.getStrukturalAsString());
+                                pos.append(commander.getStrukturalAsString()).
+                                        append(" ").append(commander.getPositionNotes());
                             }
                             linkApproverTitle.setText(pos.toString());
                             linkApproverGrade.setVisible(true);
@@ -2069,10 +2158,10 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
             try {
 
                 if (expedition.getLetter().getCommander().isGorvernor()) {
-                    ExpeditionCommJasper expJasper = new ExpeditionCommJasper(expedition, properties);
+                    ExpeditionCommJasper expJasper = new ExpeditionCommJasper(expedition, profileAccount);
                     jasperPrint = expJasper.getJasperPrint();
                 } else {
-                    ExpeditionJasper expJasper = new ExpeditionJasper(expedition, properties);
+                    ExpeditionJasper expJasper = new ExpeditionJasper(expedition, profileAccount);
                     jasperPrint = expJasper.getJasperPrint();
                 }
 
@@ -2087,11 +2176,14 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
 
                 ArrayList<JRPrintPage> pages = new ArrayList<JRPrintPage>();
 
+
+
                 if (expedition.getLetter().getCommander().isGorvernor()) {
-                    ExpeditionProgressCommJasper epcj = new ExpeditionProgressCommJasper(expedition.getLetter().getCommander(), properties);
+                    ExpeditionProgressCommJasper epcj = new ExpeditionProgressCommJasper(expedition.getLetter().getCommander(), profileAccount);
                     pages.addAll(epcj.getPages());
                 } else {
-                    ExpeditionProgressJasper epj = new ExpeditionProgressJasper(expedition.getLetter().getCommander(), properties);
+                    ExpeditionProgressJasper epj = new ExpeditionProgressJasper(expedition.getLetter().getCommander(),
+                            expedition.getAssignedEmployee(), expedition.getDeparture(), profileAccount);
                     pages.addAll(epj.getPages());
                 }
 

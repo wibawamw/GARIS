@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.master.objects.Account;
 import org.motekar.project.civics.archieve.master.objects.Activity;
 import org.motekar.project.civics.archieve.master.objects.Budget;
@@ -31,10 +32,10 @@ public class MasterSQL extends CommonSQL {
 
         StringBuilder query = new StringBuilder();
         query.append("insert into employee(employeename,nip,birthplace,").
-                append("birthdate,sex,grade,fungsional,struktural,positionnotes,isgorvernor,").
-                append("marital,soulmate,children,education,eselon,cpnstmt,pnstmt,").
-                append("gradetmt,eselontmt)").
-                append("values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                append("birthdate,sex,religion,grade,fungsional,struktural,positionnotes,isgorvernor,").
+                append("marital,soulmate,children,education,department,graduatedyear,eselon,cpnstmt,pnstmt,").
+                append("gradetmt,eselontmt,mkyear,mkmonth,mutation,employeestatus,unit,picture)").
+                append("values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
@@ -52,6 +53,7 @@ public class MasterSQL extends CommonSQL {
         }
 
         pstm.setInt(++col, employee.getSex());
+        pstm.setInt(++col, employee.getReligion());
         pstm.setInt(++col, employee.getGrade());
         pstm.setInt(++col, employee.getFungsional());
         pstm.setInt(++col, employee.getStruktural());
@@ -62,6 +64,8 @@ public class MasterSQL extends CommonSQL {
         pstm.setString(++col, employee.getSoulmate());
         pstm.setInt(++col, employee.getChildren());
         pstm.setInt(++col, employee.getEducation());
+        pstm.setString(++col, employee.getDepartment());
+        pstm.setInt(++col, employee.getGraduatedYear());
         pstm.setInt(++col, employee.getEselon());
 
         if (employee.getCpnsTMT() == null) {
@@ -92,6 +96,23 @@ public class MasterSQL extends CommonSQL {
 
         }
 
+        pstm.setInt(++col, employee.getMkYear());
+        pstm.setInt(++col, employee.getMkMonth());
+        pstm.setString(++col, employee.getMutation());
+        pstm.setInt(++col, employee.getEmployeeStatus());
+        if (employee.getUnit() == null) {
+            pstm.setNull(++col, Types.BIGINT);
+        } else {
+            pstm.setLong(++col, employee.getUnit().getIndex());
+        }
+
+        if (employee.getPicture() == null) {
+            pstm.setNull(++col, Types.BIT);
+        } else {
+            pstm.setBytes(++col, employee.getPicture());
+        }
+
+
         pstm.executeUpdate();
         pstm.close();
     }
@@ -99,11 +120,11 @@ public class MasterSQL extends CommonSQL {
     void updateEmployee(Connection conn, Long oldIndex, Employee employee) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("update employee set employeename = ?, nip = ?, birthplace = ?, ").
-                append("birthdate = ?, sex = ?, grade = ?, ").
+                append("birthdate = ?, sex = ?,religion = ?, grade = ?, ").
                 append("fungsional = ?, struktural = ?, positionnotes = ?,isgorvernor = ?, ").
-                append("marital = ?, soulmate = ?, children = ?,education = ?, ").
+                append("marital = ?, soulmate = ?, children = ?,education = ?, department = ?,graduatedyear = ?,").
                 append("eselon = ?, cpnstmt = ?, pnstmt = ?, gradetmt = ?, ").
-                append("eselontmt = ? ").
+                append("eselontmt = ?,mkyear = ?,mkmonth = ?, mutation = ?,employeestatus = ?, unit = ?, picture = ? ").
                 append("where autoindex = ?");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
@@ -119,6 +140,7 @@ public class MasterSQL extends CommonSQL {
 
         }
         pstm.setInt(++col, employee.getSex());
+        pstm.setInt(++col, employee.getReligion());
         pstm.setInt(++col, employee.getGrade());
         pstm.setInt(++col, employee.getFungsional());
         pstm.setInt(++col, employee.getStruktural());
@@ -129,6 +151,8 @@ public class MasterSQL extends CommonSQL {
         pstm.setString(++col, employee.getSoulmate());
         pstm.setInt(++col, employee.getChildren());
         pstm.setInt(++col, employee.getEducation());
+        pstm.setString(++col, employee.getDepartment());
+        pstm.setInt(++col, employee.getGraduatedYear());
         pstm.setInt(++col, employee.getEselon());
 
         if (employee.getCpnsTMT() == null) {
@@ -159,6 +183,23 @@ public class MasterSQL extends CommonSQL {
 
         }
 
+        pstm.setInt(++col, employee.getMkYear());
+        pstm.setInt(++col, employee.getMkMonth());
+        pstm.setString(++col, employee.getMutation());
+        pstm.setInt(++col, employee.getEmployeeStatus());
+
+        if (employee.getUnit() == null) {
+            pstm.setNull(++col, Types.BIGINT);
+        } else {
+            pstm.setLong(++col, employee.getUnit().getIndex());
+        }
+        
+        if (employee.getPicture() == null) {
+            pstm.setNull(++col, Types.BIT);
+        } else {
+            pstm.setBytes(++col, employee.getPicture());
+        }
+
         pstm.setLong(++col, oldIndex);
         pstm.executeUpdate();
         pstm.close();
@@ -171,18 +212,27 @@ public class MasterSQL extends CommonSQL {
         pstm.close();
     }
 
-    ArrayList<Employee> getEmployee(Connection conn) throws SQLException {
+    ArrayList<Employee> getEmployee(Connection conn, String modifier) throws SQLException {
         ArrayList<Employee> employees = new ArrayList<Employee>();
 
         StringBuilder query = new StringBuilder();
-        query.append("select * from employee ").
-                append("order by employeename");
+        query.append("select * from employee ").append(modifier).
+                append(" order by employeename");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+            Long unitIndex = rs.getLong("unit");
+
+            Unit unit = null;
+
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+
+
             Employee employee = new Employee();
             employee.setIndex(rs.getLong("autoindex"));
             employee.setNip(rs.getString("nip"));
@@ -190,6 +240,7 @@ public class MasterSQL extends CommonSQL {
             employee.setBirthPlace(rs.getString("birthplace"));
             employee.setBirthDate(rs.getDate("birthdate"));
             employee.setSex(rs.getInt("sex"));
+
             employee.setGrade(rs.getInt("grade"));
             employee.setFungsional(rs.getInt("fungsional"));
             employee.setStruktural(rs.getInt("struktural"));
@@ -200,11 +251,23 @@ public class MasterSQL extends CommonSQL {
             employee.setSoulmate(rs.getString("soulmate"));
             employee.setChildren(rs.getInt("children"));
             employee.setEducation(rs.getInt("education"));
+            employee.setDepartment(rs.getString("department"));
+            employee.setGraduatedYear(rs.getInt("graduatedyear"));
             employee.setEselon(rs.getInt("eselon"));
             employee.setCpnsTMT(rs.getDate("cpnstmt"));
             employee.setPnsTMT(rs.getDate("pnstmt"));
             employee.setGradeTMT(rs.getDate("gradetmt"));
             employee.setEselonTMT(rs.getDate("eselontmt"));
+            employee.setMkYear(rs.getInt("mkyear"));
+            employee.setMkMonth(rs.getInt("mkmonth"));
+
+            employee.setReligion(rs.getInt("religion"));
+            employee.setMutation(rs.getString("mutation"));
+            employee.setEmployeeStatus(rs.getInt("employeestatus"));
+
+            employee.setPicture(rs.getBytes("picture"));
+            
+            employee.setUnit(unit);
 
             employee.setStyled(true);
 
@@ -217,20 +280,30 @@ public class MasterSQL extends CommonSQL {
         return employees;
     }
 
-    ArrayList<Employee> getCommanderEmployee(Connection conn) throws SQLException {
+    ArrayList<Employee> getCommanderEmployee(Connection conn, String modifier) throws SQLException {
         ArrayList<Employee> employees = new ArrayList<Employee>();
 
         StringBuilder query = new StringBuilder();
         query.append("select * from employee ").
                 append("where struktural > 0 ").
                 append("or isgorvernor = true ").
-                append("order by employeename");
+                append(modifier).
+                append(" order by employeename");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+
+            Long unitIndex = rs.getLong("unit");
+
+            Unit unit = null;
+
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+
             Employee employee = new Employee();
             employee.setIndex(rs.getLong("autoindex"));
             employee.setNip(rs.getString("nip"));
@@ -248,11 +321,23 @@ public class MasterSQL extends CommonSQL {
             employee.setSoulmate(rs.getString("soulmate"));
             employee.setChildren(rs.getInt("children"));
             employee.setEducation(rs.getInt("education"));
+            employee.setDepartment(rs.getString("department"));
+            employee.setGraduatedYear(rs.getInt("graduatedyear"));
             employee.setEselon(rs.getInt("eselon"));
             employee.setCpnsTMT(rs.getDate("cpnstmt"));
             employee.setPnsTMT(rs.getDate("pnstmt"));
             employee.setGradeTMT(rs.getDate("gradetmt"));
             employee.setEselonTMT(rs.getDate("eselontmt"));
+            employee.setMkYear(rs.getInt("mkyear"));
+            employee.setMkMonth(rs.getInt("mkmonth"));
+
+            employee.setReligion(rs.getInt("religion"));
+            employee.setMutation(rs.getString("mutation"));
+            employee.setEmployeeStatus(rs.getInt("employeestatus"));
+            
+            employee.setPicture(rs.getBytes("picture"));
+
+            employee.setUnit(unit);
 
             employee.setStyled(true);
 
@@ -265,13 +350,13 @@ public class MasterSQL extends CommonSQL {
         return employees;
     }
 
-
-    ArrayList<Employee> getAssignedEmployee(Connection conn) throws SQLException {
+    ArrayList<Employee> getAssignedEmployee(Connection conn, String modifier) throws SQLException {
         ArrayList<Employee> employees = new ArrayList<Employee>();
 
         StringBuilder query = new StringBuilder();
         query.append("select * from employee ").
                 append("where isgorvernor = false ").
+                append(modifier).
                 append("order by employeename");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
@@ -279,6 +364,15 @@ public class MasterSQL extends CommonSQL {
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+
+            Long unitIndex = rs.getLong("unit");
+
+            Unit unit = null;
+
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+
             Employee employee = new Employee();
             employee.setIndex(rs.getLong("autoindex"));
             employee.setNip(rs.getString("nip"));
@@ -296,11 +390,23 @@ public class MasterSQL extends CommonSQL {
             employee.setSoulmate(rs.getString("soulmate"));
             employee.setChildren(rs.getInt("children"));
             employee.setEducation(rs.getInt("education"));
+            employee.setDepartment(rs.getString("department"));
+            employee.setGraduatedYear(rs.getInt("graduatedyear"));
             employee.setEselon(rs.getInt("eselon"));
             employee.setCpnsTMT(rs.getDate("cpnstmt"));
             employee.setPnsTMT(rs.getDate("pnstmt"));
             employee.setGradeTMT(rs.getDate("gradetmt"));
             employee.setEselonTMT(rs.getDate("eselontmt"));
+            employee.setMkYear(rs.getInt("mkyear"));
+            employee.setMkMonth(rs.getInt("mkmonth"));
+
+            employee.setReligion(rs.getInt("religion"));
+            employee.setMutation(rs.getString("mutation"));
+            employee.setEmployeeStatus(rs.getInt("employeestatus"));
+            
+            employee.setPicture(rs.getBytes("picture"));
+
+            employee.setUnit(unit);
 
             employee.setStyled(true);
 
@@ -323,6 +429,15 @@ public class MasterSQL extends CommonSQL {
         ResultSet rs = pstm.executeQuery();
         Employee employee = null;
         while (rs.next()) {
+
+            Long unitIndex = rs.getLong("unit");
+
+            Unit unit = null;
+
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+
             employee = new Employee();
             employee.setIndex(rs.getLong("autoindex"));
             employee.setNip(rs.getString("nip"));
@@ -340,11 +455,23 @@ public class MasterSQL extends CommonSQL {
             employee.setSoulmate(rs.getString("soulmate"));
             employee.setChildren(rs.getInt("children"));
             employee.setEducation(rs.getInt("education"));
+            employee.setDepartment(rs.getString("department"));
+            employee.setGraduatedYear(rs.getInt("graduatedyear"));
             employee.setEselon(rs.getInt("eselon"));
             employee.setCpnsTMT(rs.getDate("cpnstmt"));
             employee.setPnsTMT(rs.getDate("pnstmt"));
             employee.setGradeTMT(rs.getDate("gradetmt"));
             employee.setEselonTMT(rs.getDate("eselontmt"));
+            employee.setMkYear(rs.getInt("mkyear"));
+            employee.setMkMonth(rs.getInt("mkmonth"));
+
+            employee.setReligion(rs.getInt("religion"));
+            employee.setMutation(rs.getString("mutation"));
+            employee.setEmployeeStatus(rs.getInt("employeestatus"));
+
+            employee.setPicture(rs.getBytes("picture"));
+            
+            employee.setUnit(unit);
 
             employee.setStyled(false);
 
@@ -355,7 +482,6 @@ public class MasterSQL extends CommonSQL {
 
         return employee;
     }
-
 
     boolean getEmployeeInExpeditionCheque(Connection conn, Long index) throws SQLException {
         StringBuilder query = new StringBuilder();
@@ -388,16 +514,18 @@ public class MasterSQL extends CommonSQL {
     void insertEmployeeCourses(Connection conn, EmployeeCourses courses) throws SQLException {
 
         StringBuilder query = new StringBuilder();
-        query.append("insert into employeecourses(employeeindex,courses,attending)").
-                append("values(?,?,?)");
+        query.append("insert into employeecourses(employeeindex,coursesname,yearattended,totalhour,coursestype)").
+                append("values(?,?,?,?,?)");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
         int col = 0;
 
         pstm.setLong(++col, courses.getParentIndex());
-        pstm.setInt(++col, courses.getCourses());
-        pstm.setBoolean(++col, courses.isAttending());
+        pstm.setString(++col, courses.getCoursesName());
+        pstm.setInt(++col, courses.getYearAttended());
+        pstm.setInt(++col, courses.getTotalHour());
+        pstm.setInt(++col, courses.getCoursesType());
 
 
         pstm.executeUpdate();
@@ -416,7 +544,8 @@ public class MasterSQL extends CommonSQL {
 
         StringBuilder query = new StringBuilder();
         query.append("select * from employeecourses ").
-                append("where employeeindex = ?");
+                append("where employeeindex = ? ").
+                append("order by coursestype");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
         pstm.setLong(1, index);
@@ -426,8 +555,10 @@ public class MasterSQL extends CommonSQL {
         while (rs.next()) {
             EmployeeCourses courses = new EmployeeCourses();
             courses.setParentIndex(rs.getLong("employeeindex"));
-            courses.setCourses(rs.getInt("courses"));
-            courses.setAttending(rs.getBoolean("attending"));
+            courses.setCoursesName(rs.getString("coursesname"));
+            courses.setYearAttended(rs.getInt("yearattended"));
+            courses.setTotalHour(rs.getInt("totalhour"));
+            courses.setCoursesType(rs.getInt("coursestype"));
 
 
             courseses.add(courses);
@@ -505,7 +636,7 @@ public class MasterSQL extends CommonSQL {
         pstm.setLong(++col, cv.getEmployeeIndex());
         pstm.setString(++col, cv.getFileName());
         pstm.setBytes(++col, cv.getFileStream());
-        
+
         pstm.executeUpdate();
         pstm.close();
     }
@@ -625,8 +756,7 @@ public class MasterSQL extends CommonSQL {
         return prices;
     }
 
-
-    public StandardPrice getStandardPriceByIndex(Connection conn,Long index) throws SQLException {
+    public StandardPrice getStandardPriceByIndex(Connection conn, Long index) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("select * from standardprice ").
                 append("where autoindex = ?");
@@ -659,8 +789,8 @@ public class MasterSQL extends CommonSQL {
     void insertDivision(Connection conn, Division division) throws SQLException {
 
         StringBuilder query = new StringBuilder();
-        query.append("insert into division(code,divisionname)").
-                append("values(?,?)");
+        query.append("insert into division(code,divisionname,parentcode,unit)").
+                append("values(?,?,?,?)");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
@@ -668,6 +798,13 @@ public class MasterSQL extends CommonSQL {
 
         pstm.setString(++col, division.getCode());
         pstm.setString(++col, division.getName());
+        pstm.setString(++col, division.getParentCode());
+
+        if (division.getUnit() == null) {
+            pstm.setNull(++col, Types.BIGINT);
+        } else {
+            pstm.setLong(++col, division.getUnit().getIndex());
+        }
 
         pstm.executeUpdate();
         pstm.close();
@@ -675,7 +812,7 @@ public class MasterSQL extends CommonSQL {
 
     void updateDivision(Connection conn, String oldCode, Division division) throws SQLException {
         StringBuilder query = new StringBuilder();
-        query.append("update division set code = ?, divisionname = ?").
+        query.append("update division set code = ?, divisionname = ?, unit = ? ").
                 append("where code = ?");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
@@ -683,23 +820,33 @@ public class MasterSQL extends CommonSQL {
 
         pstm.setString(++col, division.getCode());
         pstm.setString(++col, division.getName());
+
+        if (division.getUnit() == null) {
+            pstm.setNull(++col, Types.BIGINT);
+        } else {
+            pstm.setLong(++col, division.getUnit().getIndex());
+        }
+
         pstm.setString(++col, oldCode);
         pstm.executeUpdate();
         pstm.close();
     }
 
     void deleteDivision(Connection conn, String code) throws SQLException {
-        PreparedStatement pstm = conn.prepareStatement("delete from division where code = ?");
-        pstm.setString(1, code);
+        StringBuilder query = new StringBuilder();
+        query.append("delete from division where code like '").append(code).append("%'");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
         pstm.executeUpdate();
         pstm.close();
     }
 
-    ArrayList<Division> getDivision(Connection conn, boolean isStyled) throws SQLException {
+    ArrayList<Division> getDivision(Connection conn, boolean isStyled, String modifier) throws SQLException {
         ArrayList<Division> divisions = new ArrayList<Division>();
 
         StringBuilder query = new StringBuilder();
         query.append("select * from division ").
+                append(modifier).
                 append("order by code");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
@@ -707,9 +854,21 @@ public class MasterSQL extends CommonSQL {
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+
+            Long unitIndex = rs.getLong("unit");
+
+            Unit unit = null;
+
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+
             Division division = new Division();
             division.setCode(rs.getString("code"));
             division.setName(rs.getString("divisionname"));
+            division.setParentCode(rs.getString("parentcode"));
+
+            division.setUnit(unit);
 
             division.setStyled(isStyled);
 
@@ -743,7 +902,7 @@ public class MasterSQL extends CommonSQL {
         pstm.close();
     }
 
-    void updateAccount(Connection conn, Long oldIndex,Account account) throws SQLException {
+    void updateAccount(Connection conn, Long oldIndex, Account account) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("update account set accountcode = ?, accountname = ?, accountcategory = ?, ").
                 append("accounttype = ?, accountgroup = ? ").
@@ -770,7 +929,7 @@ public class MasterSQL extends CommonSQL {
     }
 
     void deleteAccount(Connection conn, String code) throws SQLException {
-        PreparedStatement pstm = conn.prepareStatement("delete from account where accountcode like '"+code+"%'");
+        PreparedStatement pstm = conn.prepareStatement("delete from account where accountcode like '" + code + "%'");
         pstm.executeUpdate();
         pstm.close();
     }
@@ -806,7 +965,7 @@ public class MasterSQL extends CommonSQL {
         return accounts;
     }
 
-    public Account getAccountByIndex(Connection conn,Long index) throws SQLException {
+    public Account getAccountByIndex(Connection conn, Long index) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("select * from account ").
                 append("where autoindex = ?");
@@ -835,7 +994,7 @@ public class MasterSQL extends CommonSQL {
         return account;
     }
 
-    public boolean getAccountInExpedition(Connection conn,String code) throws SQLException {
+    public boolean getAccountInExpedition(Connection conn, String code) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("select * from account ").
                 append("where autoindex in ").
@@ -860,7 +1019,7 @@ public class MasterSQL extends CommonSQL {
         return found;
     }
 
-    void insertAccountStructure(Connection conn, Account parent,Account child) throws SQLException {
+    void insertAccountStructure(Connection conn, Account parent, Account child) throws SQLException {
 
         StringBuilder query = new StringBuilder();
         query.append("insert into accountstructure(superaccount,subaccount)").
@@ -878,12 +1037,11 @@ public class MasterSQL extends CommonSQL {
     }
 
     void deleteAccountStructureByChild(Connection conn, Long index) throws SQLException {
-        PreparedStatement pstm = conn.prepareStatement("delete from accountstructure where superindex = ?");
+        PreparedStatement pstm = conn.prepareStatement("delete from accountstructure where superaccount = ?");
         pstm.setLong(1, index);
         pstm.executeUpdate();
         pstm.close();
     }
-
 
     void insertProgram(Connection conn, Program program) throws SQLException {
 
@@ -902,7 +1060,7 @@ public class MasterSQL extends CommonSQL {
         pstm.close();
     }
 
-    void updateProgram(Connection conn, Long oldIndex,Program program) throws SQLException {
+    void updateProgram(Connection conn, Long oldIndex, Program program) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("update program set programcode = ?, programname = ? ").
                 append("where autoindex = ?");
@@ -939,7 +1097,7 @@ public class MasterSQL extends CommonSQL {
             program.setIndex(rs.getLong("autoindex"));
             program.setProgramCode(rs.getString("programcode"));
             program.setProgramName(rs.getString("programname"));
-            
+
             programs.add(program);
         }
 
@@ -949,7 +1107,7 @@ public class MasterSQL extends CommonSQL {
         return programs;
     }
 
-    ArrayList<Program> getProgramNotInBudgetDetail(Connection conn,Integer years,Integer budgetType) throws SQLException {
+    ArrayList<Program> getProgramNotInBudgetDetail(Connection conn, Integer years, Integer budgetType) throws SQLException {
         ArrayList<Program> programs = new ArrayList<Program>();
 
         StringBuilder query = new StringBuilder();
@@ -981,7 +1139,7 @@ public class MasterSQL extends CommonSQL {
         return programs;
     }
 
-    public Program getProgramByIndex(Connection conn,Long index) throws SQLException {
+    public Program getProgramByIndex(Connection conn, Long index) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("select * from program ").
                 append("where autoindex = ?");
@@ -1005,7 +1163,7 @@ public class MasterSQL extends CommonSQL {
         return program;
     }
 
-    boolean getProgramInExpedition(Connection conn,String code) throws SQLException {
+    boolean getProgramInExpedition(Connection conn, String code) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("select * from program ").
                 append("where autoindex in ").
@@ -1045,7 +1203,7 @@ public class MasterSQL extends CommonSQL {
         pstm.close();
     }
 
-    void updateActivity(Connection conn, Long oldIndex,Activity activity) throws SQLException {
+    void updateActivity(Connection conn, Long oldIndex, Activity activity) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("update activity set programindex = ?,activitycode = ?, activityname = ? ").
                 append("where autoindex = ?");
@@ -1101,7 +1259,7 @@ public class MasterSQL extends CommonSQL {
         return activitys;
     }
 
-    ArrayList<Activity> getActivity(Connection conn,Long programIndex) throws SQLException {
+    ArrayList<Activity> getActivity(Connection conn, Long programIndex) throws SQLException {
         ArrayList<Activity> activitys = new ArrayList<Activity>();
 
         StringBuilder query = new StringBuilder();
@@ -1129,7 +1287,7 @@ public class MasterSQL extends CommonSQL {
         return activitys;
     }
 
-    public Activity getActivityByIndex(Connection conn,Long index) throws SQLException {
+    public Activity getActivityByIndex(Connection conn, Long index) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("select * from activity ").
                 append("where autoindex = ?");
@@ -1153,8 +1311,7 @@ public class MasterSQL extends CommonSQL {
         return activity;
     }
 
-
-    public boolean getActivityInExpedition(Connection conn,String code) throws SQLException {
+    public boolean getActivityInExpedition(Connection conn, String code) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("select * from activity ").
                 append("where autoindex in ").
@@ -1176,7 +1333,7 @@ public class MasterSQL extends CommonSQL {
         return found;
     }
 
-    ArrayList<Activity> getActivityNotInBudgetSubDetail(Connection conn,Integer years,Integer budgetType) throws SQLException {
+    ArrayList<Activity> getActivityNotInBudgetSubDetail(Connection conn, Integer years, Integer budgetType) throws SQLException {
         ArrayList<Activity> activitys = new ArrayList<Activity>();
 
         StringBuilder query = new StringBuilder();
@@ -1278,7 +1435,7 @@ public class MasterSQL extends CommonSQL {
         return budgets;
     }
 
-    Budget getBudget(Connection conn,Integer years, Integer budgetType) throws SQLException {
+    Budget getBudget(Connection conn, Integer years, Integer budgetType) throws SQLException {
         Budget budget = null;
 
         StringBuilder query = new StringBuilder();
@@ -1346,7 +1503,7 @@ public class MasterSQL extends CommonSQL {
         pstm.close();
     }
 
-    ArrayList<BudgetDetail> getBudgetDetail(Connection conn,Long parentIndex) throws SQLException {
+    ArrayList<BudgetDetail> getBudgetDetail(Connection conn, Long parentIndex) throws SQLException {
         ArrayList<BudgetDetail> details = new ArrayList<BudgetDetail>();
 
         StringBuilder query = new StringBuilder();
@@ -1380,7 +1537,7 @@ public class MasterSQL extends CommonSQL {
         return details;
     }
 
-    ArrayList<BudgetDetail> getBudgetDetail(Connection conn,Integer year,Integer budgetType) throws SQLException {
+    ArrayList<BudgetDetail> getBudgetDetail(Connection conn, Integer year, Integer budgetType) throws SQLException {
         ArrayList<BudgetDetail> details = new ArrayList<BudgetDetail>();
 
         StringBuilder query = new StringBuilder();
@@ -1460,7 +1617,7 @@ public class MasterSQL extends CommonSQL {
         pstm.close();
     }
 
-    ArrayList<BudgetSubDetail> getBudgetSubDetail(Connection conn,Long parentIndex) throws SQLException {
+    ArrayList<BudgetSubDetail> getBudgetSubDetail(Connection conn, Long parentIndex) throws SQLException {
         ArrayList<BudgetSubDetail> subDetails = new ArrayList<BudgetSubDetail>();
 
         StringBuilder query = new StringBuilder();
@@ -1496,7 +1653,7 @@ public class MasterSQL extends CommonSQL {
         return subDetails;
     }
 
-    ArrayList<BudgetSubDetail> getBudgetSubDetail(Connection conn,Integer years,Integer budgetType) throws SQLException {
+    ArrayList<BudgetSubDetail> getBudgetSubDetail(Connection conn, Integer years, Integer budgetType) throws SQLException {
         ArrayList<BudgetSubDetail> subDetails = new ArrayList<BudgetSubDetail>();
 
         StringBuilder query = new StringBuilder();
@@ -1537,7 +1694,7 @@ public class MasterSQL extends CommonSQL {
         return subDetails;
     }
 
-    BigDecimal getBudgetAmount(Connection conn,Long activityIndex,Integer years,Integer budgetType) throws SQLException {
+    BigDecimal getBudgetAmount(Connection conn, Long activityIndex, Integer years, Integer budgetType) throws SQLException {
         BigDecimal amount = BigDecimal.ZERO;
 
         StringBuilder query = new StringBuilder();
@@ -1567,5 +1724,4 @@ public class MasterSQL extends CommonSQL {
 
         return amount;
     }
-    
 }

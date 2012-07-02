@@ -1,5 +1,6 @@
 package org.motekar.project.civics.archieve.expedition.reports;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,8 +43,8 @@ public class ExpeditionFollowerJasper extends SimpleAbstractJasper {
                 @Override
                 protected JasperReport doInBackground() throws Exception {
                     try {
-                        String filename = "ExpeditionFollower.jrxml";
-                        jasperReport = JasperCompileManager.compileReport("printing/" + filename);
+                        String filename = System.getProperty("user.dir")+File.separator+File.separator+"printing"+File.separator+"ExpeditionFollower.jrxml";
+                        jasperReport = JasperCompileManager.compileReport(filename);
                     } catch (Exception ex) {
                         Exceptions.printStackTrace(ex);
                     }

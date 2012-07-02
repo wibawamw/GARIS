@@ -13,9 +13,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Currency;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
@@ -42,12 +46,13 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellEditor;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 import net.sf.jasperreports.engine.JRPrintPage;
 import net.sf.jasperreports.engine.JasperPrint;
 import org.jdesktop.swingx.JXCollapsiblePane;
 import org.jdesktop.swingx.JXComboBox;
+import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXHyperlink;
 import org.jdesktop.swingx.JXLabel;
@@ -66,9 +71,13 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.error.ErrorInfo;
+import org.jdesktop.swingx.renderer.CheckBoxProvider;
 import org.jdesktop.swingx.renderer.DefaultListRenderer;
+import org.jdesktop.swingx.renderer.DefaultTableRenderer;
+import org.jdesktop.swingx.renderer.FormatStringValue;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.renderer.StringValue;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.expedition.objects.Approval;
 import org.motekar.project.civics.archieve.expedition.objects.AssignmentLetter;
 import org.motekar.project.civics.archieve.expedition.reports.AssignmentLetterCommJasper;
@@ -77,12 +86,12 @@ import org.motekar.project.civics.archieve.expedition.sqlapi.ExpeditionBusinessL
 import org.motekar.project.civics.archieve.expedition.ui.ExpeditionJournalPanel.EmployeeConverter;
 import org.motekar.project.civics.archieve.master.objects.Employee;
 import org.motekar.project.civics.archieve.master.sqlapi.MasterBusinessLogic;
-import org.motekar.project.civics.archieve.master.ui.EmployeePanelCellEditor;
-import org.motekar.project.civics.archieve.master.ui.EmployeePanelCellRenderer;
+import org.motekar.project.civics.archieve.master.ui.EmployeePickDlg;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
-import org.motekar.project.civics.archieve.utils.misc.ArchieveProperties;
+import org.motekar.project.civics.archieve.utils.misc.ProfileAccount;
 import org.motekar.project.civics.archieve.utils.report.ViewerPanel;
 import org.motekar.util.user.misc.MotekarException;
+import org.motekar.util.user.objects.UserGroup;
 import org.motekar.util.user.ui.Mainframe;
 import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
@@ -103,18 +112,24 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
     private ArchieveMainframe mainframe = null;
     private ExpeditionBusinessLogic logic;
     private MasterBusinessLogic mLogic;
-    private ArchieveProperties properties;
+    private ProfileAccount profileAccount;
     private JXMultiSplitPane splitPane = new JXMultiSplitPane();
     private JXLabel statusLabel = new JXLabel("Ready");
     private JProgressBar pbar = new JProgressBar();
     private JXTextField fieldSearch = new JXTextField();
     private JYearChooser yearChooser = new JYearChooser();
     private JMonthChooser monthChooser = new JMonthChooser();
+    //
     private JCheckBox checkBox = new JCheckBox();
     private JTabbedPane tabPane = new JTabbedPane();
     private JXTextField fieldDocNumber = new JXTextField();
     private JXComboBox comboCommander = new JXComboBox();
+    private JXDatePicker fieldStartDate = new JXDatePicker();
+    private JXDatePicker fieldEndDate = new JXDatePicker();
     private JXTextArea fieldPurpose = new JXTextArea();
+    private JXTextArea fieldGoals = new JXTextArea();
+    private JXTextArea fieldNotes = new JXTextArea();
+    //
     private JXHyperlink linkApprovalDate = new JXHyperlink();
     private JXHyperlink linkApprovalPlace = new JXHyperlink();
     private JLabel linkApproverTitle = new JLabel();
@@ -146,15 +161,52 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
     private boolean isedit = false;
     private StringBuilder errorString = new StringBuilder();
     private AssignmentLetter selectedLetter = null;
+    //
+    private Unit unit = null;
 
     public AssignmentLetterPanel(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
-        this.properties = mainframe.getProperties();
+        this.profileAccount = mainframe.getProfileAccount();
         logic = new ExpeditionBusinessLogic(mainframe.getConnection());
         mLogic = new MasterBusinessLogic(mainframe.getConnection());
         employeetable = new AssignedEmployeeTable();
         construct();
-        assignmentList.loadData();
+        checkLogin();
+    }
+
+    private void checkLogin() {
+        UserGroup userGroup = mainframe.getUserGroup();
+        if (userGroup.getGroupName().equals("Administrator")) {
+            assignmentList.loadData("");
+        } else {
+            unit = mainframe.getUnit();
+            String modifier = generateUnitModifier(unit);
+            assignmentList.loadData(modifier);
+        }
+    }
+
+    private String generateUnitModifier(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            if (checkBox.isSelected()) {
+                query.append(" and unit = ").append(unit.getIndex());
+            } else {
+                query.append(" where unit = ").append(unit.getIndex());
+            }
+        }
+
+        return query.toString();
+    }
+
+    private String generateUnitModifier2(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            query.append(" and unit = ").append(unit.getIndex());
+        }
+
+        return query.toString();
     }
 
     private JXPanel createLeftComponent() {
@@ -297,13 +349,13 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
 
     private Component createMainPanel() {
         FormLayout lm = new FormLayout(
-                "pref,10px,fill:default:grow,pref,pref",
-                "pref,5px,pref,5px,pref,fill:default:grow,fill:default:grow,100px, "
+                "pref,10px,fill:default:grow,pref,pref,30px",
+                "pref,5px,pref,5px,pref,5px,fill:default:grow,fill:default:grow,70px, "
                 + "5px,pref,fill:default:grow");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
 
-        lm.setRowGroups(new int[][]{{1, 3, 10}});
+        lm.setRowGroups(new int[][]{{1, 3, 11}});
 
         JScrollPane scPane = new JScrollPane();
         scPane.setViewportView(fieldPurpose);
@@ -319,16 +371,30 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
         builder.addLabel("Pejabat pemberi perintah", cc.xy(1, 3));
         builder.add(comboCommander, cc.xyw(3, 3, 3));
 
-
         builder.addLabel("Pegawai yang ditugaskan", cc.xy(1, 5));
-        builder.add(scPane2, cc.xywh(3, 5, 2, 4));
-        builder.add(createStrip2(1.0, 1.0), cc.xy(5, 5));
+        builder.add(scPane2, cc.xywh(1, 7, 4, 3));
+        builder.add(createStrip2(1.0, 1.0), cc.xy(5, 7));
 
-        builder.addLabel("Untuk melaksanakan tugas", cc.xy(1, 10));
-        builder.add(scPane, cc.xywh(3, 10, 3, 2));
+        builder.addLabel("Untuk melaksanakan tugas", cc.xy(1, 11));
+        builder.add(scPane, cc.xywh(3, 11, 3, 2));
+        
+        
+        JScrollPane scPane3 = new JScrollPane();
+        scPane3.setViewportView(builder.getPanel());
+        
+        JScrollPane scPane4 = new JScrollPane();
+        scPane4.setViewportView(createMainPanelPage2());
+        
+        JScrollPane scPane5 = new JScrollPane();
+        scPane5.setViewportView(createMainPanelPage3());
+        
+        scPane3.getVerticalScrollBar().setUnitIncrement(20);
+        scPane4.getVerticalScrollBar().setUnitIncrement(20);
+        scPane5.getVerticalScrollBar().setUnitIncrement(20);
 
-        tabPane.addTab("Input Data Hal.1", builder.getPanel());
-        tabPane.addTab("Input Data Hal.2", createMainPanelPage2());
+        tabPane.addTab("Input Data Hal.1", scPane3);
+        tabPane.addTab("Input Data Hal.2", scPane4);
+        tabPane.addTab("Input Data Hal.3", scPane5);
         tabPane.addTab("Cetak", createPrintPanel());
 
         return tabPane;
@@ -336,7 +402,40 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
 
     private Component createMainPanelPage2() {
         FormLayout lm = new FormLayout(
-                "pref,10px,fill:default:grow,center:pref,10px",
+                "pref,10px,fill:default:grow,center:pref,10px,30px",
+                "pref,fill:default:grow,5px,pref,5px,pref,5px,"
+                + "pref,fill:default:grow");
+        DefaultFormBuilder builder = new DefaultFormBuilder(lm);
+        builder.setDefaultDialogBorder();
+
+        lm.setRowGroups(new int[][]{{1, 4}});
+
+        JScrollPane scPane = new JScrollPane();
+        scPane.setViewportView(fieldGoals);
+
+        JScrollPane scPane2 = new JScrollPane();
+        scPane2.setViewportView(fieldNotes);
+
+        CellConstraints cc = new CellConstraints();
+
+        builder.addLabel("Tujuan", cc.xy(1, 1));
+        builder.add(scPane, cc.xywh(3, 1, 3, 2));
+
+        builder.addLabel("Tanggal Berangkat", cc.xy(1, 4));
+        builder.add(fieldStartDate, cc.xyw(3, 4, 3));
+
+        builder.addLabel("Tanggal Harus Kembali", cc.xy(1, 6));
+        builder.add(fieldEndDate, cc.xyw(3, 6, 3));
+
+        builder.addLabel("Keterangan", cc.xy(1, 8));
+        builder.add(scPane2, cc.xywh(3, 8, 3, 2));
+
+        return builder.getPanel();
+    }
+
+    private Component createMainPanelPage3() {
+        FormLayout lm = new FormLayout(
+                "pref,10px,fill:default:grow,center:pref,30px",
                 "pref,fill:default:grow,fill:default:grow,fill:default:grow,fill:default:grow,"
                 + "10px,fill:default,fill:default:grow,pref,"
                 + "fill:default:grow,pref,5px");
@@ -542,6 +641,9 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
 
         loadComboEmployee();
 
+        fieldStartDate.setFormats("dd/MM/yyyy");
+        fieldEndDate.setFormats("dd/MM/yyyy");
+
         fieldSearch.getDocument().addDocumentListener(new DocumentListener() {
 
             public void insertUpdate(DocumentEvent e) {
@@ -560,19 +662,25 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
         monthChooser.addPropertyChangeListener("month", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                assignmentList.loadData();
+                assignmentList.loadData(generateUnitModifier(unit));
             }
         });
 
         yearChooser.addPropertyChangeListener("year", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                assignmentList.loadData();
+                assignmentList.loadData(generateUnitModifier(unit));
             }
         });
 
         fieldPurpose.setWrapStyleWord(true);
         fieldPurpose.setLineWrap(true);
+
+        fieldGoals.setWrapStyleWord(true);
+        fieldGoals.setLineWrap(true);
+
+        fieldNotes.setWrapStyleWord(true);
+        fieldNotes.setLineWrap(true);
 
         comboCommander.setEditable(true);
 
@@ -638,7 +746,15 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
     private void loadComboEmployee() {
         comboCommander.removeAllItems();
         try {
-            ArrayList<Employee> commanderEmployee = mLogic.getCommanderEmployee(mainframe.getSession());
+            ArrayList<Employee> commanderEmployee = new ArrayList<Employee>();
+
+            UserGroup userGroup = mainframe.getUserGroup();
+            if (userGroup.getGroupName().equals("Administrator")) {
+                commanderEmployee = mLogic.getCommanderEmployee(mainframe.getSession(), "");
+            } else {
+                unit = mainframe.getUnit();
+                commanderEmployee = mLogic.getCommanderEmployee(mainframe.getSession(), generateUnitModifier2(unit));
+            }
 
             if (!commanderEmployee.isEmpty()) {
                 for (Employee e : commanderEmployee) {
@@ -670,6 +786,11 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
         fieldDocNumber.setEnabled(iseditable);
         fieldPurpose.setEnabled(iseditable);
 
+        fieldStartDate.setEnabled(iseditable);
+        fieldEndDate.setEnabled(iseditable);
+        fieldGoals.setEnabled(iseditable);
+        fieldNotes.setEnabled(iseditable);
+
         comboCommander.setEnabled(iseditable);
 
         linkApprovalDate.setEnabled(iseditable);
@@ -696,6 +817,11 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
 
         fieldDocNumber.setText("");
         fieldPurpose.setText("");
+
+        fieldStartDate.setDate(null);
+        fieldEndDate.setDate(null);
+        fieldGoals.setText("");
+        fieldNotes.setText("");
 
         approval = null;
 
@@ -869,7 +995,21 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
         } else if (obj == btCancel) {
             onCancel();
         } else if (obj == btInsEmployee) {
-            employeetable.insertEmptyEmployee();
+            EmployeePickDlg dlg = new EmployeePickDlg(mainframe, mainframe.getSession(), mainframe.getConnection(), true);
+            dlg.showDialog();
+
+            if (dlg.getResponse() == JOptionPane.YES_OPTION) {
+                ArrayList<Employee> emps = dlg.getSelectedEmployees();
+
+                if (!emps.isEmpty()) {
+                    for (Employee em : emps) {
+                        em.setJustName(true);
+                    }
+                }
+
+                employeetable.addEmployee(dlg.getSelectedEmployees());
+            }
+
         } else if (obj == btDelEmployee) {
             ArrayList<Employee> employees = employeetable.getSelectedEmployees();
 
@@ -882,7 +1022,7 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
                         JOptionPane.QUESTION_MESSAGE, null,
                         options, options[1]);
                 if (choise == JOptionPane.YES_OPTION) {
-                    employeetable.removeEmployees(employees);
+                    employeetable.removeEmployee(employees);
                 }
             }
         } else if (obj == linkApprovalPlace) {
@@ -908,7 +1048,7 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
         } else if (obj == checkBox) {
             monthChooser.setEnabled(checkBox.isSelected());
             yearChooser.setEnabled(checkBox.isSelected());
-            assignmentList.loadData();
+            assignmentList.loadData(generateUnitModifier(unit));
         } else if (obj == btInsCopy) {
             copyTable.insertEmptyCopy();
         } else if (obj == btDelCopy) {
@@ -943,6 +1083,11 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
 
                 fieldDocNumber.setText(selectedLetter.getDocumentNumber());
                 fieldPurpose.setText(selectedLetter.getPurpose());
+
+                fieldStartDate.setDate(selectedLetter.getStartDate());
+                fieldEndDate.setDate(selectedLetter.getEndDate());
+                fieldGoals.setText(selectedLetter.getGoals());
+                fieldNotes.setText(selectedLetter.getNotes());
 
                 Employee commander = selectedLetter.getCommander();
 
@@ -980,10 +1125,10 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
                     linkApprover.setText(commander.getName());
                     linkApproverGrade.setVisible(false);
                     linkApproverNIP.setVisible(false);
-                    if (properties.getStateType().equals(ArchieveProperties.KABUPATEN)) {
-                        linkApproverTitle.setText("BUPATI " + properties.getState().toUpperCase());
+                    if (profileAccount.getStateType().equals(ProfileAccount.KABUPATEN)) {
+                        linkApproverTitle.setText("BUPATI " + profileAccount.getState().toUpperCase());
                     } else {
-                        linkApproverTitle.setText("WALIKOTA " + properties.getState().toUpperCase());
+                        linkApproverTitle.setText("WALIKOTA " + profileAccount.getState().toUpperCase());
                     }
                 } else {
                     StringBuilder pos = new StringBuilder();
@@ -991,7 +1136,8 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
                         pos.append(commander.getFungsionalAsString()).
                                 append(" ").append(commander.getPositionNotes());
                     } else {
-                        pos.append(commander.getStrukturalAsString());
+                        pos.append(commander.getStrukturalAsString()).
+                                append(" ").append(commander.getPositionNotes());
                     }
                     linkApproverTitle.setText(pos.toString());
                     linkApproverGrade.setVisible(true);
@@ -1004,10 +1150,21 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
                 copyTable.clear();
                 employeetable.clear();
 
+
+                ArrayList<Employee> assEmployee = selectedLetter.getAssignedEmployee();
+
+                if (!assEmployee.isEmpty()) {
+                    for (Employee e : assEmployee) {
+                        e.setJustName(true);
+                    }
+                }
+
                 copyTable.addCopys(selectedLetter.getCarbonCopy());
-                employeetable.addEmployees(selectedLetter.getAssignedEmployee());
+                employeetable.addEmployee(selectedLetter.getAssignedEmployee());
 
                 reloadPrintPanel();
+
+                employeetable.packAll();
 
                 setButtonState("Save");
 
@@ -1062,6 +1219,11 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
 
 
         String pupose = fieldPurpose.getText();
+        
+        String goals = fieldGoals.getText();
+        String notes = fieldNotes.getText();
+        Date startDate = fieldStartDate.getDate();
+        Date endDate = fieldEndDate.getDate();
 
         if (pupose.equals("")) {
             errorString.append("<br>- Untuk melaksanakan tugas</br>");
@@ -1079,6 +1241,14 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
         if (assignedEmployees.isEmpty()) {
             errorString.append("<br>- Pegawai Yang Diperintahkan</br>");
         }
+        
+        if (startDate == null) {
+            errorString.append("<br>- Tanggal Berangkat</br>");
+        }
+        
+        if (endDate == null) {
+            errorString.append("<br>- Tanggal Harus Kembali</br>");
+        }
 
         if (errorString.length() > 0) {
             throw new MotekarException("<html>Harap diperhatikan untuk diisi : " + errorString.toString() + "</html>");
@@ -1090,9 +1260,19 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
         letter.setPurpose(pupose);
         letter.setApprovalPlace(approval.getPlace());
         letter.setApprovalDate(approval.getDate());
+        letter.setGoals(goals);
+        letter.setNotes(notes);
+        letter.setStartDate(startDate);
+        letter.setEndDate(endDate);
 
         letter.setCarbonCopy(carbonCopy);
         letter.setAssignedEmployee(assignedEmployees);
+
+        if (selectedLetter != null) {
+            letter.setUnit(selectedLetter.getUnit());
+        } else {
+            letter.setUnit(unit);
+        }
 
         return letter;
     }
@@ -1107,11 +1287,11 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
             setModel(model);
         }
 
-        public void loadData() {
+        public void loadData(String modifier) {
             if (worker != null) {
                 worker.cancel(true);
             }
-            worker = new LoadAssignment((DefaultListModel) getModel());
+            worker = new LoadAssignment((DefaultListModel) getModel(), modifier);
             progressListener = new AssignmentProgressListener(pbar);
             worker.addPropertyChangeListener(progressListener);
             worker.execute();
@@ -1180,9 +1360,11 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
 
         private DefaultListModel model;
         private Exception exception;
+        private String modifier = "";
 
-        public LoadAssignment(DefaultListModel model) {
+        public LoadAssignment(DefaultListModel model, String modifier) {
             this.model = model;
+            this.modifier = modifier;
             model.clear();
         }
 
@@ -1208,9 +1390,9 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
                 ArrayList<AssignmentLetter> letters = new ArrayList<AssignmentLetter>();
 
                 if (checkBox.isSelected()) {
-                    letters = logic.getAssignmentLetter(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear());
+                    letters = logic.getAssignmentLetter(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear(), modifier);
                 } else {
-                    letters = logic.getAssignmentLetter(mainframe.getSession());
+                    letters = logic.getAssignmentLetter(mainframe.getSession(), modifier);
                 }
 
                 double progress = 0.0;
@@ -1494,7 +1676,10 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
             model = new AssignedEmployeeTableModel();
             setModel(model);
             getTableHeader().setReorderingAllowed(false);
-            setRowHeight(100);
+
+            TableColumnModel colModel = getColumnModel();
+            colModel.getColumn(0).setMinWidth(50);
+            colModel.getColumn(0).setMaxWidth(50);
         }
 
         public void clear() {
@@ -1502,17 +1687,8 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
         }
 
         public Employee getSelectedEmployee() {
-            Employee employee = null;
-
-            int row = getSelectedRow();
-
-            Object obj = model.getValueAt(row, 0);
-
-            if (obj instanceof Employee) {
-                employee = (Employee) obj;
-            }
-
-            return employee;
+            ArrayList<Employee> selectedEmployees = getSelectedEmployees();
+            return selectedEmployees.get(0);
         }
 
         public ArrayList<Employee> getEmployees() {
@@ -1523,15 +1699,20 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
 
             ArrayList<Employee> employees = new ArrayList<Employee>();
 
-            int[] rows = getSelectedRows();
+            int rows = getRowSorter().getModelRowCount();
 
-            if (rows != null) {
-                for (int i = 0; i < rows.length; i++) {
-                    Employee employee = null;
-                    Object obj = model.getValueAt(rows[i], 0);
-                    if (obj instanceof Employee) {
-                        employee = (Employee) obj;
-                        employees.add(employee);
+            for (int i = 0; i < rows; i++) {
+                Employee employee = null;
+                Object objBool = model.getValueAt(i, 0);
+
+                if (objBool instanceof Boolean) {
+                    Boolean selected = (Boolean) objBool;
+                    if (selected.booleanValue()) {
+                        Object obj = model.getValueAt(i, 1);
+                        if (obj instanceof Employee) {
+                            employee = (Employee) obj;
+                            employees.add(employee);
+                        }
                     }
                 }
             }
@@ -1540,23 +1721,22 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
         }
 
         public void updateSelectedEmployee(Employee employee) {
-            int row = getSelectedRow();
-            model.updateRow(row, getSelectedEmployee(), employee);
+            model.updateRow(getSelectedEmployee(), employee);
         }
 
-        public void removeEmployees(ArrayList<Employee> employees) {
+        public void removeEmployee(ArrayList<Employee> employees) {
             if (!employees.isEmpty()) {
-                for (Employee emp : employees) {
-                    model.remove(emp);
+                for (Employee employee : employees) {
+                    model.remove(employee);
                 }
             }
 
         }
 
-        public void addEmployees(ArrayList<Employee> employees) {
+        public void addEmployee(ArrayList<Employee> employees) {
             if (!employees.isEmpty()) {
-                for (Employee emp : employees) {
-                    model.add(emp);
+                for (Employee employee : employees) {
+                    model.add(employee);
                 }
             }
         }
@@ -1570,17 +1750,29 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
         }
 
         @Override
-        public TableCellEditor getDefaultEditor(Class<?> columnClass) {
-            if (columnClass.equals(Employee.class)) {
-                return new EmployeePanelCellEditor(mainframe.getConnection(), mainframe.getSession());
-            }
-            return super.getDefaultEditor(columnClass);
-        }
-
-        @Override
         public TableCellRenderer getDefaultRenderer(Class<?> columnClass) {
-            if (columnClass.equals(Employee.class)) {
-                return new EmployeePanelCellRenderer(mainframe.getConnection(), mainframe.getSession());
+            if (columnClass.equals(Boolean.class)) {
+                return new DefaultTableRenderer(new CheckBoxProvider());
+            } else if (columnClass.equals(BigDecimal.class)) {
+                NumberFormat amountDisplayFormat = NumberFormat.getNumberInstance();
+                amountDisplayFormat.setMinimumFractionDigits(0);
+                amountDisplayFormat.setMaximumFractionDigits(2);
+                amountDisplayFormat.setCurrency(Currency.getInstance(new Locale("in", "id", "id")));
+
+                return new DefaultTableRenderer(new FormatStringValue(amountDisplayFormat), JLabel.RIGHT);
+            } else if (columnClass.equals(Integer.class)) {
+                NumberFormat amountDisplayFormat = NumberFormat.getNumberInstance();
+                amountDisplayFormat.setMinimumFractionDigits(0);
+                amountDisplayFormat.setMaximumFractionDigits(0);
+                amountDisplayFormat.setCurrency(Currency.getInstance(new Locale("in", "id", "id")));
+                amountDisplayFormat.setGroupingUsed(false);
+
+                return new DefaultTableRenderer(new FormatStringValue(amountDisplayFormat), JLabel.CENTER);
+            } else if (columnClass.equals(Date.class)) {
+                return new DefaultTableRenderer(new FormatStringValue(new SimpleDateFormat("dd MMM yyyy",
+                        new Locale("in", "id", "id"))), JLabel.CENTER);
+            } else if (columnClass.equals(JLabel.class)) {
+                return new DefaultTableRenderer(new FormatStringValue(), JLabel.CENTER);
             }
             return super.getDefaultRenderer(columnClass);
         }
@@ -1588,8 +1780,8 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
 
     private static class AssignedEmployeeTableModel extends AbstractTableModel {
 
-        public static final int COLUMN_COUNT = 1;
-        private static final String[] COLUMN = {"Daftar Pegawai"};
+        public static final int COLUMN_COUNT = 5;
+        private static final String[] COLUMN = {"", "Nama", "NIP", "Pangkat / Golongan", "Jabatan"};
         private ArrayList<Employee> employees = new ArrayList<Employee>();
 
         public AssignedEmployeeTableModel() {
@@ -1597,7 +1789,10 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
 
         @Override
         public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return true;
+            if (columnIndex == 0) {
+                return true;
+            }
+            return false;
         }
 
         @Override
@@ -1605,17 +1800,15 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
             return COLUMN[column];
         }
 
-        public void add(ArrayList<Employee> employee) {
-            int first = employees.size();
-            int last = first + employees.size() - 1;
-            employees.addAll(employee);
+        public void add(ArrayList<Employee> clins) {
+            int first = clins.size();
+            int last = first + clins.size() - 1;
+            employees.addAll(clins);
             fireTableRowsInserted(first, last);
         }
 
         public void add(Employee employee) {
-            if (!employees.contains(employee)) {
-                insertRow(getRowCount(), employee);
-            }
+            insertRow(getRowCount(), employee);
         }
 
         public void insertRow(int row, Employee employee) {
@@ -1624,9 +1817,9 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
             fireTableRowsInserted(row, row);
         }
 
-        public void updateRow(int row, Employee oldEmp, Employee newEmp) {
-            int index = employees.indexOf(oldEmp);
-            employees.set(index, newEmp);
+        public void updateRow(Employee oldEmployee, Employee newEmployee) {
+            int index = employees.indexOf(oldEmployee);
+            employees.set(index, newEmployee);
             fireTableRowsUpdated(index, index);
         }
 
@@ -1683,7 +1876,9 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
         @Override
         public Class<?> getColumnClass(int columnIndex) {
             if (columnIndex == 0) {
-                return Employee.class;
+                return Boolean.class;
+            } else if (columnIndex == 2 || columnIndex == 3 || columnIndex == 4) {
+                return JLabel.class;
             }
             return super.getColumnClass(columnIndex);
         }
@@ -1703,12 +1898,26 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
 
         @Override
         public void setValueAt(Object aValue, int row, int column) {
+            Employee employee = getEmployee(row);
             switch (column) {
                 case 0:
-                    if (aValue instanceof Employee) {
-                        Employee employee = (Employee) aValue;
-                        setEmployee(row, employee);
+                    if (aValue instanceof Boolean) {
+                        employee.setSelected((Boolean) aValue);
                     }
+
+                    break;
+
+                case 1:
+                    if (aValue instanceof Employee) {
+                        employee = (Employee) aValue;
+                    }
+                    break;
+
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
                     break;
             }
         }
@@ -1717,8 +1926,32 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
         public Object getValueAt(int row, int column) {
             Object toBeDisplayed = "n/a";
             Employee employee = getEmployee(row);
-            toBeDisplayed = employee;
+            switch (column) {
+                case 0:
+                    toBeDisplayed = employee.isSelected();
+                    break;
+                case 1:
+                    toBeDisplayed = employee;
+                    break;
+                case 2:
+                    toBeDisplayed = employee.getNip();
+                    break;
+                case 3:
+                    toBeDisplayed = employee.getGradeAsString();
+                    break;
+                case 4:
 
+                    StringBuilder pos = new StringBuilder();
+                    if (employee.getStrukturalAsString().equals("")) {
+                        pos.append(employee.getFungsionalAsString()).
+                                append(" ").append(employee.getPositionNotes());
+                    } else {
+                        pos.append(employee.getStrukturalAsString()).
+                                append(" ").append(employee.getPositionNotes().toUpperCase());
+                    }
+                    toBeDisplayed = pos.toString();
+                    break;
+            }
             return toBeDisplayed;
         }
     }
@@ -1738,10 +1971,10 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
                             linkApprover.setText(commander.getName());
                             linkApproverGrade.setVisible(false);
                             linkApproverNIP.setVisible(false);
-                            if (properties.getStateType().equals(ArchieveProperties.KABUPATEN)) {
-                                linkApproverTitle.setText("BUPATI " + properties.getState().toUpperCase());
+                            if (profileAccount.getStateType().equals(ProfileAccount.KABUPATEN)) {
+                                linkApproverTitle.setText("BUPATI " + profileAccount.getState().toUpperCase());
                             } else {
-                                linkApproverTitle.setText("WALIKOTA " + properties.getState().toUpperCase());
+                                linkApproverTitle.setText("WALIKOTA " + profileAccount.getState().toUpperCase());
                             }
                         } else if (!commander.getName().equals("")) {
                             StringBuilder pos = new StringBuilder();
@@ -1749,7 +1982,8 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
                                 pos.append(commander.getFungsionalAsString()).
                                         append(" ").append(commander.getPositionNotes());
                             } else {
-                                pos.append(commander.getStrukturalAsString());
+                                pos.append(commander.getStrukturalAsString()).
+                                        append(" ").append(commander.getPositionNotes());
                             }
                             linkApproverTitle.setText(pos.toString());
                             linkApproverGrade.setVisible(true);
@@ -1800,10 +2034,10 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
         protected JasperPrint doInBackground() throws Exception {
             try {
                 if (letter.getCommander().isGorvernor()) {
-                    AssignmentLetterCommJasper letterJasper = new AssignmentLetterCommJasper(letter, properties);
+                    AssignmentLetterCommJasper letterJasper = new AssignmentLetterCommJasper(letter, profileAccount);
                     jasperPrint = letterJasper.getJasperPrint();
                 } else {
-                    AssignmentLetterJasper letterJasper = new AssignmentLetterJasper(letter, properties);
+                    AssignmentLetterJasper letterJasper = new AssignmentLetterJasper(letter, profileAccount);
                     jasperPrint = letterJasper.getJasperPrint();
                 }
 
@@ -1817,6 +2051,7 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
                 });
                 return jasperPrint;
             } catch (Exception anyException) {
+                Exceptions.printStackTrace(anyException);
                 exception = anyException;
                 throw exception;
             }

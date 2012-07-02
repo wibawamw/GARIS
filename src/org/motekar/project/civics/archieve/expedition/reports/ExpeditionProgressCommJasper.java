@@ -1,5 +1,6 @@
 package org.motekar.project.civics.archieve.expedition.reports;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -8,7 +9,7 @@ import javax.swing.table.DefaultTableModel;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperReport;
 import org.motekar.project.civics.archieve.master.objects.Employee;
-import org.motekar.project.civics.archieve.utils.misc.ArchieveProperties;
+import org.motekar.project.civics.archieve.utils.misc.ProfileAccount;
 import org.motekar.project.civics.archieve.utils.report.AbstractJasper;
 import org.openide.util.Exceptions;
 
@@ -22,11 +23,11 @@ public class ExpeditionProgressCommJasper extends AbstractJasper {
     private Employee commander;
     private JasperReport jasperReport;
     private Map params = new HashMap();
-    private ArchieveProperties properties;
+    private ProfileAccount profileAccount;
 
-    public ExpeditionProgressCommJasper(Employee commander, ArchieveProperties properties) {
+    public ExpeditionProgressCommJasper(Employee commander, ProfileAccount profileAccount) {
         this.commander = commander;
-        this.properties = properties;
+        this.profileAccount = profileAccount;
         createJasperPrint();
     }
 
@@ -38,8 +39,8 @@ public class ExpeditionProgressCommJasper extends AbstractJasper {
                 @Override
                 protected JasperReport doInBackground() throws Exception {
                     try {
-                        String filename = "ExpeditionProgressComm.jrxml";
-                        jasperReport = JasperCompileManager.compileReport("printing/" + filename);
+                        String filename = System.getProperty("user.dir")+File.separator+File.separator+"printing"+File.separator+"ExpeditionProgressComm.jrxml";
+                        jasperReport = JasperCompileManager.compileReport(filename);
                     } catch (Exception ex) {
                         Exceptions.printStackTrace(ex);
                     }
@@ -73,12 +74,12 @@ public class ExpeditionProgressCommJasper extends AbstractJasper {
 
                         StringBuilder gorvernorname = new StringBuilder();
 
-                        if (properties.getStateType().equals(ArchieveProperties.KABUPATEN)) {
+                        if (profileAccount.getStateType().equals(ProfileAccount.KABUPATEN)) {
                             gorvernorname.append("BUPATI ").
-                                    append(properties.getState().toUpperCase());
+                                    append(profileAccount.getState().toUpperCase());
                         } else {
                             gorvernorname.append("WALIKOTA ").
-                                    append(properties.getState().toUpperCase());
+                                    append(profileAccount.getState().toUpperCase());
                         }
 
                         param.put("ApproverName", commander.getName());

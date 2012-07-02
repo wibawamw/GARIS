@@ -4,7 +4,9 @@ import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -12,47 +14,42 @@ import java.beans.PropertyChangeListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
 import javax.swing.Icon;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingWorker;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeCellRenderer;
+import javax.swing.tree.TreePath;
 import org.jdesktop.swingx.JXCollapsiblePane;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXLabel;
-import org.jdesktop.swingx.JXList;
 import org.jdesktop.swingx.JXMultiSplitPane;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXStatusBar;
-import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.JXTextField;
 import org.jdesktop.swingx.JXTitledPanel;
+import org.jdesktop.swingx.JXTree;
 import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.error.ErrorInfo;
-import org.jdesktop.swingx.renderer.DefaultListRenderer;
+import org.jdesktop.swingx.renderer.DefaultTreeRenderer;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.renderer.StringValue;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.master.objects.Division;
+import org.motekar.project.civics.archieve.master.objects.NodeCode;
 import org.motekar.project.civics.archieve.master.sqlapi.MasterBusinessLogic;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
 import org.motekar.util.user.misc.MotekarException;
+import org.motekar.util.user.misc.MotekarFocusTraversalPolicy;
+import org.motekar.util.user.objects.UserGroup;
 import org.motekar.util.user.ui.Mainframe;
-import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
 import org.pushingpixels.flamingo.api.common.JCommandButtonStrip;
 import org.pushingpixels.flamingo.api.common.RichTooltip;
@@ -61,15 +58,19 @@ import org.pushingpixels.flamingo.api.common.RichTooltip;
  *
  * @author Muhamad Wibawa
  */
-public class DivisionPanel extends JXPanel implements ActionListener, ListSelectionListener {
+public class DivisionPanel extends JXPanel implements ActionListener {
 
     private ArchieveMainframe mainframe = null;
     private MasterBusinessLogic logic;
+    private DivisionTree divisionTree = new DivisionTree();
     private JXMultiSplitPane splitPane = new JXMultiSplitPane();
     private JXLabel statusLabel = new JXLabel("Ready");
     private JProgressBar pbar = new JProgressBar();
-    private JXTextField fieldSearch = new JXTextField();
-    private DivisionList divisionList = new DivisionList();
+    private JXLabel labelSuperTitle = new JXLabel("Bagian / Bidang");
+    private JXLabel labelSuperDivision = new JXLabel();
+    private JXLabel labelSubDivision = new JXLabel("");
+    private JXLabel labelCode = new JXLabel("Kode Division");
+    private JXLabel labelName = new JXLabel("Nama Division");
     private JXTextField fieldCode = new JXTextField();
     private JXTextField fieldName = new JXTextField();
     private JCommandButton btAdd = new JCommandButton(Mainframe.getResizableIconFromSource("resource/blog_add.png"));
@@ -81,26 +82,49 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
     private boolean isnew = false;
     private boolean isedit = false;
     private Division selectedDivision = null;
+    private StringBuilder errorString = new StringBuilder();
     private LoadDivision worker;
     private DivisionProgressListener progressListener;
-    private StringBuilder errorString = new StringBuilder();
+    private Unit unit;
 
     public DivisionPanel(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
-        logic = new MasterBusinessLogic(mainframe.getConnection());
+        this.logic = new MasterBusinessLogic(this.mainframe.getConnection());
         construct();
-        divisionList.loadData();
+        checkLogin();
+    }
+
+    private void checkLogin() {
+        UserGroup userGroup = mainframe.getUserGroup();
+        if (userGroup.getGroupName().equals("Administrator")) {
+            System.out.println("1");
+            divisionTree.loadData("");
+        } else {
+            System.out.println("2");
+            unit = mainframe.getUnit();
+            String modifier = generateUnitModifier(unit);
+            divisionTree.loadData(modifier);
+        }
+    }
+
+    private String generateUnitModifier(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            query.append(" where unit = ").append(unit.getIndex());
+        }
+
+        return query.toString();
     }
 
     private JXPanel createLeftComponent() {
 
-        JXTitledPanel titledPanel = new JXTitledPanel("Daftar Bagian");
+        JXTitledPanel titledPanel = new JXTitledPanel("Struktur Bagian / Bidang");
 
         JXCollapsiblePane collapasepanel = new JXCollapsiblePane();
         collapasepanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
         collapasepanel.setLayout(new BorderLayout());
-        collapasepanel.add(createSearchPanel(), BorderLayout.NORTH);
-        collapasepanel.add(new JScrollPane(divisionList), BorderLayout.CENTER);
+        collapasepanel.add(new JScrollPane(divisionTree), BorderLayout.CENTER);
         titledPanel.setContentContainer(collapasepanel);
 
         return titledPanel;
@@ -121,57 +145,6 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
         return titledPanel;
     }
 
-    private JXPanel createRightComponent() {
-        JXTitledPanel titledPanel = new JXTitledPanel("Bantuan");
-
-        JXLabel helpLabel = new JXLabel();
-        helpLabel.setTextAlignment(JXLabel.TextAlignment.JUSTIFY);
-
-        String text = "Penjelasan Singkat\n"
-                + "Fasilitas Bagian merupakan pembagian bidang kerja pegawai PNS di suatu dinas,"
-                + "bagian ini sama dengan divisi atau bidang di suatu perusahaan.\n\n"
-                + "Tambah Bagian\n"
-                + "Untuk menambah Bagian klik tombol paling kiri "
-                + "kemudian isi data Bagian baru yang akan ditambah "
-                + "kemudian klik tombol simpan (tombol tengah) untuk menyimpan "
-                + "atau klik tombol batal (tombol paling kiri) "
-                + "untuk melakukan pembatalan pencatatan\n\n"
-                + "Edit Bagian\n"
-                + "Untuk merubah Bagian klik tombol kedua dari kiri "
-                + "kemudian ubah data Bagian, kemudian klik tombol simpan (tombol tengah) "
-                + "untuk menyimpan atau klik tombol batal (tombol paling kiri) "
-                + "untuk melakukan pembatalan perubahan\n\n"
-                + "Hapus Bagian\n"
-                + "Untuk menghapus Bagian klik tombol paling kanan "
-                + "kemudian akan muncul peringatan untuk menghapus Bagian "
-                + "tersebut, pilih Ya untuk mengapus atau pilih Tidak untuk "
-                + "membatalkan penghapusan";
-
-
-        helpLabel.setLineWrap(true);
-        helpLabel.setMaxLineSpan(300);
-        helpLabel.setText(text);
-
-        JXTaskPaneContainer container = new JXTaskPaneContainer();
-
-        JScrollPane scPane = new JScrollPane();
-        scPane.getViewport().add(container);
-        scPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_ALWAYS);
-
-        JXTaskPane task = new JXTaskPane();
-        task.setTitle("Tambah / Edit / Hapus Bagian");
-        task.getContentPane().add(helpLabel);
-        task.setAnimated(true);
-
-        container.add(task);
-
-        helpLabel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
-        titledPanel.setContentContainer(scPane);
-
-        return titledPanel;
-    }
-
     private JXStatusBar createStatusBar() {
         JXStatusBar bar = new JXStatusBar();
         JXStatusBar.Constraint c1 = new JXStatusBar.Constraint(
@@ -184,35 +157,36 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
         return bar;
     }
 
-    protected JPanel createMainPanel() {
+    protected Component createMainPanel() {
         FormLayout lm = new FormLayout(
-                "pref,10px,fill:default:grow,30px",
-                "pref,5px,pref,5px");
+                "right:pref,10px,pref,1px,center:pref,1px,30px,fill:default:grow,20px",
+                "pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,pref,fill:default:grow,5px,pref,5px,50px");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
 
-        lm.setRowGroups(new int[][]{{1, 3}});
+        labelSuperTitle.setFont(new Font(labelSuperTitle.getFont().getName(), Font.BOLD, labelSuperTitle.getFont().getSize()));
+        labelSuperDivision.setFont(new Font(labelSuperDivision.getFont().getName(), Font.BOLD, labelSuperDivision.getFont().getSize()));
+
+        lm.setRowGroups(new int[][]{{1, 3, 5, 7, 9}});
 
         CellConstraints cc = new CellConstraints();
 
-        builder.addLabel("Kode", cc.xy(1, 1));
-        builder.add(fieldCode, cc.xy(3, 1));
+        builder.add(labelSuperTitle, cc.xy(1, 1));
+        builder.add(labelSuperDivision, cc.xyw(3, 1, 6));
 
-        builder.addLabel("Nama", cc.xy(1, 3));
-        builder.add(fieldName, cc.xy(3, 3));
+        builder.add(labelCode, cc.xy(1, 3));
+        builder.add(labelSubDivision, cc.xyw(3, 3, 1));
+        builder.add(fieldCode, cc.xyw(4, 3, 5));
 
-        return builder.getPanel();
-    }
-
-    protected JPanel createSearchPanel() {
-        FormLayout lm = new FormLayout(
-                "fill:default,10px, fill:default:grow", "pref");
-        DefaultFormBuilder builder = new DefaultFormBuilder(lm);
-        builder.setDefaultDialogBorder();
-
-        builder.append(new JXLabel("Cari"), fieldSearch);
-
-        return builder.getPanel();
+        builder.add(labelName, cc.xy(1, 5));
+        builder.add(fieldName, cc.xyw(3, 5, 6));
+        
+        JScrollPane scPane = new JScrollPane();
+        scPane.setViewportView(builder.getPanel());
+        
+        scPane.getVerticalScrollBar().setUnitIncrement(20);
+        
+        return scPane;
     }
 
     protected JPanel createButtonsPanel() {
@@ -229,22 +203,22 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
             double vgapScaleFactor) {
 
         RichTooltip addTooltip = new RichTooltip();
-        addTooltip.setTitle("Tambah Pegawai");
+        addTooltip.setTitle("Tambah Division/Sub Division");
 
         btAdd.setActionRichTooltip(addTooltip);
 
         RichTooltip editTooltip = new RichTooltip();
-        editTooltip.setTitle("Ubah Pegawai");
+        editTooltip.setTitle("Ubah Division/Sub Division");
 
         btEdit.setActionRichTooltip(editTooltip);
 
         RichTooltip saveTooltip = new RichTooltip();
-        saveTooltip.setTitle("Simpan Pegawai");
+        saveTooltip.setTitle("Simpan Division/Sub Division");
 
         btSave.setActionRichTooltip(saveTooltip);
 
         RichTooltip deleteTooltip = new RichTooltip();
-        deleteTooltip.setTitle("Hapus Pegawai");
+        deleteTooltip.setTitle("Hapus Division/Sub Division");
 
         btDelete.setActionRichTooltip(deleteTooltip);
 
@@ -268,33 +242,31 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
 
     private void construct() {
 
-        fieldSearch.getDocument().addDocumentListener(new DocumentListener() {
-
-            public void insertUpdate(DocumentEvent e) {
-                filter();
-            }
-
-            public void removeUpdate(DocumentEvent e) {
-                filter();
-            }
-
-            public void changedUpdate(DocumentEvent e) {
-                filter();
-            }
-        });
-
-        divisionList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        divisionList.setAutoCreateRowSorter(true);
-        divisionList.addListSelectionListener(this);
-
         btAdd.addActionListener(this);
         btEdit.addActionListener(this);
         btDelete.addActionListener(this);
         btSave.addActionListener(this);
         btCancel.addActionListener(this);
 
-        String LAY_OUT = "(ROW weight=1.0 (LEAF name=editor1 weight=0.25)"
-                + "(LEAF name=editor2 weight=0.5) (LEAF name=editor3 weight=0.25))";
+        divisionTree.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+        divisionTree.addPropertyChangeListener("leadSelectionPath", new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                Object obj = divisionTree.getSelectedObject();
+                if (obj != null) {
+                    if (obj instanceof Division) {
+                        selectedDivision = (Division) obj;
+                    } else {
+                        selectedDivision = null;
+                    }
+                    setFormValues();
+                }
+            }
+        });
+
+        String LAY_OUT = "(ROW weight=1.0 (LEAF name=editor1 weight=0.3)"
+                + "(LEAF name=editor2 weight=0.7))";
         MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel(LAY_OUT);
         splitPane.getMultiSplitLayout().setModel(modelRoot);
 
@@ -302,13 +274,9 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
 
         splitPane.setPreferredSize(modelRoot.getBounds().getSize());
 
-        JXPanel panel = createRightComponent();
 
         splitPane.add(createLeftComponent(), "editor1");
         splitPane.add(createCenterComponent(), "editor2");
-        splitPane.add(panel, "editor3");
-
-        panel.setVisible(true);
 
         splitPane.setDividerSize(1);
 
@@ -316,35 +284,111 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
         setLayout(new BorderLayout());
         add(splitPane, BorderLayout.CENTER);
         add(createStatusBar(), BorderLayout.SOUTH);
-
         setFormState();
         setButtonState("");
     }
 
-    public void filter() {
-        divisionList.setRowFilter(new RowFilter<ListModel, Integer>() {
-
-            @Override
-            public boolean include(Entry<? extends ListModel, ? extends Integer> entry) {
-                return entry.getStringValue(entry.getIdentifier()).toLowerCase().contains(fieldSearch.getText().toLowerCase());
-            }
-        });
+    private void setFormState() {
+        fieldCode.setEnabled(iseditable);
+        fieldName.setEnabled(iseditable);
+        divisionTree.setEnabled(!iseditable);
     }
 
-    private void setFormState() {
-        fieldCode.setEnabled(false);
-        fieldName.setEnabled(iseditable);
+    private void setFormValues() {
+        if (selectedDivision != null) {
+            DefaultMutableTreeNode node = divisionTree.getSelectedNode();
 
-        fieldSearch.setEnabled(!iseditable);
-        divisionList.setEnabled(!iseditable);
+            if (!node.isRoot()) {
+                DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+
+                if (parent.isRoot()) {
+                    labelSuperDivision.setText("");
+                    labelSubDivision.setText("");
+                    labelSuperTitle.setText("");
+                    labelCode.setText("Kode Bagian / Bidang");
+                    labelName.setText("Nama Bagian / Bidang");
+
+                } else {
+                    Object obj = parent.getUserObject();
+                    Division division = null;
+                    if (obj instanceof Division) {
+                        division = (Division) obj;
+                        labelSuperDivision.setText(division.toString());
+                        StringBuilder builder = new StringBuilder();
+                        if (!selectedDivision.getParentCode().equals("")) {
+                            builder.append(division.getParentCode()).append(".");
+                            labelCode.setText("Kode Sub Bagian / Bidang / Seksi");
+                            labelName.setText("Nama Sub Bagian / Bidang / Seksi");
+                            labelSuperTitle.setText("Bagian / Bidang");
+                        } else {
+                            builder.append(division.getParentCode());
+                            labelSuperTitle.setText("");
+                            labelCode.setText("Kode Bagian / Bidang");
+                            labelName.setText("Nama Bagian / Bidang");
+                        }
+                        labelSubDivision.setText(builder.toString());
+                    } else {
+                        labelSuperDivision.setText("");
+                        labelSubDivision.setText("");
+                        labelSuperTitle.setText("");
+                        labelCode.setText("Kode Bagian / Bidang");
+                        labelName.setText("Nama Bagian / Bidang");
+                    }
+                }
+
+                if (!selectedDivision.getParentCode().equals("")) {
+                    fieldCode.setText(selectedDivision.getCode());
+                } else {
+                    fieldCode.setText(selectedDivision.getChildCode());
+                }
+
+                fieldName.setText(selectedDivision.getName());
+                if (selectedDivision.getParentCode().equals("")) {
+                    setButtonState("Save");
+                } else {
+                    setButtonState("disableAdd");
+                }
+
+            } else {
+                clearForm();
+                setButtonState("");
+            }
+
+        } else {
+            clearForm();
+            setButtonState("");
+        }
     }
 
     private void clearForm() {
         fieldCode.setText("");
         fieldName.setText("");
-        if (fieldName.isEnabled()) {
-            fieldName.requestFocus();
-            fieldName.selectAll();
+
+        DefaultMutableTreeNode node = divisionTree.getSelectedNode();
+        if (node != null) {
+            if (node.isRoot()) {
+                labelSuperDivision.setText("");
+                labelSubDivision.setText("");
+                labelSuperTitle.setText("");
+                labelCode.setText("Kode Bagian / Bidang ");
+                labelName.setText("Nama Bagian / Bidang");
+            } else {
+                if (selectedDivision != null) {
+                    labelSuperDivision.setText(selectedDivision.toString());
+                    StringBuilder builder = new StringBuilder();
+                    builder.append(selectedDivision.getCode()).append(".");
+                    labelCode.setText("Kode Sub Bagian / Bidang / Seksi");
+                    labelName.setText("Nama Sub Bagian / Bidang / Seksi");
+                    labelSuperTitle.setText("Bagian / Bidang ");
+                    labelSubDivision.setText(builder.toString());
+                }
+            }
+        } else {
+            labelSuperDivision.setText("");
+            labelSubDivision.setText("");
+            labelSuperTitle.setText("");
+            labelCode.setText("Kode Sub Bagian / Bidang / Seksi");
+            labelName.setText("Nama Sub Bagian / Bidang / Seksi");
         }
     }
 
@@ -362,6 +406,12 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
             btSave.setEnabled(false);
             btCancel.setEnabled(false);
 
+        } else if (state.equals("disableAdd")) {
+            btAdd.setEnabled(false);
+            btEdit.setEnabled(true);
+            btDelete.setEnabled(true);
+            btSave.setEnabled(false);
+            btCancel.setEnabled(false);
         } else {
             btAdd.setEnabled(true);
             btEdit.setEnabled(false);
@@ -371,26 +421,37 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
         }
     }
 
-    public void actionPerformed(ActionEvent e) {
-        Object obj = e.getSource();
-        if (obj == btAdd) {
-            onNew();
-        } else if (obj == btEdit) {
-            onEdit();
-        } else if (obj == btDelete) {
-            onDelete();
-        } else if (obj == btSave) {
-            onSave();
-        } else if (obj == btCancel) {
-            onCancel();
-        }
-    }
+    private Division getDivision() throws MotekarException {
+        errorString = new StringBuilder();
 
-    public void valueChanged(ListSelectionEvent e) {
-        if (e.getValueIsAdjusting()) {
-            selectedDivision = divisionList.getSelectedDivision();
-            setFormValues();
+        String name = fieldName.getText();
+        String code = fieldCode.getText();
+        String parentCode = labelSubDivision.getText().replace(".", "").trim();
+
+        if (code.equals("")) {
+            errorString.append("<br>- Kode Bagian / Bidang</br>");
         }
+
+        if (name.equals("")) {
+            errorString.append("<br>- Nama Bagian / Bidang</br>");
+        }
+
+        if (errorString.length() > 0) {
+            throw new MotekarException("<html>Harap diperhatikan untuk diisi : " + errorString.toString() + "</html>");
+        }
+
+        Division division = new Division();
+        division.setCode(labelSubDivision.getText().trim() + code);
+        division.setName(name);
+        division.setParentCode(parentCode);
+
+        if (selectedDivision != null) {
+            division.setUnit(selectedDivision.getUnit());
+        } else {
+            division.setUnit(unit);
+        }
+
+        return division;
     }
 
     private void onNew() {
@@ -399,8 +460,8 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
         setFormState();
         setButtonState("New");
         clearForm();
-        statusLabel.setText("Tambah Bagian");
-        generateCode();
+        statusLabel.setText("Tambah Division/Sub Division");
+        defineCustomFocusTraversalPolicy();
     }
 
     private void onEdit() {
@@ -408,9 +469,10 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
         isedit = true;
         setFormState();
         setButtonState("New");
-        fieldCode.requestFocus();
+        fieldName.requestFocus();
         fieldName.selectAll();
-        statusLabel.setText("Ubah Bagian");
+        statusLabel.setText("Ubah Division/Sub Division");
+        defineCustomFocusTraversalPolicy();
     }
 
     private void onDelete() {
@@ -423,8 +485,9 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
                 options, options[1]);
         if (choise == JOptionPane.YES_OPTION) {
             try {
+
                 logic.deleteDivision(mainframe.getSession(), selectedDivision.getCode());
-                divisionList.removeSelected(selectedDivision);
+                divisionTree.removeSelected();
                 clearForm();
             } catch (SQLException ex) {
                 ErrorInfo info = new ErrorInfo("Kesalahan", "Terjadi Kesalahan atau Error Ketika menghapus data",
@@ -437,12 +500,13 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
     private void onSave() {
         try {
             Division newDivision = getDivision();
-
+            DefaultMutableTreeNode selectedNode = divisionTree.getSelectedNode();
             if (isnew) {
                 newDivision = logic.insertDivision(mainframe.getSession(), newDivision);
                 isnew = false;
                 iseditable = false;
-                divisionList.addDivision(newDivision);
+                newDivision.setStyled(true);
+                divisionTree.addDivision(selectedNode, newDivision);
                 selectedDivision = newDivision;
                 setFormState();
                 setButtonState("Save");
@@ -450,7 +514,8 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
                 newDivision = logic.updateDivision(mainframe.getSession(), selectedDivision, newDivision);
                 isedit = false;
                 iseditable = false;
-                divisionList.updateDivision(newDivision);
+                newDivision.setStyled(true);
+                divisionTree.updateDivision(newDivision);
                 setFormState();
                 setButtonState("Save");
             }
@@ -472,135 +537,195 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
         isedit = false;
         isnew = false;
         setFormState();
-        if (divisionList.getElementCount() > 0) {
+        if (divisionTree.getRoot().getChildCount() > 0) {
             setButtonState("Save");
         } else {
             setButtonState("");
         }
         setFormValues();
         statusLabel.setText("Ready");
+        mainframe.setFocusTraversalPolicy(null);
     }
 
-    private void setFormValues() {
-        if (selectedDivision != null) {
-            fieldCode.setText(selectedDivision.getCode());
-            fieldName.setText(selectedDivision.getName());
-            setButtonState("Save");
-        } else {
-            clearForm();
-            setButtonState("");
+    public void actionPerformed(ActionEvent e) {
+        Object obj = e.getSource();
+        if (obj == btAdd) {
+            onNew();
+        } else if (obj == btEdit) {
+            onEdit();
+        } else if (obj == btDelete) {
+            onDelete();
+        } else if (obj == btSave) {
+            onSave();
+        } else if (obj == btCancel) {
+            onCancel();
         }
     }
 
-    private Division getDivision() throws MotekarException {
-        String name = fieldName.getText();
+    private void defineCustomFocusTraversalPolicy() {
+        ArrayList<Component> comp = new ArrayList<Component>();
+        comp.add(fieldCode);
+        comp.add(fieldName);
 
-        if (name.equals("")) {
-            errorString.append("<br>- Nama Bagian</br>");
-            throw new MotekarException("<html>Harap diperhatikan untuk diisi : " + errorString.toString() + "</html>");
-        }
-
-        Division division = new Division();
-
-        division.setCode(fieldCode.getText());
-        division.setName(name);
-
-        return division;
+        MotekarFocusTraversalPolicy policy = new MotekarFocusTraversalPolicy(comp);
+        mainframe.setFocusTraversalPolicy(policy);
     }
 
-    private void generateCode() {
-        try {
-            String code = logic.generatedDivisionCode(mainframe.getSession());
-            fieldCode.setText(code);
-        } catch (SQLException ex) {
-            Exceptions.printStackTrace(ex);
-        }
-    }
+    private class DivisionTree extends JXTree {
 
-    private class DivisionList extends JXList {
+        private DefaultTreeModel model;
+        private DefaultMutableTreeNode root = null;
+        private Icon GROUP_ICON = Mainframe.getResizableIconFromSource("resource/folder.png", new Dimension(16, 16));
+        private Icon CHILD_ICON = Mainframe.getResizableIconFromSource("resource/Division.png", new Dimension(16, 16));
 
-        private Icon DIVISION_ICON = Mainframe.getResizableIconFromSource("resource/Division.png", new Dimension(36, 36));
-        private Icon NULL_ICON = Mainframe.getResizableIconFromSource("resource/Question.png", new Dimension(36, 36));
-
-        public DivisionList() {
-            DefaultListModel model = new DefaultListModel();
+        public DivisionTree() {
+            root = new DefaultMutableTreeNode("Bidang / Sub Bidang");
+            model = new DefaultTreeModel(root);
             setModel(model);
+            this.setShowsRootHandles(true);
         }
 
-        public void loadData() {
-            worker = new LoadDivision((DefaultListModel) getModel());
+        public void loadData(String modifier) {
+            worker = new LoadDivision(this, modifier);
             progressListener = new DivisionProgressListener(pbar);
             worker.addPropertyChangeListener(progressListener);
             worker.execute();
         }
 
-        public Division getSelectedDivision() {
-            Division division = null;
-            Object obj = this.getSelectedValue();
-            if (obj instanceof Division) {
-                division = (Division) obj;
-            }
-            return division;
+        public void clear() {
+            root = new DefaultMutableTreeNode("Bidang / Sub Bidang");
+            model = new DefaultTreeModel(root);
         }
 
-        public void addDivision(Division division) {
-            DefaultListModel model = (DefaultListModel) getModel();
-            model.addElement(division);
-            setSelectedIndex(model.getSize() - 1);
+        public DefaultMutableTreeNode getRoot() {
+            return (DefaultMutableTreeNode) model.getRoot();
+        }
+
+        public DefaultMutableTreeNode getSelectedNode() {
+            TreePath treePath = getSelectionPath();
+
+            if (treePath == null) {
+                return null;
+            }
+
+            DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) treePath.getLastPathComponent();
+
+            return treeNode;
+        }
+
+        public DefaultMutableTreeNode getSelectedParentNode() {
+            TreePath treePath = getSelectionPath();
+
+            if (treePath == null) {
+                return null;
+            }
+
+            DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) treePath.getLastPathComponent();
+
+            return (DefaultMutableTreeNode) treeNode.getParent();
+        }
+
+        public Object getSelectedObject() {
+            TreePath treePath = getSelectionPath();
+
+            if (treePath == null) {
+                return null;
+            }
+
+            DefaultMutableTreeNode treeNode = (DefaultMutableTreeNode) treePath.getLastPathComponent();
+            Object obj = treeNode.getUserObject();
+            return obj;
+        }
+
+        private void goToPath() {
+            int row = 0;
+
+            TreePath selPath = getSelectionPath();
+            if (selPath != null) {
+                row = getRowForPath(selPath);
+            }
+            setSelectionRow(row + 1);
+        }
+
+        public void addDivision(DefaultMutableTreeNode parent, Division division) {
+            if (division != null) {
+                DefaultMutableTreeNode accNode = new DefaultMutableTreeNode(division);
+                if (parent != null) {
+                    model.insertNodeInto(accNode, parent, parent.getChildCount());
+                } else {
+                    model.insertNodeInto(accNode, root, root.getChildCount());
+                }
+                expandAll();
+                goToPath();
+            }
+        }
+
+        public void removeSelected() {
+            DefaultMutableTreeNode selNode = getSelectedNode();
+            if (selNode != null) {
+                model.removeNodeFromParent(selNode);
+            }
         }
 
         public void updateDivision(Division division) {
-            DefaultListModel model = (DefaultListModel) getModel();
-            model.setElementAt(division, getSelectedIndex());
+            DefaultMutableTreeNode selNode = getSelectedNode();
+            if (selNode != null) {
+                selNode.setUserObject(division);
+                model.nodeChanged(selNode);
+            }
         }
 
-        public void removeSelecteds(ArrayList<Division> divisions) {
-            DefaultListModel model = (DefaultListModel) getModel();
-            model.removeElement(divisions);
-            filter();
-        }
-
-        public void removeSelected(Division division) {
-            DefaultListModel model = (DefaultListModel) getModel();
-            model.removeElement(division);
-            filter();
+        public void updateNode(DefaultMutableTreeNode node, Division division) {
+            if (node != null) {
+                node.setUserObject(division);
+                model.nodeChanged(node);
+            }
         }
 
         @Override
-        public ListCellRenderer getCellRenderer() {
-            return new DefaultListRenderer(new StringValue() {
+        public TreeCellRenderer getCellRenderer() {
+            return new DefaultTreeRenderer(new IconValue() {
+
+                public Icon getIcon(Object o) {
+                    Division division = null;
+                    if (o instanceof String) {
+                        return null;
+                    } else if (o instanceof Division) {
+                        division = (Division) o;
+                        if (division.getParentCode().equals("")) {
+                            return DivisionTree.this.GROUP_ICON;
+                        } else {
+                            return DivisionTree.this.CHILD_ICON;
+                        }
+                    }
+                    return null;
+                }
+            }, new StringValue() {
 
                 public String getString(Object o) {
                     return o.toString();
-                }
-            }, new IconValue() {
-
-                public Icon getIcon(Object o) {
-
-                    Division division = null;
-
-                    if (o instanceof Division) {
-                        division = (Division) o;
-                    }
-
-                    if (division != null) {
-                        return DivisionList.this.DIVISION_ICON;
-                    }
-
-                    return DivisionList.this.NULL_ICON;
                 }
             });
         }
     }
 
-    private class LoadDivision extends SwingWorker<DefaultListModel, Division> {
+    private class LoadDivision extends SwingWorker<DefaultTreeModel, Division> {
 
-        private DefaultListModel model;
+        private DivisionTree divisionTree;
+        private DefaultTreeModel model;
+        private DefaultMutableTreeNode root;
         private Exception exception;
+        private ArrayList<NodeCode> nodeCodes = new ArrayList<NodeCode>();
+        //
+        private String modifier = "";
 
-        public LoadDivision(DefaultListModel model) {
-            this.model = model;
-            model.clear();
+        public LoadDivision(DivisionTree divisionTree, String modifier) {
+            this.divisionTree = divisionTree;
+            this.modifier = modifier;
+            this.model = (DefaultTreeModel) divisionTree.getModel();
+            root = new DefaultMutableTreeNode("Bagian / Sub Bagian");
+            model.setRoot(root);
+            nodeCodes = new ArrayList<NodeCode>();
         }
 
         public Exception getDoInBackgroundException() {
@@ -614,22 +739,45 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
                 if (isCancelled()) {
                     break;
                 }
-                statusLabel.setText("Memuat Bagian " + division.getName());
-                model.addElement(division);
+                statusLabel.setText("Memuat Bagian / Sub Bagian = " + division.toString());
+
+                if (division.getParentCode().equals("")) {
+                    DefaultMutableTreeNode child = new DefaultMutableTreeNode(division);
+                    model.insertNodeInto(child, root, root.getChildCount());
+                    NodeCode nodeCode = new NodeCode(division.getCode(), child);
+                    nodeCodes.add(nodeCode);
+
+                } else {
+                    NodeCode idx = NodeCode.searchArrays(nodeCodes, division.getParentCode());
+                    if (idx != null) {
+                        DefaultMutableTreeNode parent = idx.getNode();
+                        DefaultMutableTreeNode child = new DefaultMutableTreeNode(division);
+                        model.insertNodeInto(child, parent, parent.getChildCount());
+                    } else {
+                        DefaultMutableTreeNode child = new DefaultMutableTreeNode(division);
+                        model.insertNodeInto(child, root, root.getChildCount());
+                    }
+
+                }
+                divisionTree.expandAll();
             }
         }
 
         @Override
-        protected DefaultListModel doInBackground() throws Exception {
+        protected DefaultTreeModel doInBackground() throws Exception {
             try {
-                ArrayList<Division> divisions = logic.getDivision(mainframe.getSession(), true);
+                ArrayList<Division> divisions = logic.getDivision(mainframe.getSession(), true, modifier);
+                int size = divisions.size();
 
                 double progress = 0.0;
                 if (!divisions.isEmpty()) {
-                    for (int i = 0; i < divisions.size() && !isCancelled(); i++) {
-                        progress = 100 * (i + 1) / divisions.size();
+                    for (int i = 0; i < size && !isCancelled(); i++) {
+                        progress = 100 * (i + 1) / size;
+                        Division division = divisions.get(i);
+                        division.setStyled(true);
+
+                        publish(division);
                         setProgress((int) progress);
-                        publish(divisions.get(i));
                         Thread.sleep(100L);
                     }
                 }
@@ -642,20 +790,12 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
 
         @Override
         protected void done() {
-            try {
-                if (isCancelled()) {
-                    return;
-                }
-                get();
-            } catch (InterruptedException e) {
-                //ignore
-            } catch (ExecutionException e) {
-                ErrorInfo info = new ErrorInfo("Kesalahan", e.getMessage(),
-                        null, "ERROR", e, Level.ALL, null);
-                JXErrorPane.showDialog(DivisionPanel.this, info);
+            if (isCancelled()) {
+                return;
             }
             setProgress(100);
             mainframe.startInActiveListener();
+
         }
     }
 

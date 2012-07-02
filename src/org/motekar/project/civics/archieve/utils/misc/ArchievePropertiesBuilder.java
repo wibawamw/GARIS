@@ -41,15 +41,6 @@ public class ArchievePropertiesBuilder {
         root.addChild(createDatabaseTag());
         root.addChild(createUserNameTag());
         root.addChild(createPasswordTag());
-        root.addChild(createCompanyTag());
-        root.addChild(createAddressTag());
-        root.addChild(createStateTag());
-        root.addChild(createCapitalTag());
-        root.addChild(createProvinceTag());
-        root.addChild(createDivisionTag());
-        root.addChild(createLogosTag());
-        root.addChild(createLogos2Tag());
-        root.addChild(createLogos3Tag());
     }
 
     private XMLElement createServerTag() throws XMLException {
@@ -78,76 +69,6 @@ public class ArchievePropertiesBuilder {
 
         String password = prop.getPassword();
         child.setContent(SimpleStringCipher.encrypt(password));
-
-        return child;
-    }
-
-    private XMLElement createCompanyTag() throws XMLException {
-        XMLElement child = new XMLElement("Company");
-        if (!prop.getAddress().equals("")) {
-            child.setAttribute("Name", prop.getCompany());
-            child.addChild(createAddressTag());
-        } else {
-            child.setContent(prop.getCompany());
-        }
-
-        return child;
-    }
-
-    private XMLElement createAddressTag() throws XMLException {
-        XMLElement child = new XMLElement("Address");
-        child.setContent(prop.getAddress());
-
-        return child;
-    }
-
-    private XMLElement createCapitalTag() throws XMLException {
-        XMLElement child = new XMLElement("Capital");
-        child.setContent(prop.getCapital());
-
-        return child;
-    }
-
-    private XMLElement createStateTag() throws XMLException {
-        XMLElement child = new XMLElement("State");
-        child.setAttribute("Type", prop.getStateType());
-        child.setContent(prop.getState());
-
-        return child;
-    }
-
-    private XMLElement createProvinceTag() throws XMLException {
-        XMLElement child = new XMLElement("Province");
-        child.setContent(prop.getProvince());
-
-        return child;
-    }
-
-
-    private XMLElement createDivisionTag() throws XMLException {
-        XMLElement child = new XMLElement("Division");
-        child.setAttribute("Code", prop.getDivisionCode());
-        child.setAttribute("Name", prop.getDivisionName());
-        return child;
-    }
-
-    private XMLElement createLogosTag() throws XMLException {
-        XMLElement child = new XMLElement("Logos");
-        child.setAttribute("Name", prop.getLogoFileName());
-
-        return child;
-    }
-
-    private XMLElement createLogos2Tag() throws XMLException {
-        XMLElement child = new XMLElement("Logos2");
-        child.setAttribute("Name", prop.getLogo2FileName());
-
-        return child;
-    }
-
-    private XMLElement createLogos3Tag() throws XMLException {
-        XMLElement child = new XMLElement("Logos3");
-        child.setAttribute("Name", prop.getLogo3FileName());
 
         return child;
     }

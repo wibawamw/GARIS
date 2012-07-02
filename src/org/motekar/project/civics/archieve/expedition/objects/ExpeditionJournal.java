@@ -2,6 +2,7 @@ package org.motekar.project.civics.archieve.expedition.objects;
 
 import java.util.ArrayList;
 import java.util.Date;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 
 /**
  *
@@ -20,6 +21,8 @@ public class ExpeditionJournal {
     private ArrayList<ExpeditionResult> result = new ArrayList<ExpeditionResult>();
 
     private boolean styled = false;
+    
+    private Unit unit = null;
 
     public ExpeditionJournal() {
     }
@@ -92,6 +95,14 @@ public class ExpeditionJournal {
         this.expeditions = expeditions;
     }
 
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
+    }
+    
     @Override
     public String toString() {
         if (isStyled()) {

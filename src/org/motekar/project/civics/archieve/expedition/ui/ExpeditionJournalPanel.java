@@ -64,6 +64,7 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.renderer.StringValue;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.expedition.objects.AssignmentLetter;
 import org.motekar.project.civics.archieve.expedition.objects.ExpeditionJournal;
 import org.motekar.project.civics.archieve.expedition.objects.ExpeditionResult;
@@ -71,10 +72,11 @@ import org.motekar.project.civics.archieve.expedition.reports.ExpeditionJournalJ
 import org.motekar.project.civics.archieve.expedition.sqlapi.ExpeditionBusinessLogic;
 import org.motekar.project.civics.archieve.master.objects.Employee;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
-import org.motekar.project.civics.archieve.utils.misc.ArchieveProperties;
+import org.motekar.project.civics.archieve.utils.misc.ProfileAccount;
 import org.motekar.project.civics.archieve.utils.report.ViewerPanel;
 import org.motekar.util.user.misc.MotekarException;
 import org.motekar.util.user.misc.MotekarFocusTraversalPolicy;
+import org.motekar.util.user.objects.UserGroup;
 import org.motekar.util.user.ui.Mainframe;
 import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
@@ -131,14 +133,54 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
     private JYearChooser yearChooser = new JYearChooser();
     private JMonthChooser monthChooser = new JMonthChooser();
     private JCheckBox checkBox = new JCheckBox();
-    private ArchieveProperties properties;
+    private ProfileAccount profileAccount;
+    //
+    private Unit unit = null;
 
     public ExpeditionJournalPanel(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
-        this.properties = mainframe.getProperties();
+        this.profileAccount = mainframe.getProfileAccount();
         logic = new ExpeditionBusinessLogic(mainframe.getConnection());
         construct();
-        journalList.loadData();
+        checkLogin();
+    }
+
+    private void checkLogin() {
+        UserGroup userGroup = mainframe.getUserGroup();
+        if (userGroup.getGroupName().equals("Administrator")) {
+            journalList.loadData("");
+        } else {
+            unit = mainframe.getUnit();
+            String modifier = generateUnitModifier(unit);
+            journalList.loadData(modifier);
+        }
+    }
+
+    private String generateUnitModifier(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            if (checkBox.isSelected()) {
+                query.append(" and unit = ").append(unit.getIndex());
+            } else {
+                query.append(" where unit = ").append(unit.getIndex());
+            }
+
+        }
+
+        return query.toString();
+    }
+
+
+    private String generateUnitModifier2(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            query.append(" and unit = ").append(unit.getIndex());
+
+        }
+
+        return query.toString();
     }
 
     private JXPanel createLeftComponent() {
@@ -271,8 +313,13 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
         builder.addLabel("Hasil", cc.xy(1, 13));
         builder.add(scPane, cc.xywh(3, 13, 2, 3));
         builder.add(createStrip2(1.0, 1.0), cc.xy(5, 13));
-
-        tabbedPane.addTab("Input Data", builder.getPanel());
+        
+        JScrollPane scPane2 = new JScrollPane();
+        scPane2.setViewportView(builder.getPanel());
+        
+        scPane2.getVerticalScrollBar().setUnitIncrement(20);
+        
+        tabbedPane.addTab("Input Data", scPane2);
         tabbedPane.addTab("Cetak", createPrintPanel());
 
         return tabbedPane;
@@ -414,14 +461,14 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
         monthChooser.addPropertyChangeListener("month", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                journalList.loadData();
+                journalList.loadData(generateUnitModifier(unit));
             }
         });
 
         yearChooser.addPropertyChangeListener("year", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                journalList.loadData();
+                journalList.loadData(generateUnitModifier(unit));
             }
         });
 
@@ -591,7 +638,7 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
     private void loadComboLetter() {
         comboLetter.removeAllItems();
         try {
-            ArrayList<AssignmentLetter> letter = logic.getAssignmentLetterInExpedition(mainframe.getSession());
+            ArrayList<AssignmentLetter> letter = logic.getAssignmentLetterInExpedition(mainframe.getSession(), generateUnitModifier2(unit));
 
             if (!letter.isEmpty()) {
                 for (AssignmentLetter al : letter) {
@@ -655,6 +702,12 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
         journal.setReportDate(reportDate);
         journal.setResult(results);
         journal.setLetter(letter);
+
+        if (selectedJournal != null) {
+            journal.setUnit(selectedJournal.getUnit());
+        } else {
+            journal.setUnit(unit);
+        }
 
         return journal;
     }
@@ -783,7 +836,7 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
         } else if (obj == checkBox) {
             monthChooser.setEnabled(checkBox.isSelected());
             yearChooser.setEnabled(checkBox.isSelected());
-            journalList.loadData();
+            journalList.loadData(generateUnitModifier(unit));
         }
     }
 
@@ -832,11 +885,11 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
             setModel(model);
         }
 
-        public void loadData() {
+        public void loadData(String modifier) {
             if (worker != null) {
                 worker.cancel(true);
             }
-            worker = new LoadExpeditionJournal((DefaultListModel) getModel());
+            worker = new LoadExpeditionJournal((DefaultListModel) getModel(), modifier);
             progressListener = new ExpeditionJournalProgressListener(pbar);
             worker.addPropertyChangeListener(progressListener);
             worker.execute();
@@ -905,9 +958,11 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
 
         private DefaultListModel model;
         private Exception exception;
+        private String modifier = "";
 
-        public LoadExpeditionJournal(DefaultListModel model) {
+        public LoadExpeditionJournal(DefaultListModel model, String modifier) {
             this.model = model;
+            this.modifier = modifier;
             model.clear();
         }
 
@@ -933,9 +988,9 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
                 ArrayList<ExpeditionJournal> journals = new ArrayList<ExpeditionJournal>();
 
                 if (checkBox.isSelected()) {
-                    journals = logic.getExpeditionJournal(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear());
+                    journals = logic.getExpeditionJournal(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear(), modifier);
                 } else {
-                    journals = logic.getExpeditionJournal(mainframe.getSession());
+                    journals = logic.getExpeditionJournal(mainframe.getSession(), modifier);
                 }
 
                 double progress = 0.0;
@@ -1322,7 +1377,7 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
             try {
 
                 if (journal != null) {
-                    ExpeditionJournalJasper ejj = new ExpeditionJournalJasper(journal, properties);
+                    ExpeditionJournalJasper ejj = new ExpeditionJournalJasper(journal, profileAccount);
                     jasperPrint = ejj.getJasperPrint();
                 }
 

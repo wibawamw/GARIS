@@ -1,13 +1,18 @@
 package org.motekar.project.civics.archieve.sqlapi;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.security.InvalidKeyException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.motekar.util.user.misc.MotekarProperties;
-import org.motekar.util.user.sqlapi.ConnectionManager;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import net.n3.nanoxml.XMLException;
+import org.motekar.project.civics.archieve.utils.misc.ArchieveProperties;
+import org.motekar.project.civics.archieve.utils.misc.ArchievePropertiesReader;
 import org.motekar.util.user.sqlapi.TableCreatorMain;
 import org.openide.util.Exceptions;
 
@@ -33,7 +38,7 @@ public class ArchieveTableCreatorMain extends TableCreatorMain {
             sql.installAccountStructureTable(stm);
             sql.installEmployeeTable(stm);
             sql.installCurriculumVitaeTable(stm);
-            sql.installEmployeeTable(stm);
+            sql.installEmployeeFacilityTable(stm);
             sql.installEmployeeCoursesTable(stm);
             sql.installDivisionTable(stm);
             sql.installAssignmentLetterTable(stm);
@@ -56,6 +61,48 @@ public class ArchieveTableCreatorMain extends TableCreatorMain {
             sql.installBudgetTable(stm);
             sql.installBudgetDetailTable(stm);
             sql.installBudgetSubDetailTable(stm);
+            
+            // Asset Table
+            
+            sql.installItemsCategoryTable(stm);
+            sql.installItemsCategoryStructureTable(stm);
+            sql.installRoomTable(stm);
+            sql.installConditionTable(stm);
+            sql.installItemsLandTable(stm);
+            sql.installItemsMachineTable(stm);
+            sql.installItemsBuildingTable(stm);
+            sql.installItemsNetworkTable(stm);
+            sql.installItemsFixedAssetTable(stm);
+            sql.installItemsConstructionTable(stm);
+            sql.installItemsMachineRoomTable(stm);
+            sql.installItemsFixedAssetRoomTable(stm);
+            sql.installConfigTable(stm);
+            sql.installDocumentsTable(stm);
+            // Baru 05-01-2012
+            sql.installProcurementTable(stm);
+            sql.installApprovalBookTable(stm);
+            sql.installSignerTable(stm);
+            sql.installReleaseBookTable(stm);
+            sql.installItemsCardTable(stm);
+            sql.installInventoryCardTable(stm);
+            sql.installThirdPartyItemsTable(stm);
+            sql.installUnrecycledItemsTable(stm);
+            sql.installDeleteDraftItemsTable(stm);
+            sql.installUsedItemsTable(stm);
+            
+            //
+            sql.installItemsLandPictureTable(stm);
+            sql.installItemsMachinePictureTable(stm);
+            sql.installItemsBuildingPictureTable(stm);
+            sql.installItemsNetworkPictureTable(stm);
+            sql.installItemsFixedAssetPictureTable(stm);
+            sql.installItemsConstructionPictureTable(stm);
+            //
+            
+            sql.installSicknessMailTable(stm);
+            sql.installDoctorMailTable(stm);
+            
+            
 
             stm.close();
             conn.commit();
@@ -109,6 +156,46 @@ public class ArchieveTableCreatorMain extends TableCreatorMain {
             sql.uninstallBudgetTable(stm);
             sql.uninstallBudgetDetailTable(stm);
             sql.uninstallBudgetSubDetailTable(stm);
+            
+            // Asset Table
+            
+            sql.uninstallItemsCategoryTable(stm);
+            sql.uninstallItemsCategoryStructureTable(stm);
+            sql.uninstallRoomTable(stm);
+            sql.uninstallItemsMachineRoomTable(stm);
+            sql.uninstallItemsFixedAssetRoomTable(stm);
+            sql.uninstallConditionTable(stm);
+            sql.uninstallItemsLandTable(stm);
+            sql.uninstallItemsMachineTable(stm);
+            sql.uninstallItemsBuildingTable(stm);
+            sql.uninstallItemsNetworkTable(stm);
+            sql.uninstallItemsFixedAssetTable(stm);
+            sql.uninstallItemsConstructionTable(stm);
+            sql.uninstallConfigTable(stm);
+            sql.uninstallDocumentsTable(stm);
+            // Baru 05-01-2012
+            sql.uninstallProcurementTable(stm);
+            sql.uninstallApprovalBookTable(stm);
+            sql.uninstallSignerTable(stm);
+            sql.uninstallReleasebookTable(stm);
+            sql.uninstallItemsCardTable(stm);
+            sql.uninstallInventoryCardTable(stm);
+            sql.uninstallThirdPartyItemsTable(stm);
+            sql.uninstallUnrecycledItemsTable(stm);
+            sql.uninstallDeleteDraftItemsTable(stm);
+            sql.uninstallUsedItemsTable(stm);
+            //
+            sql.uninstallItemsLandPictureTable(stm);
+            sql.uninstallItemsMachinePictureTable(stm);
+            sql.uninstallItemsBuildingPictureTable(stm);
+            sql.uninstallItemsNetworkPictureTable(stm);
+            sql.uninstallItemsFixedAssetPictureTable(stm);
+            sql.uninstallItemsConstructionPictureTable(stm);
+            
+            //
+            sql.uninstallSicknessMailTable(stm);
+            sql.uninstallDoctorMailTable(stm);
+            
 
             stm.close();
             conn.commit();
@@ -124,11 +211,39 @@ public class ArchieveTableCreatorMain extends TableCreatorMain {
         }
 
     }
+    
+    public static ArchieveProperties reloadArchieveProperties(String fileName) {
+        ArchieveProperties config = null;
+        try {
+            config = new ArchieveProperties(fileName);
+            ArchievePropertiesReader reader = new ArchievePropertiesReader(config.getXMLFile());
+            reader.loadXML();
+            config = reader.getProperties();
+
+        } catch (ClassNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (InstantiationException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (IllegalAccessException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (FileNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (XMLException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (InvalidKeyException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (IllegalBlockSizeException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (BadPaddingException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return config;
+    }
 
     public static void main(String[] args) {
         try {
 
-            MotekarProperties prop = ArchieveTableCreatorMain.reloadProperties("app.xml");
+            ArchieveProperties prop = reloadArchieveProperties("app.xml");
             if (prop != null) {
                 ArchieveTableCreatorMain.createDatabase(prop.getDatabase());
                 ConnectionManager connectionManager = new ConnectionManager(new File("app.xml"));

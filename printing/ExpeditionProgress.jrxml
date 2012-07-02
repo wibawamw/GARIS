@@ -1,988 +1,632 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ExpeditionProgress" language="groovy" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="564" leftMargin="16" rightMargin="15" topMargin="20" bottomMargin="20">
-	<property name="ireport.zoom" value="1.0"/>
-	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="0"/>
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="461"/>
+	<property name="ireport.y" value="1329"/>
 	<parameter name="ApproverTitle" class="java.lang.String"/>
 	<parameter name="ApproverName" class="java.lang.String"/>
 	<parameter name="ApproverNIP" class="java.lang.String"/>
+	<parameter name="ApproverGrade" class="java.lang.String"/>
+	<parameter name="StateName" class="java.lang.String"/>
+	<parameter name="Departure" class="java.lang.String"/>
+	<parameter name="EmployeeTitle" class="java.lang.String"/>
+	<parameter name="EmployeeName" class="java.lang.String"/>
+	<parameter name="EmployeeNIP" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="95" splitType="Stretch">
+		<band height="146" splitType="Stretch">
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="0" width="18" height="95"/>
-				<box topPadding="4" rightPadding="4"/>
-				<textElement textAlignment="Right">
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="0" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<text><![CDATA[Berangkat Dari]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="42" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<text><![CDATA[Ke]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="21" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<text><![CDATA[( Tempat  Kedudukan )  ]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="63" width="124" height="32"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<text><![CDATA[Pada Tanggal]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="0" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="21" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="42" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="63" width="20" height="32"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="0" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="21" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="42" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="63" width="120" height="32"/>
-				<box topPadding="8" leftPadding="5"/>
-				<textElement>
-					<font fontName="Times New Roman" size="12"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-		</band>
-	</title>
-	<pageHeader>
-		<band height="679" splitType="Stretch">
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="0" width="31" height="42"/>
-				<box topPadding="4" rightPadding="4">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Right">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[1.]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="42" width="282" height="21"/>
-				<box leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="0" width="90" height="21"/>
-				<box topPadding="4" leftPadding="3">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Tiba di]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="21" width="90" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Pada Tanggal]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="0" width="20" height="21"/>
-				<box topPadding="4">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="21" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="21" width="141" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.......................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="63" width="282" height="32"/>
-				<box leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="0" width="18" height="63"/>
-				<box topPadding="4">
-					<topPen lineWidth="0.5"/>
-					<leftPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Right">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="0" width="124" height="21"/>
-				<box topPadding="4">
-					<topPen lineWidth="0.5"/>
-				</box>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="0" width="112" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
 				<textElement>
 					<font fontName="Times New Roman" size="11"/>
 				</textElement>
 				<text><![CDATA[Berangkat Dari]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="21" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="45" width="112" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
 				<textElement>
 					<font fontName="Times New Roman" size="11"/>
 				</textElement>
 				<text><![CDATA[Ke]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="42" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="15" width="282" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[(Tempat  Kedudukan)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="30" width="112" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
 				<textElement>
 					<font fontName="Times New Roman" size="11"/>
 				</textElement>
 				<text><![CDATA[Pada Tanggal]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="0" width="20" height="21"/>
-				<box topPadding="4">
-					<topPen lineWidth="0.5"/>
-				</box>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="394" y="0" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
 				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
+					<font fontName="Times New Roman" size="12"/>
 				</textElement>
 				<text><![CDATA[:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="21" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="394" y="45" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
 				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
+					<font fontName="Times New Roman" size="12"/>
 				</textElement>
 				<text><![CDATA[:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="42" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="21" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="414" y="45" width="150" height="15"/>
+				<box topPadding="0" leftPadding="5"/>
 				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
+					<font fontName="Times New Roman" size="12"/>
 				</textElement>
 				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="42" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="63" width="282" height="32"/>
-				<box leftPadding="3">
-					<leftPen lineWidth="0.5"/>
-				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="119" width="31" height="42"/>
-				<box topPadding="4" rightPadding="4">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Right">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[2.]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="119" width="90" height="21"/>
-				<box topPadding="4" leftPadding="3">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Tiba di]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="140" width="90" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Pada Tanggal]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="119" width="20" height="21"/>
-				<box topPadding="4">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="140" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="140" width="141" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.......................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="161" width="282" height="21"/>
-				<box leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="119" width="18" height="63"/>
-				<box>
-					<topPen lineWidth="0.5"/>
-					<leftPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Right">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="119" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Berangkat Dari]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="140" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Ke]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="161" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Pada Tanggal]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="119" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="140" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="161" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="119" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="140" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="161" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="182" width="282" height="32"/>
-				<box leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="182" width="282" height="32"/>
-				<box>
-					<leftPen lineWidth="0.5"/>
-				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="214" width="282" height="24"/>
-				<box leftPadding="0"/>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="11" isUnderline="true"/>
-				</textElement>
-				<text><![CDATA[(                                                                    )]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="214" width="282" height="24"/>
-				<box>
-					<leftPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="11" isUnderline="true"/>
-				</textElement>
-				<text><![CDATA[(                                                                    )]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="238" width="31" height="42"/>
-				<box topPadding="4" rightPadding="4">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Right">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[3.]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="238" width="90" height="21"/>
-				<box topPadding="4" leftPadding="3">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Tiba di]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="259" width="90" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Pada Tanggal]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="238" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="259" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="238" width="141" height="21"/>
-				<box topPadding="4" leftPadding="5">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.......................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="259" width="141" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.......................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="280" width="282" height="21"/>
-				<box leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="301" width="282" height="32"/>
-				<box leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="333" width="282" height="24"/>
-				<box leftPadding="0"/>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="11" isUnderline="true"/>
-				</textElement>
-				<text><![CDATA[(                                                                    )]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="238" width="18" height="63"/>
-				<box>
-					<topPen lineWidth="0.5"/>
-					<leftPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Right">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="238" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Berangkat Dari]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="259" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Ke]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="280" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Pada Tanggal]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="238" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="259" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="280" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="238" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="259" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="280" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="301" width="282" height="32"/>
-				<box>
-					<leftPen lineWidth="0.5"/>
-				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="333" width="282" height="24"/>
-				<box>
-					<leftPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="11" isUnderline="true"/>
-				</textElement>
-				<text><![CDATA[(                                                                    )]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="357" width="31" height="42"/>
-				<box topPadding="4" rightPadding="4">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Right">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[4.]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="357" width="90" height="21"/>
-				<box topPadding="4" leftPadding="3">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Tiba di]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="378" width="90" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Pada Tanggal]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="357" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="378" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="357" width="141" height="21"/>
-				<box topPadding="4" leftPadding="5">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.......................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="378" width="141" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.......................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="357" width="18" height="63"/>
-				<box>
-					<topPen lineWidth="0.5"/>
-					<leftPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Right">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="399" width="282" height="21"/>
-				<box leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="420" width="282" height="32"/>
-				<box leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="452" width="282" height="24"/>
-				<box leftPadding="0"/>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="11" isUnderline="true"/>
-				</textElement>
-				<text><![CDATA[(                                                                    )]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="357" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Berangkat Dari]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="378" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Ke]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="399" width="124" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Pada Tanggal]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="357" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="378" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="399" width="20" height="21"/>
-				<box topPadding="4" leftPadding="0"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="357" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="378" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="399" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5"/>
-				<textElement verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[.................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="420" width="282" height="32"/>
-				<box>
-					<leftPen lineWidth="0.5"/>
-				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="452" width="282" height="24"/>
-				<box>
-					<leftPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="11" isUnderline="true"/>
-				</textElement>
-				<text><![CDATA[(                                                                    )]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="95" width="282" height="24"/>
-				<box leftPadding="0"/>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="11" isUnderline="true"/>
-				</textElement>
-				<text><![CDATA[(                                                                    )]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="95" width="282" height="24"/>
-				<box leftPadding="0">
-					<leftPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="11" isUnderline="true"/>
-				</textElement>
-				<text><![CDATA[(                                                                    )]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="476" width="31" height="42"/>
-				<box topPadding="4" rightPadding="4">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Right">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[5.]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="476" width="251" height="21"/>
-				<box topPadding="4" leftPadding="3">
-					<topPen lineWidth="0.5"/>
-				</box>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Tiba  kembali di  ...................................................]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="497" width="251" height="21"/>
-				<box topPadding="4" leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[( Tempat Kedudukan)]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="518" width="282" height="14"/>
-				<box leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="532" width="282" height="21"/>
-				<box leftPadding="3"/>
-				<textElement textAlignment="Center">
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[Pejabat  yang  memberikan  perintah]]></text>
 			</staticText>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="553" width="282" height="35"/>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="66" width="282" height="15"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
-					<font fontName="Times New Roman" size="11" isBold="true"/>
+					<font fontName="Times New Roman" size="11" isBold="false"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$P{ApproverTitle}]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{EmployeeTitle}]]></textFieldExpression>
 			</textField>
-			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="588" width="282" height="43"/>
-				<box leftPadding="3"/>
-				<textElement>
-					<font fontName="Times New Roman" size="11"/>
-				</textElement>
-				<text><![CDATA[]]></text>
-			</staticText>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="631" width="282" height="24"/>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="113" width="282" height="15"/>
 				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
 					<bottomPen lineWidth="0.0"/>
 					<rightPen lineWidth="0.0"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Bottom" markup="none">
 					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="true"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$P{ApproverName}]]></textFieldExpression>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{EmployeeName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="128" width="282" height="15"/>
+				<box>
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
+					<font fontName="Times New Roman" size="11" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["NIP. "+$P{EmployeeNIP}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="476" width="282" height="56"/>
-				<box topPadding="4" leftPadding="6" rightPadding="8">
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="394" y="30" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="414" y="30" width="150" height="15"/>
+				<box topPadding="0" leftPadding="5"/>
+				<textElement>
+					<font fontName="Times New Roman" size="12"/>
+				</textElement>
+				<text><![CDATA[.................................]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="414" y="0" width="150" height="15"/>
+				<box leftPadding="5">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.0"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+				</box>
+				<textElement verticalAlignment="Top" markup="none">
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{Departure}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="656" splitType="Stretch">
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="0" width="31" height="128"/>
+				<box topPadding="0" rightPadding="0">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[I]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="0" width="90" height="15"/>
+				<box topPadding="0" leftPadding="3">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Tiba di]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="15" width="90" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Pada Tanggal]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="0" width="20" height="15"/>
+				<box topPadding="0">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="15" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="15" width="141" height="15"/>
+				<box topPadding="0" leftPadding="5"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.......................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="0" width="18" height="45"/>
+				<box topPadding="4">
 					<topPen lineWidth="0.5"/>
 					<leftPen lineWidth="0.5"/>
 				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="30" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
 				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="30" width="120" height="15"/>
+				<box topPadding="0" leftPadding="5">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="45" width="282" height="83"/>
+				<box leftPadding="3">
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="128" width="31" height="124"/>
+				<box topPadding="0" rightPadding="0">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[II]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="128" width="90" height="15"/>
+				<box topPadding="0" leftPadding="3">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Tiba di]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="143" width="90" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Pada Tanggal]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="128" width="20" height="15"/>
+				<box topPadding="0">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="143" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="143" width="141" height="15"/>
+				<box topPadding="0" leftPadding="5"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.......................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="128" width="18" height="45"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="128" width="124" height="15"/>
+				<box topPadding="0" leftPadding="3">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Berangkat Dari]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="158" width="124" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Ke]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="143" width="124" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Pada Tanggal]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="128" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="143" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="158" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="128" width="120" height="15"/>
+				<box topPadding="0" leftPadding="5">
+					<topPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="143" width="120" height="15"/>
+				<box topPadding="0" leftPadding="5">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="158" width="120" height="15"/>
+				<box topPadding="0" leftPadding="5">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="252" width="31" height="124"/>
+				<box topPadding="0" rightPadding="0">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[III]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="252" width="90" height="15"/>
+				<box topPadding="0" leftPadding="3">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Tiba di]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="267" width="90" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Pada Tanggal]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="252" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="267" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="252" width="141" height="15"/>
+				<box topPadding="0" leftPadding="5">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.......................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="267" width="141" height="15"/>
+				<box topPadding="0" leftPadding="5"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.......................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="252" width="18" height="45"/>
+				<box>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="252" width="124" height="15"/>
+				<box topPadding="0" leftPadding="3">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Berangkat Dari]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="282" width="124" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Ke]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="267" width="124" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Pada Tanggal]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="252" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="267" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="282" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="252" width="120" height="15"/>
+				<box topPadding="0" leftPadding="5">
+					<topPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="282" width="120" height="15"/>
+				<box topPadding="0" leftPadding="5">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="297" width="282" height="79"/>
+				<box>
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="376" width="31" height="178"/>
+				<box topPadding="0" rightPadding="0">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[IV]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="376" width="90" height="15"/>
+				<box topPadding="0" leftPadding="3">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Tiba di]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="391" width="251" height="15"/>
+				<box topPadding="0" leftPadding="3">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[( Tempat Kedudukan)]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="376" width="282" height="50"/>
+				<box topPadding="4" leftPadding="4" rightPadding="4">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Justified">
 					<font fontName="Times New Roman" size="11"/>
 				</textElement>
 				<text><![CDATA[Telah diperiksa dengan keterangan tersebut diatas benar dilaksanakan atas perintahnya semata-mata untuk  kepentingan dalam waktu yang sesingkat-singkatnya]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="532" width="282" height="21"/>
-				<box>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="426" width="282" height="28"/>
+				<box leftPadding="0" rightPadding="0">
 					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
 				</box>
-				<textElement textAlignment="Center">
+				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="11"/>
 				</textElement>
 				<text><![CDATA[Pejabat  yang  memberikan  perintah]]></text>
 			</staticText>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="553" width="282" height="35"/>
-				<box>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="454" width="282" height="15"/>
+				<box leftPadding="0" rightPadding="0">
 					<leftPen lineWidth="0.5" lineStyle="Solid"/>
-					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
-					<font fontName="Times New Roman" size="11" isBold="true"/>
+					<font fontName="Times New Roman" size="11" isBold="false"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{ApproverTitle}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="588" width="282" height="43"/>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="484" width="282" height="25"/>
 				<box>
 					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
 				</box>
 				<textElement>
 					<font fontName="Times New Roman" size="11"/>
@@ -990,9 +634,10 @@
 				<text><![CDATA[]]></text>
 			</staticText>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="631" width="282" height="24"/>
-				<box>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="509" width="282" height="15"/>
+				<box leftPadding="0" rightPadding="0">
 					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Bottom" markup="none">
 					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="true"/>
@@ -1000,30 +645,20 @@
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{ApproverName}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="655" width="282" height="24"/>
-				<box>
-					<bottomPen lineWidth="0.5"/>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="539" width="282" height="15"/>
+				<box leftPadding="0" rightPadding="0">
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.0"/>
 					<rightPen lineWidth="0.5"/>
 				</box>
 				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
-					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
-				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA["NIP. "+$P{ApproverNIP}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="655" width="282" height="24"/>
-				<box>
-					<leftPen lineWidth="0.5"/>
-					<bottomPen lineWidth="0.5"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
-					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+					<font fontName="Times New Roman" size="11" isBold="false" isUnderline="false"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA["NIP. "+$P{ApproverNIP}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="0" width="141" height="21"/>
-				<box topPadding="4" leftPadding="5">
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="0" width="141" height="15"/>
+				<box topPadding="0" leftPadding="5">
 					<topPen lineWidth="0.5"/>
 				</box>
 				<textElement verticalAlignment="Bottom">
@@ -1032,8 +667,8 @@
 				<text><![CDATA[.......................................]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="119" width="141" height="21"/>
-				<box topPadding="4" leftPadding="5">
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="128" width="141" height="15"/>
+				<box topPadding="0" leftPadding="5">
 					<topPen lineWidth="0.5"/>
 				</box>
 				<textElement verticalAlignment="Bottom">
@@ -1042,14 +677,312 @@
 				<text><![CDATA[.......................................]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="0" width="120" height="21"/>
-				<box topPadding="4" leftPadding="5">
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="376" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0">
 					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="267" width="120" height="15"/>
+				<box topPadding="0" leftPadding="5">
+					<rightPen lineWidth="0.5"/>
 				</box>
 				<textElement verticalAlignment="Bottom">
 					<font fontName="Times New Roman" size="11"/>
 				</textElement>
 				<text><![CDATA[.................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="158" width="90" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Kepala]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="524" width="282" height="15"/>
+				<box leftPadding="0" rightPadding="0">
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Bottom" markup="none">
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{ApproverGrade}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="469" width="282" height="15"/>
+				<box leftPadding="0" rightPadding="0">
+					<leftPen lineWidth="0.5" lineStyle="Solid"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{StateName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="376" width="141" height="15"/>
+				<box leftPadding="5">
+					<pen lineWidth="0.0"/>
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.5" lineStyle="Solid"/>
+				</box>
+				<textElement verticalAlignment="Top" markup="none">
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{Departure}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="282" y="173" width="282" height="79"/>
+				<box leftPadding="3">
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="158" width="141" height="15"/>
+				<box topPadding="0" leftPadding="5"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.......................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="158" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="282" width="90" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Kepala]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="282" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="282" width="141" height="15"/>
+				<box topPadding="0" leftPadding="5"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.......................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="406" width="90" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Pada Tanggal]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="121" y="406" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="141" y="406" width="141" height="15"/>
+				<box topPadding="0" leftPadding="5"/>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.......................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="30" width="124" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Ke]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="15" width="124" height="15"/>
+				<box topPadding="0" leftPadding="3"/>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Pada Tanggal]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="15" width="20" height="15"/>
+				<box topPadding="0" leftPadding="0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="15" width="120" height="15"/>
+				<box topPadding="0" leftPadding="5">
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="424" y="0" width="20" height="15"/>
+				<box topPadding="0">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="444" y="0" width="120" height="15"/>
+				<box topPadding="0" leftPadding="5">
+					<topPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Bottom">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[.................................]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="300" y="0" width="124" height="15"/>
+				<box topPadding="0" leftPadding="3">
+					<topPen lineWidth="0.5"/>
+				</box>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[Berangkat Dari]]></text>
+			</staticText>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="469" width="251" height="15"/>
+				<box leftPadding="0" rightPadding="0">
+					<leftPen lineWidth="0.0" lineStyle="Solid"/>
+					<rightPen lineWidth="0.0" lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="Times New Roman" size="11" isBold="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{EmployeeTitle}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="509" width="251" height="15"/>
+				<box leftPadding="0" rightPadding="0">
+					<leftPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Bottom" markup="none">
+					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{EmployeeName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="524" width="251" height="30"/>
+				<box leftPadding="0" rightPadding="0">
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
+					<font fontName="Times New Roman" size="11" isBold="false" isUnderline="false"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA["NIP. "+$P{EmployeeNIP}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="484" width="251" height="25"/>
+				<box>
+					<leftPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement>
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="554" width="31" height="15"/>
+				<box topPadding="0" rightPadding="0">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[V]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="554" width="533" height="15"/>
+				<box topPadding="0" leftPadding="3">
+					<topPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[CATATAN LAIN-LAIN]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="0" y="569" width="31" height="52"/>
+				<box topPadding="0" rightPadding="0">
+					<topPen lineWidth="0.5"/>
+					<leftPen lineWidth="0.5"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Times New Roman" size="11"/>
+				</textElement>
+				<text><![CDATA[VI]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="569" width="533" height="15"/>
+				<box topPadding="0" leftPadding="3">
+					<topPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="11" isUnderline="true"/>
+				</textElement>
+				<text><![CDATA[PERINTAH]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" stretchType="RelativeToTallestObject" x="31" y="584" width="533" height="37"/>
+				<box topPadding="0" leftPadding="3" rightPadding="3">
+					<topPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Top">
+					<font fontName="Times New Roman" size="9" isUnderline="false"/>
+				</textElement>
+				<text><![CDATA[Pejabat yang berwenang menerbitkan SPPD Pegawai yang melakukan Perjalanan Dinas, para Pejabat yang mengesahkan tgl keberangkatan/tiba serta Bendahara yang bertanggung jawab berdasarkan peraturan Keuangan Negara, apabila Negara menderita rugi akibat kesalahan, kelalaian dan kealpaannya, angka 8 Lampiran Surat Edaran Menteri Keuangan tanggal 20 April 1974 No : B-296/PP.1/74]]></text>
 			</staticText>
 		</band>
 	</pageHeader>

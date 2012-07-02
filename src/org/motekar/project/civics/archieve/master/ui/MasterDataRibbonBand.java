@@ -1,14 +1,23 @@
 package org.motekar.project.civics.archieve.master.ui;
 
+import java.awt.Cursor;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import org.jdesktop.swingx.JXPanel;
+import org.motekar.project.civics.archieve.assets.inventory.ui.ItemsLandPanel;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
+import org.motekar.project.civics.archieve.utils.misc.ButtonComparator;
 import org.motekar.util.user.ui.Mainframe;
 import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
@@ -26,15 +35,15 @@ import org.pushingpixels.flamingo.api.ribbon.resize.IconRibbonBandResizePolicy;
 public class MasterDataRibbonBand extends JRibbonBand implements ActionListener {
 
     private JCommandButton btEmployee = new JCommandButton("Pegawai", Mainframe.getResizableIconFromSource("resource/business_user.png"));
-    private JCommandButton btDivision = new JCommandButton("Bagian", Mainframe.getResizableIconFromSource("resource/Division.png"));
+    private JCommandButton btDivision = new JCommandButton("Bagian / Bidang", Mainframe.getResizableIconFromSource("resource/Division.png"));
     private JCommandButton btPrice = new JCommandButton("Standar Harga", Mainframe.getResizableIconFromSource("resource/Postage stamp.png"));
     private JCommandButton btAccount = new JCommandButton("Struktur Rekening", Mainframe.getResizableIconFromSource("resource/Account.png"));
     private JCommandButton btProgram = new JCommandButton("Program dan Kegiatan", Mainframe.getResizableIconFromSource("resource/program.png"));
     private JCommandButton btBudget = new JCommandButton("Anggaran", Mainframe.getResizableIconFromSource("resource/Coins.png"));
-
+    private List<JCommandButton> btArrays = new ArrayList<JCommandButton>();
     private ArchieveMainframe mainframe;
 
-    public MasterDataRibbonBand(ArchieveMainframe mainframe,String title, ResizableIcon icon) {
+    public MasterDataRibbonBand(ArchieveMainframe mainframe, String title, ResizableIcon icon) {
         super(title, icon);
         this.mainframe = mainframe;
         construcButtons();
@@ -131,6 +140,13 @@ public class MasterDataRibbonBand extends JRibbonBand implements ActionListener 
         addCommandButton(btAccount, RibbonElementPriority.MEDIUM);
         addCommandButton(btBudget, RibbonElementPriority.MEDIUM);
 
+        btArrays.add(btEmployee);
+        btArrays.add(btDivision);
+        btArrays.add(btPrice);
+        btArrays.add(btProgram);
+        btArrays.add(btAccount);
+        btArrays.add(btBudget);
+
         btEmployee.addActionListener(this);
         btDivision.addActionListener(this);
         btPrice.addActionListener(this);
@@ -141,24 +157,65 @@ public class MasterDataRibbonBand extends JRibbonBand implements ActionListener 
         setResizePolicies((List) Arrays.asList(new CoreRibbonResizePolicies.None(getControlPanel()),
                 new IconRibbonBandResizePolicy(getControlPanel())));
     }
-    
 
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
+        Cursor old = mainframe.getCursor();
         if (source == btEmployee) {
+            mainframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             mainframe.addChildFrame(btEmployee.getText(), new EmployeePanel(mainframe));
+            mainframe.setCursor(old);
         } else if (source == btPrice) {
+            mainframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             mainframe.addChildFrame(btPrice.getText(), new StandardPricePanel(mainframe));
+            mainframe.setCursor(old);
         } else if (source == btDivision) {
+            mainframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             mainframe.addChildFrame(btDivision.getText(), new DivisionPanel(mainframe));
+            mainframe.setCursor(old);
         } else if (source == btAccount) {
+            mainframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             mainframe.addChildFrame(btAccount.getText(), new AccountPanel(mainframe));
+            mainframe.setCursor(old);
         } else if (source == btProgram) {
+            mainframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             mainframe.addChildFrame(btProgram.getText(), new ProgramActivityPanel(mainframe));
+            mainframe.setCursor(old);
         } else if (source == btBudget) {
+            mainframe.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
             mainframe.addChildFrame(btBudget.getText(), new BudgetPanel(mainframe));
+            mainframe.setCursor(old);
         }
     }
 
-    
+    public void setButtonEnable(String name, boolean visible) {
+        Collections.sort(btArrays, new ButtonComparator());
+
+        JCommandButton comButton = new JCommandButton(name);
+        int index = Collections.binarySearch(btArrays, comButton, new ButtonComparator());
+        if (index >= 0) {
+            btArrays.get(index).setEnabled(visible);
+        }
+    }
+
+    public void setAllEnable() {
+        if (!btArrays.isEmpty()) {
+            for (JCommandButton bt : btArrays) {
+                bt.setEnabled(true);
+            }
+        }
+
+    }
+
+    public boolean isAllDisable() {
+        boolean disableAll = false;
+
+        if (!btArrays.isEmpty()) {
+            for (JCommandButton bt : btArrays) {
+                disableAll = bt.isEnabled() == false;
+            }
+        }
+
+        return disableAll;
+    }
 }

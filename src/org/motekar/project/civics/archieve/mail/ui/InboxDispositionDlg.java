@@ -28,11 +28,13 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.util.WindowUtils;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.mail.objects.InboxDisposition;
 import org.motekar.project.civics.archieve.master.objects.Division;
 import org.motekar.project.civics.archieve.master.sqlapi.MasterBusinessLogic;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
 import org.motekar.util.user.misc.MotekarException;
+import org.motekar.util.user.objects.UserGroup;
 import org.motekar.util.user.ui.Mainframe;
 import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
@@ -53,7 +55,6 @@ public class InboxDispositionDlg implements ActionListener {
     private JCommandButton btCancel = new JCommandButton(Mainframe.getResizableIconFromSource("resource/cancel_sign.png", new Dimension(32, 32)));
     private JDialog dlg;
     private int response = JOptionPane.NO_OPTION;
-
     private InboxDisposition disposition = null;
     private InboxDisposition oldDisposition = null;
     private StringBuilder errorString = new StringBuilder();
@@ -63,7 +64,7 @@ public class InboxDispositionDlg implements ActionListener {
         mLogic = new MasterBusinessLogic(mainframe.getConnection());
     }
 
-    public InboxDispositionDlg(ArchieveMainframe mainframe,InboxDisposition oldDisposition) {
+    public InboxDispositionDlg(ArchieveMainframe mainframe, InboxDisposition oldDisposition) {
         this.mainframe = mainframe;
         this.oldDisposition = oldDisposition;
         mLogic = new MasterBusinessLogic(mainframe.getConnection());
@@ -161,9 +162,27 @@ public class InboxDispositionDlg implements ActionListener {
         return builder.getPanel();
     }
 
+    private String generateUnitModifier(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            query.append(" where unit = ").append(unit.getIndex());
+        }
+
+        return query.toString();
+    }
+
     private void loadComboDivision() {
         try {
-            ArrayList<Division> divisions = mLogic.getDivision(mainframe.getSession(), false);
+            ArrayList<Division> divisions = new ArrayList<Division>();
+
+            UserGroup userGroup = mainframe.getUserGroup();
+            if (userGroup.getGroupName().equals("Administrator")) {
+                divisions = mLogic.getDivision(mainframe.getSession(), false, "");
+            } else {
+                Unit units = mainframe.getUnit();
+                divisions = mLogic.getDivision(mainframe.getSession(), false, generateUnitModifier(units));
+            }
 
             divisions.add(0, new Division());
             comboDivision.setModel(new ListComboBoxModel<Division>(divisions));

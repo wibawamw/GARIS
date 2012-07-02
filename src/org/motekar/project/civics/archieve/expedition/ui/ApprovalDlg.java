@@ -20,6 +20,7 @@ import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.JXMonthView;
 import org.jdesktop.swingx.JXPanel;
 import org.jdesktop.swingx.JXTextField;
 import org.jdesktop.swingx.error.ErrorInfo;
@@ -84,7 +85,7 @@ public class ApprovalDlg implements ActionListener {
         builder.setDefaultDialogBorder();
 
         fieldDate.setFormats("dd/MM/yyyy");
-
+        
         CellConstraints cc = new CellConstraints();
 
         builder.addLabel("Tempat", cc.xy(1, 1));

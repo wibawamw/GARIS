@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+    Document   : ItemsNetworkXml.xml
+    Created on : 04 Desember 2011, 16:45
+    Author     : Muhamad Wibawa
+    Description:
+        Purpose of the document follows.
+-->
+
+<workbook>
+    <worksheet name="Sheet1">
+        <section startRow="0" endRow="6">  
+            <mapping cell="C5">unit.unitCode</mapping>
+        </section> 
+        <loop startRow="7" endRow="7" items="itemsnetworks" var="itemsnetwork" varType="org.motekar.project.civics.archieve.assets.inventory.objects.ItemsNetwork">
+            <section startRow="7" endRow="7">
+                <mapping row="7" col="1">itemsnetwork.itemName</mapping>
+                <mapping row="7" col="2">itemsnetwork.itemCode</mapping>
+                <mapping row="7" col="3">itemsnetwork.regNumber</mapping>
+                <mapping row="7" col="4">itemsnetwork.constructionType</mapping>
+                <mapping row="7" col="5">itemsnetwork.length</mapping>
+                <mapping row="7" col="6">itemsnetwork.width</mapping>
+                <mapping row="7" col="7">itemsnetwork.wide</mapping>
+                <mapping row="7" col="8">itemsnetwork.addressLocation</mapping>
+                <mapping row="7" col="9">itemsnetwork.documentDate</mapping>
+                <mapping row="7" col="10">itemsnetwork.documentNumber</mapping>
+                <mapping row="7" col="11">itemsnetwork.landStatus</mapping>
+                <mapping row="7" col="12">itemsnetwork.landCode</mapping>
+                <mapping row="7" col="13">itemsnetwork.acquisitionWay</mapping>
+                <mapping row="7" col="14">itemsnetwork.price</mapping>
+                <mapping row="7" col="15">itemsnetwork.conditionText</mapping>
+                <mapping row="7" col="16">itemsnetwork.description</mapping>
+            </section>
+            <loopbreakcondition>
+                <rowcheck offset="0">
+                    <cellcheck offset="0"/>
+                </rowcheck>
+            </loopbreakcondition>
+        </loop>
+    </worksheet>
+</workbook>
+

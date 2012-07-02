@@ -211,12 +211,12 @@ public class MasterBusinessLogic {
         }
     }
 
-    public ArrayList<Employee> getEmployee(Long session) throws SQLException {
+    public ArrayList<Employee> getEmployee(Long session,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getEmployee(conn);
+            return sql.getEmployee(conn,modifier);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {
@@ -224,12 +224,12 @@ public class MasterBusinessLogic {
         }
     }
 
-    public ArrayList<Employee> getCommanderEmployee(Long session) throws SQLException {
+    public ArrayList<Employee> getCommanderEmployee(Long session,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getCommanderEmployee(conn);
+            return sql.getCommanderEmployee(conn,modifier);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {
@@ -237,12 +237,12 @@ public class MasterBusinessLogic {
         }
     }
 
-    public ArrayList<Employee> getAssignedEmployee(Long session) throws SQLException {
+    public ArrayList<Employee> getAssignedEmployee(Long session,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getAssignedEmployee(conn);
+            return sql.getAssignedEmployee(conn,modifier);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {
@@ -567,12 +567,12 @@ public class MasterBusinessLogic {
         }
     }
 
-    public ArrayList<Division> getDivision(Long session, boolean isStyled) throws SQLException {
+    public ArrayList<Division> getDivision(Long session, boolean isStyled,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getDivision(conn, isStyled);
+            return sql.getDivision(conn, isStyled,modifier);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {

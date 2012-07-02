@@ -121,7 +121,7 @@ public class BudgetPanel extends JXPanel implements ActionListener {
 
     private JXPanel createLeftComponent() {
 
-        JXTitledPanel titledPanel = new JXTitledPanel("Daftar BudgetDetail & Kegiatan");
+        JXTitledPanel titledPanel = new JXTitledPanel("Daftar Anggaran Progam & Kegiatan");
 
         JXCollapsiblePane collapasepanel = new JXCollapsiblePane();
         collapasepanel.setBorder(BorderFactory.createEmptyBorder(4, 4, 4, 4));
@@ -347,12 +347,12 @@ public class BudgetPanel extends JXPanel implements ActionListener {
             double vgapScaleFactor) {
 
         RichTooltip editTooltip = new RichTooltip();
-        editTooltip.setTitle("Ubah Anggaran / Kegiatan");
+        editTooltip.setTitle("Ubah Anggaran Kegiatan");
 
         btEdit.setActionRichTooltip(editTooltip);
 
         RichTooltip saveTooltip = new RichTooltip();
-        saveTooltip.setTitle("Simpan Anggaran / Kegiatan");
+        saveTooltip.setTitle("Simpan Anggaran Kegiatan");
 
         btSave.setActionRichTooltip(saveTooltip);
 

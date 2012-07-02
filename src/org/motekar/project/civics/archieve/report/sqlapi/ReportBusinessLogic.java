@@ -37,12 +37,12 @@ public class ReportBusinessLogic {
         }
     }
 
-    public ArrayList<Employee> getEmployeeReport(Long session) throws SQLException {
+    public ArrayList<Employee> getEmployeeReport(Long session,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getEmployeeReport(conn);
+            return sql.getEmployeeReport(conn,modifier);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {

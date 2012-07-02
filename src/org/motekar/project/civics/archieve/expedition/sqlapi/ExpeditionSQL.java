@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.expedition.objects.AssignmentLetter;
 import org.motekar.project.civics.archieve.expedition.objects.Expedition;
 import org.motekar.project.civics.archieve.expedition.objects.ExpeditionCheque;
@@ -32,8 +33,8 @@ public class ExpeditionSQL extends CommonSQL {
         StringBuilder query = new StringBuilder();
         query.append("insert into expedition(letterindex,docnumber,assignedemployee,").
                 append("departure,destination,transportation,startdate,enddate,").
-                append("notes, approvalplace, approvaldate, charge,program,activity,chargebudget)").
-                append("values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                append("notes, approvalplace, approvaldate, charge,program,activity,chargebudget,unit)").
+                append("values(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
         int col = 0;
@@ -68,6 +69,12 @@ public class ExpeditionSQL extends CommonSQL {
         } else {
             pstm.setLong(++col, expedition.getAccount().getIndex());
         }
+        
+        if (expedition.getUnit() == null) {
+            pstm.setNull(++col, Types.BIGINT);
+        } else {
+            pstm.setLong(++col, expedition.getUnit().getIndex());
+        }
 
         pstm.executeUpdate();
         pstm.close();
@@ -78,7 +85,7 @@ public class ExpeditionSQL extends CommonSQL {
         query.append("update expedition set letterindex = ?, docnumber = ?, assignedemployee = ?, ").
                 append("departure = ?, destination = ?, transportation = ?, startdate = ?, enddate = ?,").
                 append("notes = ?, approvalplace = ?, approvaldate = ?, charge = ?, ").
-                append("program = ?, activity = ?, chargebudget = ? ").
+                append("program = ?, activity = ?, chargebudget = ?, unit = ? ").
                 append("where autoindex = ?");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
@@ -114,6 +121,13 @@ public class ExpeditionSQL extends CommonSQL {
         } else {
             pstm.setLong(++col, expedition.getAccount().getIndex());
         }
+        
+        if (expedition.getUnit() == null) {
+            pstm.setNull(++col, Types.BIGINT);
+        } else {
+            pstm.setLong(++col, expedition.getUnit().getIndex());
+        }
+        
         pstm.setLong(++col, oldIndex);
 
         pstm.executeUpdate();
@@ -127,17 +141,26 @@ public class ExpeditionSQL extends CommonSQL {
         pstm.close();
     }
 
-    ArrayList<Expedition> getExpedition(Connection conn) throws SQLException {
+    ArrayList<Expedition> getExpedition(Connection conn,String modifier) throws SQLException {
         ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
         StringBuilder query = new StringBuilder();
-        query.append("select * from expedition");
+        query.append("select * from expedition ").append(modifier);
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+            
+            Long unitIndex = rs.getLong("unit");
+            
+            Unit unit = null;
+            
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+            
             Expedition expedition = new Expedition();
             expedition.setIndex(rs.getLong("autoindex"));
             expedition.setDocumentNumber(rs.getString("docnumber"));
@@ -163,6 +186,8 @@ public class ExpeditionSQL extends CommonSQL {
             expedition.setAccount(account);
             expedition.setProgram(program);
             expedition.setActivity(activity);
+            
+            expedition.setUnit(unit);
 
             expedition.setStyled(true);
             expeditions.add(expedition);
@@ -190,6 +215,15 @@ public class ExpeditionSQL extends CommonSQL {
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+            
+            Long unitIndex = rs.getLong("unit");
+            
+            Unit unit = null;
+            
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+            
             Expedition expedition = new Expedition();
             expedition.setIndex(rs.getLong("autoindex"));
             expedition.setDocumentNumber(rs.getString("docnumber"));
@@ -217,6 +251,8 @@ public class ExpeditionSQL extends CommonSQL {
             expedition.setAccount(account);
             expedition.setProgram(program);
             expedition.setActivity(activity);
+            
+            expedition.setUnit(unit);
 
             expedition.setStyled(true);
             expeditions.add(expedition);
@@ -239,6 +275,15 @@ public class ExpeditionSQL extends CommonSQL {
         ResultSet rs = pstm.executeQuery();
         Expedition expedition = null;
         while (rs.next()) {
+            
+            Long unitIndex = rs.getLong("unit");
+            
+            Unit unit = null;
+            
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+            
             expedition = new Expedition();
             expedition.setIndex(rs.getLong("autoindex"));
             expedition.setDocumentNumber(rs.getString("docnumber"));
@@ -261,6 +306,8 @@ public class ExpeditionSQL extends CommonSQL {
             expedition.setLetter(letter);
             expedition.setProgram(program);
             expedition.setActivity(activity);
+            
+            expedition.setUnit(unit);
 
             expedition.setCharge(rs.getString("charge"));
             expedition.setAccount(account);
@@ -273,7 +320,7 @@ public class ExpeditionSQL extends CommonSQL {
         return expedition;
     }
 
-    ArrayList<Expedition> getExpedition(Connection conn, Date startDate, Date endDate) throws SQLException {
+    ArrayList<Expedition> getExpedition(Connection conn, Date startDate, Date endDate,String modifier) throws SQLException {
         ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
         StringBuilder query = new StringBuilder();
@@ -291,13 +338,22 @@ public class ExpeditionSQL extends CommonSQL {
                 append("where startdate between ").
                 append("'").append(new java.sql.Date(startDate.getTime())).append("' ").
                 append(" and ").
-                append("'").append(new java.sql.Date(endDate.getTime())).append("' ");
+                append("'").append(new java.sql.Date(endDate.getTime())).append("' ").append(modifier);
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+            
+            Long unitIndex = rs.getLong("unit");
+            
+            Unit unit = null;
+            
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+            
             Expedition expedition = new Expedition();
             expedition.setIndex(rs.getLong("autoindex"));
             expedition.setDocumentNumber(rs.getString("docnumber"));
@@ -332,6 +388,8 @@ public class ExpeditionSQL extends CommonSQL {
             expedition.setActivity(activity);
 
             expedition.setDone(status == 1 ? true : false);
+            
+            expedition.setUnit(unit);
 
             expedition.setStyled(true);
 
@@ -344,7 +402,7 @@ public class ExpeditionSQL extends CommonSQL {
         return expeditions;
     }
 
-    ArrayList<Expedition> getExpedition(Connection conn, Integer month, Integer year) throws SQLException {
+    ArrayList<Expedition> getExpedition(Connection conn, Integer month, Integer year,String modifier) throws SQLException {
         ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
         StringBuilder query = new StringBuilder();
@@ -362,7 +420,7 @@ public class ExpeditionSQL extends CommonSQL {
                     append(" left join assignmentletter al2 ").
                     append("on al2.autoindex = exp.letterindex ").
                     append("where date_part('year',startdate) = ").
-                    append(year);
+                    append(year).append(modifier);
         } else {
             query.append("select exp.*,coalesce(al.autoindex,0,1) status,").
                     append("emp.nip assnip, emp.employeename assname,al2.purpose from expedition exp ").
@@ -378,14 +436,23 @@ public class ExpeditionSQL extends CommonSQL {
                     append("where date_part('month',startdate) = ").
                     append(month).
                     append(" and date_part('year',startdate) = ").
-                    append(year);
+                    append(year).append(modifier);
         }
-
+        
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+            
+            Long unitIndex = rs.getLong("unit");
+            
+            Unit unit = null;
+            
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+            
             Expedition expedition = new Expedition();
             expedition.setIndex(rs.getLong("autoindex"));
             expedition.setDocumentNumber(rs.getString("docnumber"));
@@ -420,6 +487,8 @@ public class ExpeditionSQL extends CommonSQL {
             expedition.setActivity(activity);
 
             expedition.setDone(status > 0 ? true : false);
+            
+            expedition.setUnit(unit);
 
             expedition.setStyled(true);
 
@@ -619,17 +688,26 @@ public class ExpeditionSQL extends CommonSQL {
         pstm.close();
     }
 
-    ArrayList<ExpeditionJournal> getExpeditionJournal(Connection conn) throws SQLException {
+    ArrayList<ExpeditionJournal> getExpeditionJournal(Connection conn,String modifier) throws SQLException {
         ArrayList<ExpeditionJournal> journals = new ArrayList<ExpeditionJournal>();
 
         StringBuilder query = new StringBuilder();
-        query.append("select * from expeditionjournal");
+        query.append("select * from expeditionjournal ").append(modifier);
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+            
+            Long unitIndex = rs.getLong("unit");
+            
+            Unit unit = null;
+            
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+            
             ExpeditionJournal journal = new ExpeditionJournal();
             journal.setJournalIndex(rs.getLong("journalindex"));
             journal.setReportNumber(rs.getString("reportnumber"));
@@ -640,7 +718,10 @@ public class ExpeditionSQL extends CommonSQL {
 
             journal.setLetter(letter);
 
+            journal.setUnit(unit);
+            
             journal.setStyled(true);
+            
 
             journals.add(journal);
         }
@@ -651,7 +732,7 @@ public class ExpeditionSQL extends CommonSQL {
         return journals;
     }
 
-    ArrayList<ExpeditionJournal> getExpeditionJournal(Connection conn, Integer month, Integer year) throws SQLException {
+    ArrayList<ExpeditionJournal> getExpeditionJournal(Connection conn, Integer month, Integer year,String modifier) throws SQLException {
         ArrayList<ExpeditionJournal> journals = new ArrayList<ExpeditionJournal>();
 
         StringBuilder query = new StringBuilder();
@@ -659,13 +740,24 @@ public class ExpeditionSQL extends CommonSQL {
                 append("where date_part('month',reportdate) = ").
                 append(month).
                 append(" and date_part('year',reportdate) = ").
-                append(year);
+                append(year).append(modifier);
+        
+        System.out.println(query.toString());
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+            
+            Long unitIndex = rs.getLong("unit");
+            
+            Unit unit = null;
+            
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+            
             ExpeditionJournal journal = new ExpeditionJournal();
             journal.setJournalIndex(rs.getLong("journalindex"));
             journal.setReportNumber(rs.getString("reportnumber"));
@@ -675,6 +767,8 @@ public class ExpeditionSQL extends CommonSQL {
             AssignmentLetter letter = new AssignmentLetter(rs.getLong("letterindex"));
 
             journal.setLetter(letter);
+            
+            journal.setUnit(unit);
 
             journal.setStyled(true);
 
@@ -739,8 +833,8 @@ public class ExpeditionSQL extends CommonSQL {
     void insertAssignmentLetter(Connection conn, AssignmentLetter letter) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("insert into assignmentletter(docnumber,commander,").
-                append("purpose, approvalplace, approvaldate)").
-                append("values(?,?,?,?,?)");
+                append("purpose, approvalplace, approvaldate,unit, startdate,enddate,goals,notes)").
+                append("values(?,?,?,?,?,?,?,?,?,?)");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
         int col = 0;
@@ -750,6 +844,18 @@ public class ExpeditionSQL extends CommonSQL {
         pstm.setString(++col, letter.getPurpose());
         pstm.setString(++col, letter.getApprovalPlace());
         pstm.setDate(++col, new java.sql.Date(letter.getApprovalDate().getTime()));
+        
+        if (letter.getUnit() == null) {
+            pstm.setNull(++col, Types.BIGINT);
+        } else {
+            pstm.setLong(++col, letter.getUnit().getIndex());
+        }
+        
+        pstm.setDate(++col, new java.sql.Date(letter.getStartDate().getTime()));
+        pstm.setDate(++col, new java.sql.Date(letter.getEndDate().getTime()));
+        pstm.setString(++col, letter.getGoals());
+        pstm.setString(++col, letter.getNotes());
+        
         pstm.executeUpdate();
         pstm.close();
     }
@@ -757,7 +863,8 @@ public class ExpeditionSQL extends CommonSQL {
     void updateAssignmentLetter(Connection conn, Long oldIndex, AssignmentLetter letter) throws SQLException {
         StringBuilder query = new StringBuilder();
         query.append("update assignmentletter set docnumber = ?, commander = ?, ").
-                append("purpose = ?, approvalplace = ?, approvaldate = ? ").
+                append("purpose = ?, approvalplace = ?, approvaldate = ?, unit = ?, ").
+                append("startdate = ?,enddate = ?,goals = ?, notes = ? ").
                 append("where autoindex = ?");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
@@ -768,6 +875,18 @@ public class ExpeditionSQL extends CommonSQL {
         pstm.setString(++col, letter.getPurpose());
         pstm.setString(++col, letter.getApprovalPlace());
         pstm.setDate(++col, new java.sql.Date(letter.getApprovalDate().getTime()));
+        
+        if (letter.getUnit() == null) {
+            pstm.setNull(++col, Types.BIGINT);
+        } else {
+            pstm.setLong(++col, letter.getUnit().getIndex());
+        }
+        
+        pstm.setDate(++col, new java.sql.Date(letter.getStartDate().getTime()));
+        pstm.setDate(++col, new java.sql.Date(letter.getEndDate().getTime()));
+        pstm.setString(++col, letter.getGoals());
+        pstm.setString(++col, letter.getNotes());
+        
         pstm.setLong(++col, oldIndex);
         pstm.executeUpdate();
         pstm.close();
@@ -780,26 +899,42 @@ public class ExpeditionSQL extends CommonSQL {
         pstm.close();
     }
 
-    ArrayList<AssignmentLetter> getAssigmentLetter(Connection conn) throws SQLException {
+    ArrayList<AssignmentLetter> getAssigmentLetter(Connection conn,String modifier) throws SQLException {
         ArrayList<AssignmentLetter> letters = new ArrayList<AssignmentLetter>();
 
         StringBuilder query = new StringBuilder();
-        query.append("select * from assignmentletter");
+        query.append("select * from assignmentletter ").append(modifier);
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+            
+            Long unitIndex = rs.getLong("unit");
+            
+            Unit unit = null;
+            
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+            
             AssignmentLetter letter = new AssignmentLetter();
             letter.setIndex(rs.getLong("autoindex"));
             letter.setDocumentNumber(rs.getString("docnumber"));
             letter.setPurpose(rs.getString("purpose"));
             letter.setApprovalPlace(rs.getString("approvalplace"));
             letter.setApprovalDate(rs.getDate("approvaldate"));
+            
+            letter.setStartDate(rs.getDate("startdate"));
+            letter.setEndDate(rs.getDate("enddate"));
+            letter.setGoals(rs.getString("goals"));
+            letter.setNotes(rs.getString("notes"));
 
             Employee commander = new Employee(rs.getLong("commander"));
             letter.setCommander(commander);
+            
+            letter.setUnit(unit);
 
             letter.setStyled(true);
 
@@ -812,28 +947,45 @@ public class ExpeditionSQL extends CommonSQL {
         return letters;
     }
 
-    ArrayList<AssignmentLetter> getAssigmentLetterInExpedition(Connection conn) throws SQLException {
+    ArrayList<AssignmentLetter> getAssigmentLetterInExpedition(Connection conn,String modifier) throws SQLException {
         ArrayList<AssignmentLetter> letters = new ArrayList<AssignmentLetter>();
 
         StringBuilder query = new StringBuilder();
         query.append("select * from assignmentletter ").
                 append("where autoindex in ").
-                append("(select letterindex from expedition)");
+                append("(select letterindex from expedition) ").
+                append(modifier);
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+            
+            Long unitIndex = rs.getLong("unit");
+            
+            Unit unit = null;
+            
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+            
             AssignmentLetter letter = new AssignmentLetter();
             letter.setIndex(rs.getLong("autoindex"));
             letter.setDocumentNumber(rs.getString("docnumber"));
             letter.setPurpose(rs.getString("purpose"));
             letter.setApprovalPlace(rs.getString("approvalplace"));
             letter.setApprovalDate(rs.getDate("approvaldate"));
+            
+            letter.setStartDate(rs.getDate("startdate"));
+            letter.setEndDate(rs.getDate("enddate"));
+            letter.setGoals(rs.getString("goals"));
+            letter.setNotes(rs.getString("notes"));
 
             Employee commander = new Employee(rs.getLong("commander"));
             letter.setCommander(commander);
+            
+            letter.setUnit(unit);
 
             letter.setStyled(true);
 
@@ -857,15 +1009,32 @@ public class ExpeditionSQL extends CommonSQL {
         ResultSet rs = pstm.executeQuery();
         AssignmentLetter letter = null;
         while (rs.next()) {
+            
+            Long unitIndex = rs.getLong("unit");
+            
+            Unit unit = null;
+            
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+            
             letter = new AssignmentLetter();
             letter.setIndex(rs.getLong("autoindex"));
             letter.setDocumentNumber(rs.getString("docnumber"));
             letter.setPurpose(rs.getString("purpose"));
             letter.setApprovalPlace(rs.getString("approvalplace"));
             letter.setApprovalDate(rs.getDate("approvaldate"));
+            
+            letter.setStartDate(rs.getDate("startdate"));
+            letter.setEndDate(rs.getDate("enddate"));
+            letter.setGoals(rs.getString("goals"));
+            letter.setNotes(rs.getString("notes"));
 
             Employee commander = new Employee(rs.getLong("commander"));
             letter.setCommander(commander);
+            
+            letter.setUnit(unit);
+            
         }
 
         rs.close();
@@ -874,7 +1043,7 @@ public class ExpeditionSQL extends CommonSQL {
         return letter;
     }
 
-    ArrayList<AssignmentLetter> getAssignmentLetter(Connection conn, Integer month, Integer year) throws SQLException {
+    ArrayList<AssignmentLetter> getAssignmentLetter(Connection conn, Integer month, Integer year,String modifier) throws SQLException {
         ArrayList<AssignmentLetter> letters = new ArrayList<AssignmentLetter>();
 
         StringBuilder query = new StringBuilder();
@@ -896,17 +1065,32 @@ public class ExpeditionSQL extends CommonSQL {
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+            
+            Long unitIndex = rs.getLong("unit");
+            
+            Unit unit = null;
+            
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+            
             AssignmentLetter letter = new AssignmentLetter();
             letter.setIndex(rs.getLong("autoindex"));
             letter.setDocumentNumber(rs.getString("docnumber"));
             letter.setPurpose(rs.getString("purpose"));
             letter.setApprovalPlace(rs.getString("approvalplace"));
             letter.setApprovalDate(rs.getDate("approvaldate"));
+            
+            letter.setStartDate(rs.getDate("startdate"));
+            letter.setEndDate(rs.getDate("enddate"));
+            letter.setGoals(rs.getString("goals"));
+            letter.setNotes(rs.getString("notes"));
 
             Employee commander = new Employee(rs.getLong("commander"));
             letter.setCommander(commander);
 
             letter.setStyled(true);
+            letter.setUnit(unit);
 
             letters.add(letter);
         }
@@ -1050,8 +1234,8 @@ public class ExpeditionSQL extends CommonSQL {
         StringBuilder query = new StringBuilder();
         query.append("insert into expeditioncheque(expeditionindex,payer,bankaccount,taxnumber,").
                 append("receivedfrom,amount,notes,receivedplace,heademployee,").
-                append("pptk, clerk, paidto,budgettype)").
-                append("values(?,?,?,?,?,?,?,?,?,?,?,?,?)");
+                append("pptk, clerk, paidto,budgettype,unit)").
+                append("values(?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
         int col = 0;
@@ -1069,7 +1253,12 @@ public class ExpeditionSQL extends CommonSQL {
         pstm.setLong(++col, cheque.getClerk().getIndex());
         pstm.setLong(++col, cheque.getPaidTo().getIndex());
         pstm.setInt(++col, cheque.getBudgetType());
-
+        
+        if (cheque.getUnit() == null) {
+            pstm.setNull(++col, Types.BIGINT);
+        } else {
+            pstm.setLong(++col, cheque.getUnit().getIndex());
+        }
 
         pstm.executeUpdate();
         pstm.close();
@@ -1079,7 +1268,7 @@ public class ExpeditionSQL extends CommonSQL {
         StringBuilder query = new StringBuilder();
         query.append("update expeditioncheque set expeditionindex = ?, payer = ?, bankaccount = ?,taxnumber = ?, ").
                 append("receivedfrom = ?, amount = ?, notes = ?, receivedplace = ?, heademployee = ?,").
-                append("pptk = ?, clerk = ?, paidto = ?, budgettype = ?  ").
+                append("pptk = ?, clerk = ?, paidto = ?, budgettype = ?, unit = ?  ").
                 append("where autoindex = ?");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
@@ -1098,6 +1287,13 @@ public class ExpeditionSQL extends CommonSQL {
         pstm.setLong(++col, cheque.getClerk().getIndex());
         pstm.setLong(++col, cheque.getPaidTo().getIndex());
         pstm.setInt(++col, cheque.getBudgetType());
+        
+        if (cheque.getUnit() == null) {
+            pstm.setNull(++col, Types.BIGINT);
+        } else {
+            pstm.setLong(++col, cheque.getUnit().getIndex());
+        }
+        
         pstm.setLong(++col, oldIndex);
 
         pstm.executeUpdate();
@@ -1111,19 +1307,29 @@ public class ExpeditionSQL extends CommonSQL {
         pstm.close();
     }
 
-    ArrayList<ExpeditionCheque> getExpeditionCheque(Connection conn) throws SQLException {
+    ArrayList<ExpeditionCheque> getExpeditionCheque(Connection conn,String modifier) throws SQLException {
         ArrayList<ExpeditionCheque> cheques = new ArrayList<ExpeditionCheque>();
 
         StringBuilder query = new StringBuilder();
         query.append("select ec.*,e.employeename,e.nip from expeditioncheque ec ").
                 append("inner join employee e ").
-                append("on e.autoindex = ec.paidto");
+                append("on e.autoindex = ec.paidto ").
+                append(modifier);
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
+            
+            Long unitIndex = rs.getLong("unit");
+            
+            Unit unit = null;
+            
+            if (unitIndex != null && !unitIndex.equals(Long.valueOf(0))) {
+                unit = new Unit(unitIndex);
+            }
+            
             ExpeditionCheque cheque = new ExpeditionCheque();
             cheque.setIndex(rs.getLong("autoindex"));
             cheque.setPayer(rs.getString("payer"));
@@ -1149,6 +1355,8 @@ public class ExpeditionSQL extends CommonSQL {
             cheque.setClerk(clerk);
             cheque.setPaidTo(paidTo);
             cheque.setAmount(amount);
+            
+            cheque.setUnit(unit);
 
             cheque.setStyled(true);
 

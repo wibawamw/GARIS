@@ -42,6 +42,7 @@ public class ConnectionManager {
             dbname = config.getDatabase();
             userName = config.getUserName();
             password = config.getPassword();
+            System.out.println("Server = " + server);
             System.out.println("DBName = " + dbname);
             url = "jdbc:postgresql://" + server + "/" + dbname;
             Class.forName("org.postgresql.Driver");

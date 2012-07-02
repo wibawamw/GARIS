@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!--
+    Document   : ItemsLandXml.xml
+    Created on : 29 November 2011, 22:34
+    Author     : Muhamad Wibawa
+    Description:
+        Purpose of the document follows.
+-->
+
+<workbook>
+    <worksheet name="Sheet1">
+        <section startRow="0" endRow="6">  
+            <mapping cell="C5">unit.unitCode</mapping>
+        </section> 
+        <loop startRow="7" endRow="7" items="itemslands" var="itemsland" varType="org.motekar.project.civics.archieve.assets.inventory.objects.ItemsLand">
+            <section startRow="7" endRow="7">
+                <mapping row="7" col="1">itemsland.itemName</mapping>
+                <mapping row="7" col="2">itemsland.itemCode</mapping>
+                <mapping row="7" col="3">itemsland.regNumber</mapping>
+                <mapping row="7" col="4">itemsland.wide</mapping>
+                <mapping row="7" col="5">itemsland.acquisitionYear</mapping>
+                <mapping row="7" col="6">itemsland.addressLocation</mapping>
+                <mapping row="7" col="7">itemsland.ownerShipStateName</mapping>
+                <mapping row="7" col="8">itemsland.landCertificateNumber</mapping>
+                <mapping row="7" col="9">itemsland.landCertificateDate</mapping>
+                <mapping row="7" col="10">itemsland.allotment</mapping>
+                <mapping row="7" col="11">itemsland.acquisitionWay</mapping>
+                <mapping row="7" col="12">itemsland.landPrice</mapping>
+                <mapping row="7" col="13">itemsland.description</mapping>
+            </section>
+            <loopbreakcondition>
+                <rowcheck offset="0">
+                    <cellcheck offset="0"/>
+                </rowcheck>
+            </loopbreakcondition>
+        </loop>
+    </worksheet>
+</workbook>

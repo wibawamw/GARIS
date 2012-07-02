@@ -50,11 +50,13 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.FormatStringValue;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.mail.objects.Inbox;
 import org.motekar.project.civics.archieve.mail.objects.InboxDisposition;
 import org.motekar.project.civics.archieve.mail.sqlapi.MailBusinessLogic;
 import org.motekar.project.civics.archieve.master.objects.Division;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
+import org.motekar.util.user.objects.UserGroup;
 import org.motekar.util.user.ui.Mainframe;
 import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
@@ -88,12 +90,39 @@ public class InboxStatusPanel extends JXPanel implements ActionListener {
     private JCommandButton btEditAction = new JCommandButton(Mainframe.getResizableIconFromSource("resource/Edit.png"));
     private JCommandButton btDelAction = new JCommandButton(Mainframe.getResizableIconFromSource("resource/Del.png"));
     private InboxDispositionTable dispoTable = new InboxDispositionTable();
+    //
+    private Unit unit = null;
 
     public InboxStatusPanel(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
         logic = new MailBusinessLogic(mainframe.getConnection());
         construct();
-        table.loadInbox();
+        checkLogin();
+    }
+
+    private void checkLogin() {
+        UserGroup userGroup = mainframe.getUserGroup();
+        if (userGroup.getGroupName().equals("Administrator")) {
+            table.loadInbox("");
+        } else {
+            unit = mainframe.getUnit();
+            String modifier = generateUnitModifier(unit);
+            table.loadInbox(modifier);
+        }
+    }
+
+    private String generateUnitModifier(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            if (checkBox.isSelected()) {
+                query.append(" and i.unit = ").append(unit.getIndex());
+            } else {
+                query.append(" where i.unit = ").append(unit.getIndex());
+            }
+        }
+
+        return query.toString();
     }
 
     private JXPanel createCenterComponent() {
@@ -275,14 +304,14 @@ public class InboxStatusPanel extends JXPanel implements ActionListener {
         monthChooser.addPropertyChangeListener("month", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                table.loadInbox();
+                table.loadInbox(generateUnitModifier(unit));
             }
         });
 
         yearChooser.addPropertyChangeListener("year", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                table.loadInbox();
+                table.loadInbox(generateUnitModifier(unit));
             }
         });
 
@@ -372,7 +401,7 @@ public class InboxStatusPanel extends JXPanel implements ActionListener {
         if (source == checkBox) {
             monthChooser.setEnabled(checkBox.isSelected());
             yearChooser.setEnabled(checkBox.isSelected());
-            table.loadInbox();
+            table.loadInbox(generateUnitModifier(unit));
         } else if (source == btInsAction) {
             InboxDispositionDlg dlg = new InboxDispositionDlg(mainframe);
             dlg.showDialog();
@@ -442,8 +471,8 @@ public class InboxStatusPanel extends JXPanel implements ActionListener {
             model.clear();
         }
 
-        public void loadInbox() {
-            worker = new LoadInbox(model);
+        public void loadInbox(String modifier) {
+            worker = new LoadInbox(model, modifier);
             progressListener = new InboxProgressListener(pbar);
             worker.addPropertyChangeListener(progressListener);
             worker.execute();
@@ -640,7 +669,9 @@ public class InboxStatusPanel extends JXPanel implements ActionListener {
                     break;
                 case 6:
                     Division receiver = inbox.getReceipient();
-                    receiver.setStyled(false);
+                    if (receiver != null) {
+                        receiver.setStyled(false);
+                    }
                     toBeDisplayed = receiver;
                     break;
             }
@@ -665,7 +696,7 @@ public class InboxStatusPanel extends JXPanel implements ActionListener {
             model.add(disposition);
         }
 
-         public void updateDisposition(InboxDisposition oldDisposition,InboxDisposition newDisposition) {
+        public void updateDisposition(InboxDisposition oldDisposition, InboxDisposition newDisposition) {
             model.updateRow(oldDisposition, newDisposition);
         }
 
@@ -832,9 +863,11 @@ public class InboxStatusPanel extends JXPanel implements ActionListener {
 
         private InboxStatusTableModel model;
         private Exception exception;
+        private String modifier;
 
-        public LoadInbox(InboxStatusTableModel model) {
+        public LoadInbox(InboxStatusTableModel model, String modifier) {
             this.model = model;
+            this.modifier = modifier;
             model.clear();
         }
 
@@ -861,9 +894,9 @@ public class InboxStatusPanel extends JXPanel implements ActionListener {
                 ArrayList<Inbox> inboxs = new ArrayList<Inbox>();
 
                 if (checkBox.isSelected()) {
-                    inboxs = logic.getInbox(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear());
+                    inboxs = logic.getInbox(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear(), modifier);
                 } else {
-                    inboxs = logic.getInbox(mainframe.getSession());
+                    inboxs = logic.getInbox(mainframe.getSession(), modifier);
                 }
 
                 double progress = 0.0;

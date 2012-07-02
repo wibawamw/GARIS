@@ -70,12 +70,14 @@ import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.renderer.StringValue;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.mail.objects.Outbox;
 import org.motekar.project.civics.archieve.mail.objects.OutboxFile;
 import org.motekar.project.civics.archieve.mail.sqlapi.MailBusinessLogic;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
 import org.motekar.util.user.misc.MotekarException;
 import org.motekar.util.user.misc.MotekarFocusTraversalPolicy;
+import org.motekar.util.user.objects.UserGroup;
 import org.motekar.util.user.ui.Mainframe;
 import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
@@ -129,12 +131,39 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
     private OutboxProgressListener progressListener;
     private JFileChooser openChooser;
     private JFileChooser saveChooser;
+    //
+    private Unit unit = null;
 
     public OutboxPanel(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
         logic = new MailBusinessLogic(mainframe.getConnection());
         construct();
-        outboxList.loadData();
+        checkLogin();
+    }
+
+    private void checkLogin() {
+        UserGroup userGroup = mainframe.getUserGroup();
+        if (userGroup.getGroupName().equals("Administrator")) {
+            outboxList.loadData("");
+        } else {
+            unit = mainframe.getUnit();
+            String modifier = generateUnitModifier(unit);
+            outboxList.loadData(modifier);
+        }
+    }
+
+    private String generateUnitModifier(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            if (checkBox.isSelected()) {
+                query.append(" and unit = ").append(unit.getIndex());
+            } else {
+                query.append(" where unit = ").append(unit.getIndex());
+            }
+        }
+
+        return query.toString();
     }
 
     private JXPanel createLeftComponent() {
@@ -173,7 +202,7 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
         helpLabel.setTextAlignment(JXLabel.TextAlignment.JUSTIFY);
 
         String text = "Penjelasan Singkat\n"
-                + "Fasilitas Pegawai untuk pengisian data-data pegawai yang ada di suatu dinas\n\n"
+                + "Fasilitas Surat Keluar untuk pengisian data-data pegawai yang ada di suatu dinas\n\n"
                 + "Tambah Surat Keluar\n"
                 + "Untuk menambah Surat Keluar klik tombol paling kiri "
                 + "kemudian isi data Surat Keluar baru yang akan ditambah "
@@ -187,7 +216,7 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
                 + "untuk melakukan pembatalan perubahan\n\n"
                 + "Hapus Surat Keluar\n"
                 + "Untuk menghapus Surat Keluar klik tombol paling kanan "
-                + "kemudian akan muncul peringatan untuk menghapus Pegawai "
+                + "kemudian akan muncul peringatan untuk menghapus Surat Keluar "
                 + "tersebut, pilih Ya untuk mengapus atau pilih Tidak untuk "
                 + "membatalkan penghapusan";
 
@@ -247,9 +276,18 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
 
         builder.addLabel("Perihal", cc.xy(1, 5));
         builder.add(fieldSubject, cc.xy(3, 5));
+        
+        JScrollPane scPane = new JScrollPane();
+        scPane.setViewportView(builder.getPanel());
+        
+        JScrollPane scPane2 = new JScrollPane();
+        scPane2.setViewportView(createMainPanelPage2());
+        
+        scPane.getVerticalScrollBar().setUnitIncrement(20);
+        scPane2.getVerticalScrollBar().setUnitIncrement(20);
 
-        tabbedPane.addTab("Input Data", builder.getPanel());
-        tabbedPane.addTab("Lampiran Surat", createMainPanelPage2());
+        tabbedPane.addTab("Input Data", scPane);
+        tabbedPane.addTab("Lampiran Surat", scPane2);
 
         return tabbedPane;
     }
@@ -314,22 +352,22 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
             double vgapScaleFactor) {
 
         RichTooltip addTooltip = new RichTooltip();
-        addTooltip.setTitle("Tambah Pegawai");
+        addTooltip.setTitle("Tambah Surat Keluar");
 
         btAdd.setActionRichTooltip(addTooltip);
 
         RichTooltip editTooltip = new RichTooltip();
-        editTooltip.setTitle("Ubah Pegawai");
+        editTooltip.setTitle("Ubah Surat Keluar");
 
         btEdit.setActionRichTooltip(editTooltip);
 
         RichTooltip saveTooltip = new RichTooltip();
-        saveTooltip.setTitle("Simpan Pegawai");
+        saveTooltip.setTitle("Simpan Surat Keluar");
 
         btSave.setActionRichTooltip(saveTooltip);
 
         RichTooltip deleteTooltip = new RichTooltip();
-        deleteTooltip.setTitle("Hapus Pegawai");
+        deleteTooltip.setTitle("Hapus Surat Keluar");
 
         btDelete.setActionRichTooltip(deleteTooltip);
 
@@ -398,14 +436,14 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
         monthChooser.addPropertyChangeListener("month", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                outboxList.loadData();
+                outboxList.loadData(generateUnitModifier(unit));
             }
         });
 
         yearChooser.addPropertyChangeListener("year", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                outboxList.loadData();
+                outboxList.loadData(generateUnitModifier(unit));
             }
         });
 
@@ -604,7 +642,7 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
         } else if (obj == checkBox) {
             monthChooser.setEnabled(checkBox.isSelected());
             yearChooser.setEnabled(checkBox.isSelected());
-            outboxList.loadData();
+            outboxList.loadData(generateUnitModifier(unit));
         } else if (obj == btInsFile) {
             int retVal = openChooser.showOpenDialog(this);
             if (retVal == JFileChooser.APPROVE_OPTION) {
@@ -767,6 +805,12 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
         outbox.setSubject(subject);
         outbox.setOutboxFiles(outboxFiles);
 
+        if (selectedOutbox != null) {
+            outbox.setUnit(selectedOutbox.getUnit());
+        } else {
+            outbox.setUnit(unit);
+        }
+
         return outbox;
     }
 
@@ -816,11 +860,11 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
             setModel(model);
         }
 
-        public void loadData() {
+        public void loadData(String modifier) {
             if (worker != null) {
                 worker.cancel(true);
             }
-            worker = new LoadOutbox((DefaultListModel) getModel());
+            worker = new LoadOutbox((DefaultListModel) getModel(), modifier);
             progressListener = new OutboxProgressListener(pbar);
             worker.addPropertyChangeListener(progressListener);
             worker.execute();
@@ -1123,9 +1167,11 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
 
         private DefaultListModel model;
         private Exception exception;
+        private String modifier = "";
 
-        public LoadOutbox(DefaultListModel model) {
+        public LoadOutbox(DefaultListModel model, String modifier) {
             this.model = model;
+            this.modifier = modifier;
             model.clear();
         }
 
@@ -1152,9 +1198,9 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
                 ArrayList<Outbox> outboxs = new ArrayList<Outbox>();
 
                 if (checkBox.isSelected()) {
-                    outboxs = logic.getOutbox(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear());
+                    outboxs = logic.getOutbox(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear(), modifier);
                 } else {
-                    outboxs = logic.getOutbox(mainframe.getSession());
+                    outboxs = logic.getOutbox(mainframe.getSession(), modifier);
                 }
 
                 double progress = 0.0;

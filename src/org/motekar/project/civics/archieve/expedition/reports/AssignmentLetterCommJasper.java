@@ -12,7 +12,7 @@ import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperReport;
 import org.motekar.project.civics.archieve.expedition.objects.AssignmentLetter;
 import org.motekar.project.civics.archieve.master.objects.Employee;
-import org.motekar.project.civics.archieve.utils.misc.ArchieveProperties;
+import org.motekar.project.civics.archieve.utils.misc.ProfileAccount;
 import org.motekar.project.civics.archieve.utils.report.AbstractJasper;
 import org.openide.util.Exceptions;
 
@@ -25,11 +25,11 @@ public class AssignmentLetterCommJasper extends AbstractJasper {
     private AssignmentLetter letter;
     private JasperReport jasperReport;
     private Map params = new HashMap();
-    private ArchieveProperties properties;
+    private ProfileAccount profileAccount;
 
-    public AssignmentLetterCommJasper(AssignmentLetter letter, ArchieveProperties properties) {
+    public AssignmentLetterCommJasper(AssignmentLetter letter, ProfileAccount profileAccount) {
         this.letter = letter;
-        this.properties = properties;
+        this.profileAccount = profileAccount;
         createJasperPrint();
     }
 
@@ -76,16 +76,24 @@ public class AssignmentLetterCommJasper extends AbstractJasper {
                         Employee commander = letter.getCommander();
                         commander.setStyled(false);
 
-                        AssignedEmployeeJasper aej = new AssignedEmployeeJasper(letter.getAssignedEmployee(),properties);
+                        AssignedEmployeeJasper aej = new AssignedEmployeeJasper(letter.getAssignedEmployee(), profileAccount);
                         CarbonCopyJasper ccj = new CarbonCopyJasper(letter.getCarbonCopy());
 
-                        File file = properties.getLogo2();
+                        ImageIcon ico = null;
 
-                        if (!file.exists()) {
-                            file = new File("./images/logo_daerah.jpg");
+                        if (profileAccount == null) {
+                            File file = new File("./images/logo_daerah.jpg");
+                            ico = new ImageIcon(file.getPath());
+                        } else {
+                            if (profileAccount.getByteLogo2() == null) {
+                                File file = new File("./images/logo_daerah.jpg");
+                                ico = new ImageIcon(file.getPath());
+                            } else {
+                                byte[] imageStream = profileAccount.getByteLogo2();
+                                ico = new ImageIcon(imageStream);
+                            }
                         }
 
-                        ImageIcon ico = new ImageIcon(file.getPath());
 
                         param.put("subreport", aej.loadReportFile());
                         param.put("datasource", aej.getDataSource());
@@ -95,12 +103,12 @@ public class AssignmentLetterCommJasper extends AbstractJasper {
 
                         StringBuilder gorvernorname = new StringBuilder();
 
-                        if (properties.getStateType().equals(ArchieveProperties.KABUPATEN)) {
+                        if (profileAccount.getStateType().equals(ProfileAccount.KABUPATEN)) {
                             gorvernorname.append("BUPATI ").
-                                    append(properties.getState().toUpperCase());
+                                    append(profileAccount.getState().toUpperCase());
                         } else {
                             gorvernorname.append("WALIKOTA ").
-                                    append(properties.getState().toUpperCase());
+                                    append(profileAccount.getState().toUpperCase());
                         }
 
                         param.put("governorname", gorvernorname.toString());
@@ -135,7 +143,7 @@ public class AssignmentLetterCommJasper extends AbstractJasper {
 
         String buff = str.toLowerCase();
 
-        StringTokenizer token = new StringTokenizer(buff," ");
+        StringTokenizer token = new StringTokenizer(buff, " ");
 
         while (token.hasMoreElements()) {
             String s = token.nextToken();
@@ -144,7 +152,9 @@ public class AssignmentLetterCommJasper extends AbstractJasper {
             caps.append(" ");
         }
 
-        caps.deleteCharAt(caps.length()-1);
+       if (caps.length() > 0) {
+            caps.deleteCharAt(caps.length() - 1);
+        }
 
         return caps.toString();
     }

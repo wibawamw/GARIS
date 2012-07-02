@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Expedition" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="535" leftMargin="30" rightMargin="30" topMargin="20" bottomMargin="20">
-	<property name="ireport.zoom" value="1.0"/>
-	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="466"/>
+	<property name="ireport.zoom" value="2.0"/>
+	<property name="ireport.x" value="461"/>
+	<property name="ireport.y" value="0"/>
 	<parameter name="docnumber" class="java.lang.String"/>
 	<parameter name="commander" class="java.lang.String"/>
 	<parameter name="assignedemployee" class="java.lang.String"/>
@@ -46,7 +46,13 @@
 			</staticText>
 			<textField>
 				<reportElement x="0" y="108" width="535" height="30"/>
-				<box leftPadding="3"/>
+				<box leftPadding="3">
+					<pen lineStyle="Double"/>
+					<topPen lineStyle="Double"/>
+					<leftPen lineStyle="Double"/>
+					<bottomPen lineWidth="3.0" lineStyle="Double"/>
+					<rightPen lineStyle="Double"/>
+				</box>
 				<textElement textAlignment="Center" verticalAlignment="Top">
 					<font fontName="Times New Roman" size="12"/>
 				</textElement>
@@ -59,35 +65,35 @@
 				</graphicElement>
 			</line>
 			<textField>
-				<reportElement x="96" y="56" width="439" height="18"/>
+				<reportElement x="0" y="56" width="535" height="18"/>
 				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
 					<font fontName="Times New Roman" size="12" isBold="true" isUnderline="false"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{capital}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="96" y="38" width="439" height="18"/>
-				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
-					<font fontName="Times New Roman" size="11" isBold="false" isItalic="true" isUnderline="false"/>
+				<reportElement x="0" y="38" width="535" height="18"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle" markup="none">
+					<font fontName="Times New Roman" size="9" isBold="false" isItalic="false" isUnderline="false"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{governaddress}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="96" y="20" width="439" height="18"/>
+				<reportElement x="0" y="20" width="535" height="18"/>
 				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
-					<font fontName="Times New Roman" size="12" isBold="true" isUnderline="false"/>
+					<font fontName="Times New Roman" size="14" isBold="true" isUnderline="false"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{governname}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="96" y="0" width="439" height="20"/>
+				<reportElement x="0" y="0" width="535" height="20"/>
 				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
-					<font fontName="Times New Roman" size="14" isBold="true" isUnderline="false"/>
+					<font fontName="Times New Roman" size="12" isBold="true" isUnderline="false"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA["PEMERINTAH "+$P{statename}]]></textFieldExpression>
 			</textField>
 			<image scaleImage="FillFrame" hAlign="Center" vAlign="Top" isUsingCache="true">
-				<reportElement x="25" y="0" width="71" height="71" forecolor="#FFFFFF"/>
+				<reportElement x="0" y="0" width="71" height="71" forecolor="#FFFFFF"/>
 				<imageExpression class="java.awt.Image"><![CDATA[$P{logo}]]></imageExpression>
 			</image>
 		</band>
@@ -95,47 +101,51 @@
 	<pageHeader>
 		<band height="659" splitType="Stretch">
 			<staticText>
-				<reportElement x="0" y="0" width="25" height="34"/>
-				<box rightPadding="2">
+				<reportElement x="0" y="0" width="25" height="20"/>
+				<box topPadding="0" rightPadding="2">
 					<leftPen lineWidth="0.0"/>
 				</box>
-				<textElement textAlignment="Right">
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[1.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="25" y="0" width="190" height="34"/>
+				<reportElement x="25" y="0" width="228" height="20"/>
 				<box leftPadding="2">
 					<topPen lineWidth="0.0"/>
 					<rightPen lineWidth="0.0"/>
 				</box>
-				<textElement>
+				<textElement verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
-				<text><![CDATA[Pejabat yang memberi perintah]]></text>
+				<text><![CDATA[Pejabat yang berwenang memberi tugas]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="34" width="25" height="20"/>
+				<reportElement x="0" y="20" width="25" height="20"/>
 				<box rightPadding="2">
+					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="0.0"/>
 				</box>
-				<textElement textAlignment="Right">
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[2.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="25" y="34" width="190" height="20"/>
-				<box leftPadding="2" rightPadding="0"/>
-				<textElement>
+				<reportElement x="25" y="20" width="228" height="20"/>
+				<box leftPadding="2" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
-				<text><![CDATA[Nama  Pegawai  yang  diperintahkan]]></text>
+				<text><![CDATA[Nama  Pegawai  yang  diperintahkan / NIP]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="54" width="25" height="40"/>
-				<box rightPadding="2">
+				<reportElement x="0" y="40" width="25" height="60"/>
+				<box topPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="0.0"/>
 				</box>
 				<textElement textAlignment="Right">
@@ -144,85 +154,19 @@
 				<text><![CDATA[3.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="50" y="54" width="165" height="20"/>
-				<box leftPadding="2" rightPadding="0"/>
-				<textElement>
-					<font fontName="Times New Roman" size="10"/>
-				</textElement>
-				<text><![CDATA[Pangkat dan Golongan]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="0" y="142" width="25" height="40"/>
-				<box rightPadding="2">
-					<leftPen lineWidth="0.0"/>
+				<reportElement x="50" y="40" width="203" height="20"/>
+				<box topPadding="2" leftPadding="2" rightPadding="0">
+					<topPen lineWidth="1.0"/>
 				</box>
-				<textElement textAlignment="Right">
-					<font fontName="Times New Roman" size="10"/>
-				</textElement>
-				<text><![CDATA[5.]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="215" y="54" width="25" height="20"/>
-				<box bottomPadding="0" rightPadding="0"/>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="10"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="215" y="142" width="25" height="20"/>
-				<box rightPadding="0"/>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="10"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="50" y="142" width="165" height="20"/>
-				<box leftPadding="2" rightPadding="0"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
-				<text><![CDATA[Tempat  berangkat  dari]]></text>
+				<text><![CDATA[Pangkat dan Golongan Menurut PP. No. 6 1997]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="215" y="0" width="25" height="34"/>
-				<box>
-					<topPen lineWidth="0.0"/>
-					<rightPen lineWidth="0.0"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="10"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="215" y="34" width="25" height="20"/>
-				<box bottomPadding="0" rightPadding="0"/>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="10"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="25" y="242" width="190" height="20"/>
-				<box leftPadding="3" rightPadding="0"/>
-				<textElement>
-					<font fontName="Times New Roman" size="10"/>
-				</textElement>
-				<text><![CDATA[Kendaraan  yang  dipergunakan]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="215" y="242" width="25" height="20"/>
-				<box rightPadding="0"/>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="10"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="0" y="182" width="25" height="60"/>
-				<box rightPadding="2">
+				<reportElement x="0" y="150" width="25" height="40"/>
+				<box topPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="0.0"/>
 				</box>
 				<textElement textAlignment="Right">
@@ -231,15 +175,97 @@
 				<text><![CDATA[6.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="50" y="182" width="165" height="20"/>
-				<box leftPadding="2" rightPadding="0"/>
+				<reportElement x="253" y="40" width="25" height="20"/>
+				<box topPadding="2" bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="253" y="130" width="25" height="20"/>
+				<box rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="50" y="150" width="203" height="20"/>
+				<box topPadding="2" leftPadding="2" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement>
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[Tempat  berangkat  dari]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="253" y="0" width="25" height="20"/>
+				<box>
+					<topPen lineWidth="0.0"/>
+					<rightPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="253" y="20" width="25" height="20"/>
+				<box bottomPadding="0" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="25" y="130" width="228" height="20"/>
+				<box leftPadding="3" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[Kendaraan  yang  dipergunakan]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="253" y="230" width="25" height="20"/>
+				<box rightPadding="0"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="190" width="25" height="60"/>
+				<box topPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0"/>
+					<leftPen lineWidth="0.0"/>
+				</box>
+				<textElement textAlignment="Right">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[7.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="50" y="190" width="203" height="20"/>
+				<box topPadding="2" leftPadding="2" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[Lamanya Perjalanan Dinas]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="215" y="182" width="25" height="20"/>
+				<reportElement x="253" y="170" width="25" height="20"/>
 				<box rightPadding="0"/>
 				<textElement textAlignment="Center" verticalAlignment="Top">
 					<font fontName="Times New Roman" size="10"/>
@@ -247,16 +273,19 @@
 				<text><![CDATA[:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="240" y="182" width="295" height="20"/>
-				<box leftPadding="3"/>
+				<reportElement x="278" y="190" width="257" height="20"/>
+				<box topPadding="2" leftPadding="3">
+					<topPen lineWidth="1.0"/>
+				</box>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA["selama ( " +$P{duration}+ " ) hari"]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="0" y="94" width="25" height="48"/>
-				<box rightPadding="2">
+				<reportElement x="0" y="100" width="25" height="30"/>
+				<box topPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="0.0"/>
 				</box>
 				<textElement textAlignment="Right">
@@ -265,65 +294,76 @@
 				<text><![CDATA[4.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="25" y="94" width="190" height="48"/>
-				<box leftPadding="2" rightPadding="0"/>
+				<reportElement x="25" y="100" width="228" height="30"/>
+				<box topPadding="2" leftPadding="2" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
-				<text><![CDATA[Maksud mengadakan perjalanan dinas]]></text>
+				<text><![CDATA[Maksud perjalanan dinas]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="215" y="94" width="25" height="48"/>
-				<box rightPadding="0"/>
+				<reportElement x="253" y="100" width="25" height="30"/>
+				<box topPadding="2" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
 				<textElement textAlignment="Center" verticalAlignment="Top">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="0" y="242" width="25" height="20"/>
+				<reportElement x="0" y="130" width="25" height="20"/>
 				<box rightPadding="2">
+					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="0.0"/>
 				</box>
-				<textElement textAlignment="Right">
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
-				<text><![CDATA[7.]]></text>
+				<text><![CDATA[5.]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="240" y="0" width="295" height="34"/>
+				<reportElement x="278" y="0" width="257" height="20"/>
 				<box leftPadding="3"/>
-				<textElement>
+				<textElement verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{commander}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="240" y="34" width="295" height="20"/>
-				<box leftPadding="3"/>
-				<textElement verticalAlignment="Top">
+				<reportElement x="278" y="20" width="257" height="20"/>
+				<box leftPadding="3">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{assignedemployee}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="240" y="54" width="295" height="20"/>
-				<box leftPadding="3"/>
+				<reportElement x="278" y="40" width="257" height="20"/>
+				<box topPadding="2" leftPadding="3">
+					<topPen lineWidth="1.0"/>
+				</box>
 				<textElement verticalAlignment="Top">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{grades}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="240" y="142" width="295" height="20"/>
-				<box leftPadding="3"/>
+				<reportElement x="278" y="150" width="257" height="20"/>
+				<box topPadding="2" leftPadding="3">
+					<topPen lineWidth="1.0"/>
+				</box>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{departure}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="240" y="162" width="295" height="20"/>
+				<reportElement x="278" y="170" width="257" height="20"/>
 				<box leftPadding="3"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
@@ -331,15 +371,17 @@
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{destination}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="240" y="242" width="295" height="20"/>
-				<box leftPadding="3"/>
-				<textElement>
+				<reportElement x="278" y="130" width="257" height="20"/>
+				<box leftPadding="3">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{transportation}]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy">
-				<reportElement x="240" y="202" width="295" height="20"/>
+				<reportElement x="278" y="210" width="257" height="20"/>
 				<box leftPadding="3"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
@@ -347,7 +389,7 @@
 				<textFieldExpression class="java.util.Date"><![CDATA[$P{startdate}]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy">
-				<reportElement x="240" y="222" width="295" height="20"/>
+				<reportElement x="278" y="230" width="257" height="20"/>
 				<box leftPadding="3"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
@@ -355,31 +397,35 @@
 				<textFieldExpression class="java.util.Date"><![CDATA[$P{enddate}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="240" y="94" width="295" height="48"/>
-				<box leftPadding="3"/>
+				<reportElement x="278" y="100" width="257" height="30"/>
+				<box topPadding="2" leftPadding="3">
+					<topPen lineWidth="1.0"/>
+				</box>
 				<textElement textAlignment="Justified">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{purpose}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="25" y="54" width="25" height="20"/>
-				<box leftPadding="2" rightPadding="0"/>
-				<textElement>
+				<reportElement x="25" y="40" width="25" height="20"/>
+				<box topPadding="2" leftPadding="0" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[a.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="25" y="74" width="25" height="20"/>
-				<box leftPadding="2" rightPadding="0"/>
-				<textElement>
+				<reportElement x="25" y="60" width="25" height="20"/>
+				<box leftPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[b.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="50" y="74" width="165" height="20"/>
+				<reportElement x="50" y="60" width="203" height="20"/>
 				<box leftPadding="2" rightPadding="0"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
@@ -387,7 +433,7 @@
 				<text><![CDATA[Jabatan]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="215" y="74" width="25" height="20"/>
+				<reportElement x="253" y="60" width="25" height="20"/>
 				<box bottomPadding="0" rightPadding="0"/>
 				<textElement textAlignment="Center" verticalAlignment="Top">
 					<font fontName="Times New Roman" size="10"/>
@@ -395,7 +441,7 @@
 				<text><![CDATA[:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="240" y="74" width="295" height="20"/>
+				<reportElement x="278" y="60" width="257" height="20"/>
 				<box leftPadding="3"/>
 				<textElement verticalAlignment="Top">
 					<font fontName="Times New Roman" size="10"/>
@@ -403,23 +449,25 @@
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{position}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="25" y="142" width="25" height="20"/>
-				<box leftPadding="2" rightPadding="0"/>
-				<textElement>
+				<reportElement x="25" y="150" width="25" height="20"/>
+				<box topPadding="2" leftPadding="0" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[a.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="25" y="162" width="25" height="20"/>
-				<box leftPadding="2" rightPadding="0"/>
-				<textElement>
+				<reportElement x="25" y="170" width="25" height="20"/>
+				<box leftPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[b.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="50" y="162" width="165" height="20"/>
+				<reportElement x="50" y="170" width="203" height="20"/>
 				<box leftPadding="2" rightPadding="0"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
@@ -427,39 +475,43 @@
 				<text><![CDATA[Tempat  Tujuan]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="215" y="162" width="25" height="20"/>
-				<box rightPadding="0"/>
+				<reportElement x="253" y="150" width="25" height="20"/>
+				<box topPadding="2" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
 				<textElement textAlignment="Center" verticalAlignment="Top">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="25" y="182" width="25" height="20"/>
-				<box leftPadding="2" rightPadding="0"/>
-				<textElement>
+				<reportElement x="25" y="190" width="25" height="20"/>
+				<box topPadding="2" leftPadding="0" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[a.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="25" y="202" width="25" height="20"/>
-				<box leftPadding="2" rightPadding="0"/>
-				<textElement>
+				<reportElement x="25" y="210" width="25" height="20"/>
+				<box leftPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[b.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="25" y="222" width="25" height="20"/>
-				<box leftPadding="2" rightPadding="0"/>
-				<textElement>
+				<reportElement x="25" y="230" width="25" height="20"/>
+				<box leftPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Center">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[c.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="50" y="222" width="165" height="20"/>
+				<reportElement x="50" y="230" width="203" height="20"/>
 				<box leftPadding="2" rightPadding="0"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
@@ -467,7 +519,7 @@
 				<text><![CDATA[Tanggal  harus  kembali]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="50" y="202" width="165" height="20"/>
+				<reportElement x="50" y="210" width="203" height="20"/>
 				<box leftPadding="2" rightPadding="0"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
@@ -475,7 +527,17 @@
 				<text><![CDATA[Tanggal  berangkat]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="215" y="202" width="25" height="20"/>
+				<reportElement x="253" y="190" width="25" height="20"/>
+				<box topPadding="2" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="253" y="210" width="25" height="20"/>
 				<box rightPadding="0"/>
 				<textElement textAlignment="Center" verticalAlignment="Top">
 					<font fontName="Times New Roman" size="10"/>
@@ -483,67 +545,75 @@
 				<text><![CDATA[:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="215" y="222" width="25" height="20"/>
-				<box rightPadding="0"/>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="10"/>
-				</textElement>
-				<text><![CDATA[:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="0" y="262" width="25" height="25"/>
+				<reportElement x="0" y="250" width="25" height="25"/>
 				<box rightPadding="2">
+					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="0.0"/>
 				</box>
-				<textElement textAlignment="Right">
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[8.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="25" y="262" width="190" height="25"/>
-				<box leftPadding="3" rightPadding="0"/>
-				<textElement>
+				<reportElement x="25" y="250" width="228" height="25"/>
+				<box leftPadding="3" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
-				<text><![CDATA[Nama Pengikut]]></text>
+				<text><![CDATA[Pengikut]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="215" y="262" width="25" height="25"/>
-				<box rightPadding="0"/>
-				<textElement textAlignment="Center" verticalAlignment="Top">
+				<reportElement x="253" y="250" width="25" height="25"/>
+				<box rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="0" y="436" width="25" height="44"/>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="410" width="25" height="20"/>
 				<box rightPadding="2">
+					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="3.0" lineStyle="Double"/>
 				</box>
-				<textElement textAlignment="Right">
+				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[10.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="25" y="436" width="190" height="44"/>
-				<box leftPadding="2" rightPadding="0"/>
-				<textElement>
+				<reportElement positionType="FixRelativeToBottom" x="25" y="410" width="228" height="20"/>
+				<box leftPadding="2" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+					<bottomPen lineWidth="3.0" lineStyle="Double"/>
+				</box>
+				<textElement verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[Keterangan lainnya]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="215" y="436" width="25" height="44"/>
-				<box rightPadding="0"/>
-				<textElement textAlignment="Center" verticalAlignment="Top">
+				<reportElement positionType="FixRelativeToBottom" x="253" y="410" width="25" height="20"/>
+				<box rightPadding="0">
+					<pen lineStyle="Solid"/>
+					<topPen lineWidth="1.0" lineStyle="Solid"/>
+					<leftPen lineStyle="Solid"/>
+					<bottomPen lineWidth="3.0" lineStyle="Double"/>
+					<rightPen lineStyle="Solid"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[:]]></text>
 			</staticText>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" x="240" y="372" width="295" height="44"/>
+				<reportElement positionType="FixRelativeToBottom" x="278" y="360" width="257" height="30"/>
 				<box leftPadding="3"/>
 				<textElement textAlignment="Justified">
 					<font fontName="Times New Roman" size="10"/>
@@ -551,8 +621,9 @@
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{charge}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="0" y="347" width="25" height="89"/>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="335" width="25" height="75"/>
 				<box topPadding="2" rightPadding="2">
+					<topPen lineWidth="1.0"/>
 					<leftPen lineWidth="0.0"/>
 				</box>
 				<textElement textAlignment="Right">
@@ -561,15 +632,17 @@
 				<text><![CDATA[9.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="25" y="347" width="215" height="25"/>
-				<box topPadding="2" leftPadding="2" rightPadding="0"/>
+				<reportElement positionType="FixRelativeToBottom" x="25" y="335" width="253" height="25"/>
+				<box topPadding="2" leftPadding="2" rightPadding="0">
+					<topPen lineWidth="1.0"/>
+				</box>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[Pembebanan Anggaran]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="25" y="372" width="25" height="44"/>
+				<reportElement positionType="FixRelativeToBottom" x="25" y="360" width="25" height="30"/>
 				<box leftPadding="2" rightPadding="0"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
@@ -577,7 +650,7 @@
 				<text><![CDATA[a.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="50" y="372" width="165" height="44"/>
+				<reportElement positionType="FixRelativeToBottom" x="50" y="360" width="203" height="30"/>
 				<box leftPadding="2" rightPadding="0"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
@@ -585,7 +658,7 @@
 				<text><![CDATA[Instansi]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="215" y="372" width="25" height="44"/>
+				<reportElement positionType="FixRelativeToBottom" x="253" y="360" width="25" height="30"/>
 				<box rightPadding="0"/>
 				<textElement textAlignment="Center" verticalAlignment="Top">
 					<font fontName="Times New Roman" size="10"/>
@@ -593,15 +666,21 @@
 				<text><![CDATA[:]]></text>
 			</staticText>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" x="240" y="436" width="295" height="44"/>
-				<box leftPadding="3"/>
-				<textElement textAlignment="Justified">
+				<reportElement positionType="FixRelativeToBottom" x="278" y="410" width="257" height="20"/>
+				<box leftPadding="3">
+					<pen lineStyle="Double"/>
+					<topPen lineWidth="1.0" lineStyle="Solid"/>
+					<leftPen lineStyle="Double"/>
+					<bottomPen lineWidth="3.0" lineStyle="Double"/>
+					<rightPen lineStyle="Double"/>
+				</box>
+				<textElement textAlignment="Justified" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{notes}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement positionType="FixRelativeToBottom" x="240" y="416" width="295" height="20"/>
+				<reportElement positionType="FixRelativeToBottom" x="278" y="390" width="257" height="20"/>
 				<box leftPadding="3"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
@@ -609,7 +688,7 @@
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{chargebudget}]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="215" y="416" width="25" height="20"/>
+				<reportElement positionType="FixRelativeToBottom" x="253" y="390" width="25" height="20"/>
 				<box rightPadding="0"/>
 				<textElement textAlignment="Center" verticalAlignment="Top">
 					<font fontName="Times New Roman" size="10"/>
@@ -617,7 +696,7 @@
 				<text><![CDATA[:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="25" y="416" width="25" height="20"/>
+				<reportElement positionType="FixRelativeToBottom" x="25" y="390" width="25" height="20"/>
 				<box leftPadding="2" rightPadding="0"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
@@ -625,7 +704,7 @@
 				<text><![CDATA[b.]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="50" y="416" width="165" height="20"/>
+				<reportElement positionType="FixRelativeToBottom" x="50" y="390" width="203" height="20"/>
 				<box leftPadding="2" rightPadding="0"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
@@ -633,7 +712,7 @@
 				<text><![CDATA[Mata Anggaran]]></text>
 			</staticText>
 			<subreport>
-				<reportElement stretchType="RelativeToBandHeight" x="0" y="287" width="535" height="60"/>
+				<reportElement stretchType="RelativeToBandHeight" x="25" y="275" width="510" height="60"/>
 				<dataSourceExpression><![CDATA[$P{datasource}]]></dataSourceExpression>
 				<subreportExpression class="net.sf.jasperreports.engine.JasperReport"><![CDATA[$P{subreport}]]></subreportExpression>
 			</subreport>
@@ -677,7 +756,7 @@
 				<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" lineSpacing="Single" markup="none">
 					<font fontName="Times New Roman" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
 				</textElement>
-				<text><![CDATA[Ditetapkan  Di]]></text>
+				<text><![CDATA[Dikeluarkan di]]></text>
 			</staticText>
 			<staticText>
 				<reportElement positionType="FixRelativeToBottom" mode="Transparent" x="240" y="511" width="83" height="20" forecolor="#000000" backcolor="#FFFFFF"/>
@@ -721,23 +800,61 @@
 			</textField>
 			<line>
 				<reportElement positionType="FixRelativeToBottom" x="240" y="531" width="295" height="1"/>
+				<graphicElement>
+					<pen lineWidth="3.0" lineStyle="Double"/>
+				</graphicElement>
 			</line>
 			<staticText>
-				<reportElement x="240" y="262" width="295" height="25"/>
-				<box leftPadding="3"/>
+				<reportElement x="278" y="250" width="257" height="25"/>
+				<box leftPadding="3">
+					<topPen lineWidth="1.0"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[]]></text>
+			</staticText>
+			<staticText>
+				<reportElement positionType="FixRelativeToBottom" x="278" y="335" width="257" height="25"/>
+				<box leftPadding="3">
+					<topPen lineWidth="1.0"/>
+				</box>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
 				<text><![CDATA[]]></text>
 			</staticText>
 			<staticText>
-				<reportElement positionType="FixRelativeToBottom" x="240" y="347" width="295" height="25"/>
-				<box leftPadding="3"/>
+				<reportElement x="25" y="80" width="25" height="20"/>
+				<box leftPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Center">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[c.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="50" y="80" width="203" height="20"/>
+				<box leftPadding="2" rightPadding="0"/>
 				<textElement>
 					<font fontName="Times New Roman" size="10"/>
 				</textElement>
-				<text><![CDATA[]]></text>
+				<text><![CDATA[Tingkat menurut peraturan perjalanan dinas]]></text>
 			</staticText>
+			<staticText>
+				<reportElement x="253" y="80" width="25" height="20"/>
+				<box bottomPadding="0" rightPadding="0"/>
+				<textElement textAlignment="Center" verticalAlignment="Top">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+				<text><![CDATA[:]]></text>
+			</staticText>
+			<textField isBlankWhenNull="true">
+				<reportElement x="278" y="80" width="257" height="20"/>
+				<box leftPadding="3"/>
+				<textElement verticalAlignment="Top">
+					<font fontName="Times New Roman" size="10"/>
+				</textElement>
+			</textField>
 		</band>
 	</pageHeader>
 </jasperReport>

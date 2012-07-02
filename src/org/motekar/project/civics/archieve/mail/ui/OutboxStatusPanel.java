@@ -50,10 +50,12 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.FormatStringValue;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.mail.objects.Outbox;
 import org.motekar.project.civics.archieve.mail.objects.OutboxDisposition;
 import org.motekar.project.civics.archieve.mail.sqlapi.MailBusinessLogic;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
+import org.motekar.util.user.objects.UserGroup;
 import org.motekar.util.user.ui.Mainframe;
 import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
@@ -87,12 +89,39 @@ public class OutboxStatusPanel extends JXPanel implements ActionListener {
     private JCommandButton btDelAction = new JCommandButton(Mainframe.getResizableIconFromSource("resource/Del.png"));
     private OutboxDispositionTable dispoTable = new OutboxDispositionTable();
     private Outbox selectedOutbox = null;
+    //
+    private Unit unit = null;
 
     public OutboxStatusPanel(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
         logic = new MailBusinessLogic(mainframe.getConnection());
         construct();
-        table.loadOutbox();
+        checkLogin();
+    }
+
+    private void checkLogin() {
+        UserGroup userGroup = mainframe.getUserGroup();
+        if (userGroup.getGroupName().equals("Administrator")) {
+            table.loadOutbox("");
+        } else {
+            unit = mainframe.getUnit();
+            String modifier = generateUnitModifier(unit);
+            table.loadOutbox(modifier);
+        }
+    }
+
+    private String generateUnitModifier(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            if (checkBox.isSelected()) {
+                query.append(" and unit = ").append(unit.getIndex());
+            } else {
+                query.append(" where unit = ").append(unit.getIndex());
+            }
+        }
+
+        return query.toString();
     }
 
     private JXPanel createCenterComponent() {
@@ -221,14 +250,14 @@ public class OutboxStatusPanel extends JXPanel implements ActionListener {
         monthChooser.addPropertyChangeListener("month", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                table.loadOutbox();
+                table.loadOutbox(generateUnitModifier(unit));
             }
         });
 
         yearChooser.addPropertyChangeListener("year", new PropertyChangeListener() {
 
             public void propertyChange(PropertyChangeEvent evt) {
-                table.loadOutbox();
+                table.loadOutbox(generateUnitModifier(unit));
             }
         });
 
@@ -375,7 +404,7 @@ public class OutboxStatusPanel extends JXPanel implements ActionListener {
         if (source == checkBox) {
             monthChooser.setEnabled(checkBox.isSelected());
             yearChooser.setEnabled(checkBox.isSelected());
-            table.loadOutbox();
+            table.loadOutbox(generateUnitModifier(unit));
         } else if (source == btInsAction) {
             OutboxDispositionDlg dlg = new OutboxDispositionDlg(mainframe);
             dlg.showDialog();
@@ -392,7 +421,7 @@ public class OutboxStatusPanel extends JXPanel implements ActionListener {
                 }
 
             }
-        }  else if (source == btEditAction) {
+        } else if (source == btEditAction) {
             if (selectedOutbox != null) {
                 OutboxDisposition disposition = dispoTable.getSelectedDisposition();
                 OutboxDispositionDlg dlg = new OutboxDispositionDlg(mainframe, disposition);
@@ -445,8 +474,8 @@ public class OutboxStatusPanel extends JXPanel implements ActionListener {
             model.clear();
         }
 
-        public void loadOutbox() {
-            worker = new LoadOutbox(model);
+        public void loadOutbox(String modifier) {
+            worker = new LoadOutbox(model, modifier);
             progressListener = new OutboxProgressListener(pbar);
             worker.addPropertyChangeListener(progressListener);
             worker.execute();
@@ -614,9 +643,11 @@ public class OutboxStatusPanel extends JXPanel implements ActionListener {
 
         private OutboxStatusTableModel model;
         private Exception exception;
+        private String modifier = "";
 
-        public LoadOutbox(OutboxStatusTableModel model) {
+        public LoadOutbox(OutboxStatusTableModel model, String modifier) {
             this.model = model;
+            this.modifier = modifier;
             model.clear();
         }
 
@@ -643,9 +674,9 @@ public class OutboxStatusPanel extends JXPanel implements ActionListener {
                 ArrayList<Outbox> outboxs = new ArrayList<Outbox>();
 
                 if (checkBox.isSelected()) {
-                    outboxs = logic.getOutbox(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear());
+                    outboxs = logic.getOutbox(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear(), modifier);
                 } else {
-                    outboxs = logic.getOutbox(mainframe.getSession());
+                    outboxs = logic.getOutbox(mainframe.getSession(), modifier);
                 }
 
                 double progress = 0.0;

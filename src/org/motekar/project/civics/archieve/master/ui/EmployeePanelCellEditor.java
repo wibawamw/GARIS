@@ -9,6 +9,7 @@ import javax.swing.event.CellEditorListener;
 import javax.swing.event.ChangeEvent;
 import javax.swing.table.TableCellEditor;
 import org.motekar.project.civics.archieve.master.objects.Employee;
+import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
 
 /**
  *
@@ -20,8 +21,8 @@ public class EmployeePanelCellEditor extends EmployeeCellPanel implements TableC
     protected transient ArrayList listeners;
     protected transient boolean editing;
 
-    public EmployeePanelCellEditor(Connection conn, Long session) {
-        super(conn, session);
+    public EmployeePanelCellEditor(Connection conn, ArchieveMainframe mainframe) {
+        super(conn, mainframe.getSession(),mainframe.getUserGroup(),mainframe.getUnit());
         listeners = new ArrayList();
     }
 

@@ -1,5 +1,6 @@
 package org.motekar.project.civics.archieve.expedition.objects;
 
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
 import org.motekar.project.civics.archieve.master.objects.Employee;
 import org.motekar.project.civics.archieve.master.objects.StandardPrice;
 
@@ -25,6 +26,8 @@ public class ExpeditionCheque {
     private Integer budgetType = Integer.valueOf(0);
 
     private StandardPrice amount = null;
+    
+    private Unit unit = null;
 
     private boolean styled = false;
 
@@ -151,6 +154,15 @@ public class ExpeditionCheque {
         this.styled = styled;
     }
 
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public void setUnit(Unit unit) {
+        this.unit = unit;
+    }
+    
+    
     @Override
     public String toString() {
         if (isStyled()) {

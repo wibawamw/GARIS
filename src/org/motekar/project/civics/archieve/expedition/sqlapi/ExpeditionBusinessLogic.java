@@ -165,12 +165,12 @@ public class ExpeditionBusinessLogic {
         }
     }
 
-    public ArrayList<Expedition> getExpedition(Long session) throws SQLException {
+    public ArrayList<Expedition> getExpedition(Long session,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getExpedition(conn);
+            return sql.getExpedition(conn,modifier);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {
@@ -178,13 +178,13 @@ public class ExpeditionBusinessLogic {
         }
     }
 
-    public ArrayList<Expedition> getExpedition(Long session, Date startDate, Date endDate) throws SQLException {
+    public ArrayList<Expedition> getExpedition(Long session, Date startDate, Date endDate,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
 
-            return sql.getExpedition(conn, startDate, endDate);
+            return sql.getExpedition(conn, startDate, endDate,modifier);
         } catch (SQLException sqle) {
             Exceptions.printStackTrace(sqle);
             throw sqle;
@@ -193,12 +193,12 @@ public class ExpeditionBusinessLogic {
         }
     }
 
-    public ArrayList<Expedition> getExpedition(Long session, Integer month, Integer year) throws SQLException {
+    public ArrayList<Expedition> getExpedition(Long session, Integer month, Integer year,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getExpedition(conn, month, year);
+            return sql.getExpedition(conn, month, year,modifier);
         } catch (SQLException sqle) {
             Exceptions.printStackTrace(sqle);
             throw sqle;
@@ -399,12 +399,12 @@ public class ExpeditionBusinessLogic {
         }
     }
 
-    public ArrayList<ExpeditionJournal> getExpeditionJournal(Long session) throws SQLException {
+    public ArrayList<ExpeditionJournal> getExpeditionJournal(Long session,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getExpeditionJournal(conn);
+            return sql.getExpeditionJournal(conn,modifier);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {
@@ -412,12 +412,12 @@ public class ExpeditionBusinessLogic {
         }
     }
 
-    public ArrayList<ExpeditionJournal> getExpeditionJournal(Long session, Integer month, Integer year) throws SQLException {
+    public ArrayList<ExpeditionJournal> getExpeditionJournal(Long session, Integer month, Integer year,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getExpeditionJournal(conn, month, year);
+            return sql.getExpeditionJournal(conn, month, year,modifier);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {
@@ -594,12 +594,12 @@ public class ExpeditionBusinessLogic {
         }
     }
 
-    public ArrayList<AssignmentLetter> getAssignmentLetter(Long session) throws SQLException {
+    public ArrayList<AssignmentLetter> getAssignmentLetter(Long session,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getAssigmentLetter(conn);
+            return sql.getAssigmentLetter(conn,modifier);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {
@@ -607,12 +607,12 @@ public class ExpeditionBusinessLogic {
         }
     }
 
-    public ArrayList<AssignmentLetter> getAssignmentLetterInExpedition(Long session) throws SQLException {
+    public ArrayList<AssignmentLetter> getAssignmentLetterInExpedition(Long session,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getAssigmentLetterInExpedition(conn);
+            return sql.getAssigmentLetterInExpedition(conn,modifier);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {
@@ -620,12 +620,12 @@ public class ExpeditionBusinessLogic {
         }
     }
 
-    public ArrayList<AssignmentLetter> getAssignmentLetter(Long session, Integer month, Integer year) throws SQLException {
+    public ArrayList<AssignmentLetter> getAssignmentLetter(Long session, Integer month, Integer year,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getAssignmentLetter(conn, month, year);
+            return sql.getAssignmentLetter(conn, month, year,modifier);
         } catch (SQLException sqle) {
             Exceptions.printStackTrace(sqle);
             throw sqle;
@@ -787,12 +787,12 @@ public class ExpeditionBusinessLogic {
         }
     }
 
-    public ArrayList<ExpeditionCheque> getExpeditionCheque(Long session) throws SQLException {
+    public ArrayList<ExpeditionCheque> getExpeditionCheque(Long session,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getExpeditionCheque(conn);
+            return sql.getExpeditionCheque(conn,modifier);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {

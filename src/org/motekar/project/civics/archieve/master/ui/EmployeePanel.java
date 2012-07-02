@@ -3,23 +3,37 @@ package org.motekar.project.civics.archieve.master.ui;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+import com.toedter.calendar.JYearChooser;
+import com.toedter.components.JSpinField;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
+import javax.imageio.ImageIO;
 import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;
@@ -67,12 +81,18 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.hyperlink.EditorPaneLinkVisitor;
 import org.jdesktop.swingx.hyperlink.LinkModel;
 import org.jdesktop.swingx.hyperlink.LinkModelAction;
+import org.jdesktop.swingx.painter.AbstractLayoutPainter;
+import org.jdesktop.swingx.painter.ImagePainter;
+import org.jdesktop.swingx.painter.Painter;
 import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.HyperlinkProvider;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.renderer.StringValue;
+import org.motekar.project.civics.archieve.assets.master.objects.Unit;
+import org.motekar.project.civics.archieve.assets.master.sqlapi.AssetMasterBusinessLogic;
 import org.motekar.project.civics.archieve.master.objects.CurriculumVitae;
+import org.motekar.project.civics.archieve.master.objects.Division;
 import org.motekar.project.civics.archieve.master.objects.Employee;
 import org.motekar.project.civics.archieve.master.objects.EmployeeCourses;
 import org.motekar.project.civics.archieve.master.objects.EmployeeFacility;
@@ -80,10 +100,12 @@ import org.motekar.project.civics.archieve.master.sqlapi.MasterBusinessLogic;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
 import org.motekar.util.user.misc.MotekarException;
 import org.motekar.util.user.misc.MotekarFocusTraversalPolicy;
+import org.motekar.util.user.objects.UserGroup;
 import org.motekar.util.user.ui.Mainframe;
 import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
 import org.pushingpixels.flamingo.api.common.JCommandButtonStrip;
+import org.pushingpixels.flamingo.api.common.JCommandButtonStrip.StripOrientation;
 import org.pushingpixels.flamingo.api.common.RichTooltip;
 import org.pushingpixels.substance.api.ComponentState;
 import org.pushingpixels.substance.api.SubstanceColorScheme;
@@ -98,35 +120,48 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
     private ArchieveMainframe mainframe = null;
     private MasterBusinessLogic logic;
+    private AssetMasterBusinessLogic mLogic;
     private JXMultiSplitPane splitPane = new JXMultiSplitPane();
     private JXLabel statusLabel = new JXLabel("Ready");
     private JProgressBar pbar = new JProgressBar();
     private JXTextField fieldSearch = new JXTextField();
+    private JXComboBox comboUnit = new JXComboBox();
+    //
     private EmployeeList employeeList = new EmployeeList();
     private JXTextField fieldName = new JXTextField();
     private JXTextField fieldNIP = new JXTextField();
     private JXTextField fieldBirthPlace = new JXTextField();
     private JXDatePicker fieldBirthDate = new JXDatePicker(new Locale("in", "ID", "ID"));
     private JXComboBox comboSex = new JXComboBox();
+    private JXComboBox comboReligion = new JXComboBox();
     private JXComboBox comboGrade = new JXComboBox();
     private JXComboBox comboFungsional = new JXComboBox();
     private JXComboBox comboStruktural = new JXComboBox();
     private JXTextArea fieldPosNotes = new JXTextArea();
     private JCheckBox checkGovernor = new JCheckBox();
+    private JSpinField fieldMKYear = new JSpinField();
+    private JSpinField fieldMKMonth = new JSpinField(0, 11);
+    private JXTextField fieldMutation = new JXTextField();
     /**
      *
      */
     private JXComboBox comboMarital = new JXComboBox();
     private JXTextField fieldSoulMate = new JXTextField();
-    private JXComboBox comboChildren = new JXComboBox();
+    private JSpinField fieldChildren = new JSpinField();
     private JXComboBox comboEducation = new JXComboBox();
     private JXComboBox comboEselon = new JXComboBox();
+    private JXComboBox comboEmployeeStatus = new JXComboBox();
     private JXDatePicker fieldCpnsTMT = new JXDatePicker(new Locale("in", "ID", "ID"));
     private JXDatePicker fieldPnsTMT = new JXDatePicker(new Locale("in", "ID", "ID"));
     private JXDatePicker fieldGradeTMT = new JXDatePicker(new Locale("in", "ID", "ID"));
     private JXDatePicker fieldEselonTMT = new JXDatePicker(new Locale("in", "ID", "ID"));
-    private EmployeeCoursesTable courseTable = new EmployeeCoursesTable();
+    private EmployeeCoursesTablePanel courseTable;
+    private JXTextField fieldDepartment = new JXTextField();
+    private JYearChooser fieldGraduateYear = new JYearChooser();
     private EmployeeFacilityTable facilityTable = new EmployeeFacilityTable();
+    private JXPanel imagePanel = new JXPanel();
+    private ImagePainter painter = null;
+    private byte[] pictureStream = null;
     /**
      *
      */
@@ -139,6 +174,9 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
     private JCommandButton btCancel = new JCommandButton(Mainframe.getResizableIconFromSource("resource/cancel_sign.png"));
     private JCommandButton btInsCV = new JCommandButton(Mainframe.getResizableIconFromSource("resource/Add.png"));
     private JCommandButton btDelCV = new JCommandButton(Mainframe.getResizableIconFromSource("resource/Del.png"));
+    //
+    private JCommandButton btChoose = new JCommandButton(Mainframe.getResizableIconFromSource("resource/file_upload.png"));
+    //
     private boolean iseditable = false;
     private boolean isnew = false;
     private boolean isedit = false;
@@ -148,12 +186,89 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
     private EmployeeProgressListener progressListener;
     private JFileChooser openChooser;
     private JFileChooser saveChooser;
+    //
+    private Unit unit = null;
 
     public EmployeePanel(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
         this.logic = new MasterBusinessLogic(this.mainframe.getConnection());
+        this.mLogic = new AssetMasterBusinessLogic(this.mainframe.getConnection());
+        this.courseTable = new EmployeeCoursesTablePanel(this.mainframe.getConnection());
         construct();
-        employeeList.loadData();
+        checkLogin();
+    }
+
+    private Painter getPainter() {
+        try {
+
+            if (selectedEmployee != null) {
+                pictureStream = selectedEmployee.getPicture();
+
+                if (pictureStream == null) {
+
+                    if (selectedEmployee.getSex().equals(Employee.MALE)) {
+                        File file = new File("./images/male.jpg");
+                        FileInputStream fileInputStream = new FileInputStream(file);
+                        pictureStream = new byte[(int) file.length()];
+                        fileInputStream.read(pictureStream);
+                    } else {
+                        File file = new File("./images/female.jpg");
+                        FileInputStream fileInputStream = new FileInputStream(file);
+                        pictureStream = new byte[(int) file.length()];
+                        fileInputStream.read(pictureStream);
+                    }
+
+
+                }
+
+                BufferedImage img = ImageIO.read(new ByteArrayInputStream(pictureStream));
+
+                painter = new ImagePainter(img, AbstractLayoutPainter.HorizontalAlignment.CENTER, AbstractLayoutPainter.VerticalAlignment.CENTER);
+//                painter.setScaleToFit(true);
+                painter.setFillHorizontal(true);
+                painter.setFillVertical(true);
+                painter.setAntialiasing(true);
+            } else {
+                File file = new File("./images/male.jpg");
+                FileInputStream fileInputStream = new FileInputStream(file);
+                pictureStream = new byte[(int) file.length()];
+                fileInputStream.read(pictureStream);
+
+                BufferedImage img = ImageIO.read(new ByteArrayInputStream(pictureStream));
+
+                painter = new ImagePainter(img, AbstractLayoutPainter.HorizontalAlignment.CENTER, AbstractLayoutPainter.VerticalAlignment.CENTER);
+//                painter.setScaleToFit(true);
+                painter.setFillHorizontal(true);
+                painter.setFillVertical(true);
+                painter.setAntialiasing(true);
+            }
+
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return painter;
+    }
+
+    private void checkLogin() {
+        UserGroup userGroup = mainframe.getUserGroup();
+        if (userGroup.getGroupName().equals("Administrator")) {
+            employeeList.loadData("");
+        } else {
+            unit = mainframe.getUnit();
+            comboUnit.setSelectedItem(unit);
+            String modifier = generateUnitModifier(unit);
+            employeeList.loadData(modifier);
+        }
+    }
+
+    private String generateUnitModifier(Unit unit) {
+        StringBuilder query = new StringBuilder();
+
+        if (unit != null) {
+            query.append(" where unit = ").append(unit.getIndex());
+        }
+
+        return query.toString();
     }
 
     private JXPanel createLeftComponent() {
@@ -249,9 +364,9 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
     protected Component createMainPanel() {
         FormLayout lm = new FormLayout(
-                "right:pref,10px,fill:default:grow,50px",
+                "right:pref,10px,fill:default:grow,10px,130px,20px",
                 "pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,"
-                + "pref,5px,pref,5px,50px");
+                + "pref,5px,pref,5px,pref,5px,50px");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
 
@@ -264,6 +379,8 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         builder.addLabel("Kepala Daerah ?", cc.xy(1, 1));
         builder.add(checkGovernor, cc.xy(3, 1));
 
+        builder.add(imagePanel, cc.xywh(5, 3, 1, 9));
+
         builder.addLabel("Nama", cc.xy(1, 3));
         builder.add(fieldName, cc.xy(3, 3));
 
@@ -273,34 +390,57 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         builder.addLabel("Jenis Kelamin", cc.xy(1, 7));
         builder.add(comboSex, cc.xy(3, 7));
 
-        builder.addLabel("Tempat Lahir", cc.xy(1, 9));
-        builder.add(fieldBirthPlace, cc.xy(3, 9));
+        builder.addLabel("Agama", cc.xy(1, 9));
+        builder.add(comboReligion, cc.xy(3, 9));
 
-        builder.addLabel("Tanggal Lahir", cc.xy(1, 11));
-        builder.add(fieldBirthDate, cc.xy(3, 11));
+        builder.addLabel("Tempat Lahir", cc.xy(1, 11));
+        builder.add(fieldBirthPlace, cc.xy(3, 11));
 
-        builder.addLabel("Status Kawin", cc.xy(1, 13));
-        builder.add(comboMarital, cc.xy(3, 13));
+        builder.addLabel("Tanggal Lahir", cc.xy(1, 13));
+        builder.add(fieldBirthDate, cc.xy(3, 13));
 
-        builder.addLabel("Nama Pasangan", cc.xy(1, 15));
-        builder.add(fieldSoulMate, cc.xy(3, 15));
+        builder.addLabel("Status Kawin", cc.xy(1, 15));
+        builder.add(comboMarital, cc.xy(3, 15));
 
-        builder.addLabel("Jumlah Anak", cc.xy(1, 17));
-        builder.add(comboChildren, cc.xy(3, 17));
+        builder.addLabel("Nama Pasangan", cc.xy(1, 17));
+        builder.add(fieldSoulMate, cc.xy(3, 17));
 
-        tabPane.addTab("Pegawai", builder.getPanel());
-        tabPane.addTab("Kepegawaian", createMainPanel2());
-        tabPane.addTab("Diklat & Fasilitas", createMainPanel3());
-        tabPane.addTab("Curriculum Vitae", createMainPanel4());
+        builder.addLabel("Jumlah Anak", cc.xy(1, 19));
+        builder.add(fieldChildren, cc.xy(3, 19));
+
+
+        JScrollPane scPane = new JScrollPane();
+        scPane.setViewportView(builder.getPanel());
+
+        JScrollPane scPane2 = new JScrollPane();
+        scPane2.setViewportView(createMainPanel2());
+
+        JScrollPane scPane3 = new JScrollPane();
+        scPane3.setViewportView(createMainPanel3());
+
+        JScrollPane scPane4 = new JScrollPane();
+        scPane4.setViewportView(createMainPanel4());
+
+        scPane.getVerticalScrollBar().setUnitIncrement(20);
+        scPane2.getVerticalScrollBar().setUnitIncrement(20);
+        scPane3.getVerticalScrollBar().setUnitIncrement(20);
+        scPane4.getVerticalScrollBar().setUnitIncrement(20);
+
+
+        tabPane.addTab("Pegawai", scPane);
+        tabPane.addTab("Kepegawaian", scPane2);
+        tabPane.addTab("Diklat & Fasilitas", scPane3);
+//        tabPane.addTab("Cetak CV", new JPanel());
+        tabPane.addTab("Upload Dokumen", scPane4);
 
         return tabPane;
     }
 
     protected Component createMainPanel2() {
         FormLayout lm = new FormLayout(
-                "right:pref,10px,fill:default:grow,50px",
-                "pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,"
-                + "fill:default:grow,5px,50px");
+                "right:pref,10px,fill:default:grow,2px,pref,2px,fill:default:grow,2px,pref,50px",
+                "pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,"
+                + "fill:default:grow,10px,5px,pref,5px,pref,5px,50px");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
 
@@ -315,32 +455,45 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
         CellConstraints cc = new CellConstraints();
 
-        builder.addLabel("TMT SK CPNS", cc.xy(1, 1));
-        builder.add(fieldCpnsTMT, cc.xy(3, 1));
+        builder.addLabel("Status Kepegawaian", cc.xy(1, 1));
+        builder.add(comboEmployeeStatus, cc.xyw(3, 1, 7));
 
-        builder.addLabel("TMT SK PNS", cc.xy(1, 3));
-        builder.add(fieldPnsTMT, cc.xy(3, 3));
+        builder.addLabel("TMT SK CPNS", cc.xy(1, 3));
+        builder.add(fieldCpnsTMT, cc.xyw(3, 3, 7));
 
-        builder.addLabel("Golongan", cc.xy(1, 5));
-        builder.add(comboGrade, cc.xy(3, 5));
+        builder.addLabel("TMT SK PNS", cc.xy(1, 5));
+        builder.add(fieldPnsTMT, cc.xyw(3, 5, 7));
 
-        builder.addLabel("TMT Golongan", cc.xy(1, 7));
-        builder.add(fieldGradeTMT, cc.xy(3, 7));
+        builder.addLabel("Golongan", cc.xy(1, 7));
+        builder.add(comboGrade, cc.xyw(3, 7, 7));
 
-        builder.addLabel("Eselon", cc.xy(1, 9));
-        builder.add(comboEselon, cc.xy(3, 9));
+        builder.addLabel("TMT Golongan", cc.xy(1, 9));
+        builder.add(fieldGradeTMT, cc.xyw(3, 9, 7));
 
-        builder.addLabel("Jab. Struktural", cc.xy(1, 11));
-        builder.add(comboStruktural, cc.xy(3, 11));
+        builder.addLabel("Eselon", cc.xy(1, 11));
+        builder.add(comboEselon, cc.xyw(3, 11, 7));
 
-        builder.addLabel("Jab. Fungsional", cc.xy(1, 13));
-        builder.add(comboFungsional, cc.xy(3, 13));
+        builder.addLabel("Jab. Struktural", cc.xy(1, 13));
+        builder.add(comboStruktural, cc.xyw(3, 13, 7));
 
-        builder.addLabel("TMT Jabatan", cc.xy(1, 15));
-        builder.add(fieldEselonTMT, cc.xy(3, 15));
+        builder.addLabel("Jab. Fungsional / Umum", cc.xy(1, 15));
+        builder.add(comboFungsional, cc.xyw(3, 15, 7));
 
-        builder.addLabel("Keterangan Jabatan", cc.xy(1, 17));
-        builder.add(scPane, cc.xywh(3, 17, 1, 2));
+        builder.addLabel("TMT Jabatan", cc.xy(1, 17));
+        builder.add(fieldEselonTMT, cc.xyw(3, 17, 7));
+
+        builder.addLabel("Keterangan Jabatan", cc.xy(1, 19));
+        builder.add(scPane, cc.xywh(3, 19, 5, 3));
+        builder.add(createStrip3(1.0, 1.0), cc.xy(9, 19));
+
+        builder.addLabel("Masa Kerja", cc.xy(1, 23));
+        builder.add(fieldMKYear, cc.xyw(3, 23, 1));
+        builder.addLabel("Tahun", cc.xyw(5, 23, 1));
+        builder.add(fieldMKMonth, cc.xyw(7, 23, 1));
+        builder.addLabel("Bulan", cc.xyw(9, 23, 1));
+
+        builder.addLabel("Mutasi Dari", cc.xy(1, 25));
+        builder.add(fieldMutation, cc.xyw(3, 25, 7));
 
         return builder.getPanel();
     }
@@ -348,31 +501,34 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
     protected Component createMainPanel3() {
         FormLayout lm = new FormLayout(
                 "right:pref,10px,fill:default:grow,50px",
-                "pref,10px,pref,5px,pref,fill:default:grow,20px,"
-                + "pref,5px,pref,fill:default:grow,5px,30px");
+                "pref,5px,pref,2px,pref,2px,pref,5px,pref,5px,pref,fill:default:grow,20px,2px,"
+                + "pref,5px,pref,fill:default:grow,5px,15px");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
-
-        lm.setRowGroups(new int[][]{{1, 3, 8, 10}});
-
-        JScrollPane scPane = new JScrollPane();
-        scPane.setViewportView(courseTable);
 
         JScrollPane scPane2 = new JScrollPane();
         scPane2.setViewportView(facilityTable);
 
         CellConstraints cc = new CellConstraints();
 
-        builder.addLabel("Pendidikan Terakhir", cc.xy(1, 1));
-        builder.add(comboEducation, cc.xy(3, 1));
+        builder.addSeparator("Pendidikan", cc.xyw(1, 1, 3));
 
-        builder.addSeparator("Diklat", cc.xyw(1, 3, 3));
+        builder.addLabel("Tingkat", cc.xy(1, 3));
+        builder.add(comboEducation, cc.xy(3, 3));
 
-        builder.add(scPane, cc.xywh(1, 5, 3, 3));
+        builder.addLabel("Nama", cc.xy(1, 5));
+        builder.add(fieldDepartment, cc.xy(3, 5));
 
-        builder.addSeparator("Fasilitas", cc.xyw(1, 8, 3));
+        builder.addLabel("Tahun Lulus", cc.xy(1, 7));
+        builder.add(fieldGraduateYear, cc.xy(3, 7));
 
-        builder.add(scPane2, cc.xywh(1, 10, 3, 3));
+        builder.addSeparator("Diklat / Pelatihan", cc.xyw(1, 9, 3));
+
+        builder.add(courseTable, cc.xywh(1, 11, 3, 3));
+
+        builder.addSeparator("Fasilitas", cc.xyw(1, 15, 3));
+
+        builder.add(scPane2, cc.xywh(1, 17, 3, 3));
 
 
         return builder.getPanel();
@@ -402,11 +558,17 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
     protected JPanel createSearchPanel() {
         FormLayout lm = new FormLayout(
-                "fill:default,10px, fill:default:grow", "pref");
+                "pref,5px, pref,20px", "pref,4px,pref");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
 
-        builder.append(new JXLabel("Cari"), fieldSearch);
+        CellConstraints cc = new CellConstraints();
+
+        builder.addLabel("Cari", cc.xy(1, 1));
+        builder.add(fieldSearch, cc.xyw(3, 1,1));
+
+        builder.addLabel("Unit", cc.xy(1, 3));
+        builder.add(comboUnit, cc.xyw(3, 3,1));
 
         return builder.getPanel();
     }
@@ -486,21 +648,45 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         return buttonStrip;
     }
 
+    private JCommandButtonStrip createStrip3(double hgapScaleFactor,
+            double vgapScaleFactor) {
+
+        RichTooltip searchTooltip = new RichTooltip();
+        searchTooltip.setTitle("Pilih Bagian / Bidang / Seksi");
+
+        btChoose.setActionRichTooltip(searchTooltip);
+
+
+        JCommandButtonStrip buttonStrip = new JCommandButtonStrip(StripOrientation.VERTICAL);
+        buttonStrip.setHGapScaleFactor(hgapScaleFactor);
+        buttonStrip.setVGapScaleFactor(vgapScaleFactor);
+        buttonStrip.add(btChoose);
+
+        return buttonStrip;
+    }
+
     private void construct() {
 
         loadSex();
+        loadReligion();
         loadGrade();
         loadFungsional();
         loadStruktural();
         loadMarital();
-        loadChildren();
         loadEducation();
         loadEselon();
+        loadEmployeeStatus();
+        loadComboUnit();
 
         constructOpenFileChooser();
         constructSaveFileChooser();
 
+        imagePanel.setBorder(BorderFactory.createEtchedBorder());
+        imagePanel.setBackgroundPainter(getPainter());
+        imagePanel.addMouseListener(new MouseHandler());
+
         comboSex.setEditable(true);
+        comboReligion.setEditable(true);
         comboGrade.setEditable(true);
         comboFungsional.setEditable(true);
         comboStruktural.setEditable(true);
@@ -526,16 +712,25 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
             }
         });
 
+        comboUnit.addItemListener(new ItemListener() {
+
+            public void itemStateChanged(ItemEvent e) {
+                Object object = comboUnit.getSelectedItem();
+                if (object instanceof Unit) {
+                    Unit units = (Unit) object;
+                    String modifier = generateUnitModifier(units);
+                    employeeList.loadData(modifier);
+                }
+            }
+        });
+
+        btChoose.addActionListener(this);
+
         SubstanceSkin skin = SubstanceLookAndFeel.getCurrentSkin();
         SubstanceColorScheme color = skin.getColorScheme(cvTable, ComponentState.DEFAULT);
 
         cvTable.addHighlighter(HighlighterFactory.createSimpleStriping(color.getWatermarkDarkColor()));
         cvTable.setShowGrid(false, false);
-
-        color = skin.getColorScheme(courseTable, ComponentState.DEFAULT);
-
-        courseTable.addHighlighter(HighlighterFactory.createSimpleStriping(color.getWatermarkDarkColor()));
-        courseTable.setShowGrid(false, false);
 
         color = skin.getColorScheme(facilityTable, ComponentState.DEFAULT);
 
@@ -558,8 +753,8 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         btInsCV.addActionListener(this);
         btDelCV.addActionListener(this);
 
-        String LAY_OUT = "(ROW weight=1.0 (LEAF name=editor1 weight=0.25)"
-                + "(LEAF name=editor2 weight=0.5) (LEAF name=editor3 weight=0.25))";
+        String LAY_OUT = "(ROW weight=1.0 (LEAF name=editor1 weight=0.45)"
+                + "(LEAF name=editor2 weight=0.55))";
         MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel(LAY_OUT);
         splitPane.getMultiSplitLayout().setModel(modelRoot);
 
@@ -571,7 +766,7 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
         splitPane.add(createLeftComponent(), "editor1");
         splitPane.add(createCenterComponent(), "editor2");
-        splitPane.add(panel, "editor3");
+//        splitPane.add(panel, "editor3");
 
         panel.setVisible(true);
 
@@ -584,6 +779,7 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
         setFormState();
         setButtonState("");
+        clearYear();
     }
 
     private void downloadFile() {
@@ -676,10 +872,12 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
             fieldBirthPlace.setEnabled(iseditable);
             fieldBirthDate.setEnabled(iseditable);
             comboSex.setEnabled(iseditable);
+            comboReligion.setEnabled(iseditable);
             comboGrade.setEnabled(iseditable);
             comboFungsional.setEnabled(iseditable);
             comboStruktural.setEnabled(iseditable);
             fieldPosNotes.setEnabled(iseditable);
+            btChoose.setEnabled(iseditable);
             fieldSearch.setEnabled(!iseditable);
             employeeList.setEnabled(!iseditable);
             btInsCV.setEnabled(iseditable);
@@ -687,16 +885,23 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
             comboMarital.setEnabled(iseditable);
             fieldSoulMate.setEnabled(iseditable);
-            comboChildren.setEnabled(iseditable);
+            fieldChildren.setEnabled(iseditable);
             comboEducation.setEnabled(iseditable);
+            fieldDepartment.setEnabled(iseditable);
+            fieldGraduateYear.setEnabled(iseditable);
             comboEselon.setEnabled(iseditable);
+            comboEmployeeStatus.setEnabled(iseditable);
             fieldCpnsTMT.setEnabled(iseditable);
             fieldPnsTMT.setEnabled(iseditable);
             fieldGradeTMT.setEnabled(iseditable);
             fieldEselonTMT.setEnabled(iseditable);
+            fieldMKYear.setEnabled(iseditable);
+            fieldMKMonth.setEnabled(iseditable);
+            fieldMutation.setEnabled(iseditable);
 
             facilityTable.setEnabled(iseditable);
             courseTable.setEnabled(iseditable);
+            courseTable.setButtonEnable(iseditable);
         } else {
             if (checkGovernor.isSelected()) {
                 fieldName.setEnabled(iseditable);
@@ -704,10 +909,12 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
                 fieldBirthPlace.setEnabled(iseditable);
                 fieldBirthDate.setEnabled(iseditable);
                 comboSex.setEnabled(iseditable);
+                comboReligion.setEnabled(iseditable);
                 comboGrade.setEnabled(false);
                 comboFungsional.setEnabled(false);
                 comboStruktural.setEnabled(false);
                 fieldPosNotes.setEnabled(false);
+                btChoose.setEnabled(false);
                 fieldSearch.setEnabled(!iseditable);
                 employeeList.setEnabled(!iseditable);
                 btInsCV.setEnabled(iseditable);
@@ -715,26 +922,35 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
                 comboMarital.setEnabled(iseditable);
                 fieldSoulMate.setEnabled(iseditable);
-                comboChildren.setEnabled(iseditable);
+                fieldChildren.setEnabled(iseditable);
                 comboEducation.setEnabled(iseditable);
+                fieldDepartment.setEnabled(iseditable);
+                fieldGraduateYear.setEnabled(iseditable);
                 comboEselon.setEnabled(false);
+                comboEmployeeStatus.setEnabled(false);
                 fieldCpnsTMT.setEnabled(false);
                 fieldPnsTMT.setEnabled(false);
                 fieldGradeTMT.setEnabled(false);
                 fieldEselonTMT.setEnabled(false);
+                fieldMKYear.setEnabled(iseditable);
+                fieldMKMonth.setEnabled(iseditable);
+                fieldMutation.setEnabled(iseditable);
 
                 facilityTable.setEnabled(iseditable);
                 courseTable.setEnabled(iseditable);
+                courseTable.setButtonEnable(iseditable);
             } else {
                 fieldName.setEnabled(iseditable);
                 fieldNIP.setEnabled(iseditable);
                 fieldBirthPlace.setEnabled(iseditable);
                 fieldBirthDate.setEnabled(iseditable);
                 comboSex.setEnabled(iseditable);
+                comboReligion.setEnabled(iseditable);
                 comboGrade.setEnabled(iseditable);
                 comboFungsional.setEnabled(iseditable);
                 comboStruktural.setEnabled(iseditable);
                 fieldPosNotes.setEnabled(iseditable);
+                btChoose.setEnabled(iseditable);
                 fieldSearch.setEnabled(!iseditable);
                 employeeList.setEnabled(!iseditable);
                 btInsCV.setEnabled(iseditable);
@@ -742,15 +958,23 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
                 comboMarital.setEnabled(iseditable);
                 fieldSoulMate.setEnabled(iseditable);
-                comboChildren.setEnabled(iseditable);
+                fieldChildren.setEnabled(iseditable);
                 comboEducation.setEnabled(iseditable);
+                fieldDepartment.setEnabled(iseditable);
+                fieldGraduateYear.setEnabled(iseditable);
                 comboEselon.setEnabled(iseditable);
+                comboEmployeeStatus.setEnabled(iseditable);
                 fieldCpnsTMT.setEnabled(iseditable);
                 fieldPnsTMT.setEnabled(iseditable);
                 fieldGradeTMT.setEnabled(iseditable);
                 fieldEselonTMT.setEnabled(iseditable);
+                fieldMKYear.setEnabled(iseditable);
+                fieldMKMonth.setEnabled(iseditable);
+                fieldMutation.setEnabled(iseditable);
+                //
                 facilityTable.setEnabled(iseditable);
                 courseTable.setEnabled(iseditable);
+                courseTable.setButtonEnable(iseditable);
             }
         }
 
@@ -762,12 +986,25 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         comboFungsional.setEnabled(!checkGovernor.isSelected());
         comboStruktural.setEnabled(!checkGovernor.isSelected());
         fieldPosNotes.setEnabled(!checkGovernor.isSelected());
+        btChoose.setEnabled(!checkGovernor.isSelected());
 
         comboEselon.setEnabled(!checkGovernor.isSelected());
+        comboEmployeeStatus.setEnabled(!checkGovernor.isSelected());
         fieldCpnsTMT.setEnabled(!checkGovernor.isSelected());
         fieldPnsTMT.setEnabled(!checkGovernor.isSelected());
         fieldGradeTMT.setEnabled(!checkGovernor.isSelected());
         fieldEselonTMT.setEnabled(!checkGovernor.isSelected());
+        fieldMKYear.setEnabled(!checkGovernor.isSelected());
+        fieldMKMonth.setEnabled(!checkGovernor.isSelected());
+        fieldMutation.setEnabled(!checkGovernor.isSelected());
+    }
+
+    private void clearYear() {
+        GregorianCalendar calendar = new GregorianCalendar();
+        calendar.setTime(new Date());
+
+        int year = calendar.get(Calendar.YEAR);
+        fieldGraduateYear.setYear(year);
     }
 
     private void clearForm() {
@@ -777,6 +1014,7 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         fieldBirthPlace.setText("");
         fieldBirthDate.setDate(null);
         comboSex.setSelectedIndex(0);
+        comboReligion.setSelectedIndex(0);
         comboGrade.setSelectedIndex(0);
         comboStruktural.setSelectedIndex(0);
         comboFungsional.setSelectedIndex(0);
@@ -784,13 +1022,20 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
         comboMarital.setSelectedIndex(0);
         fieldSoulMate.setText("");
-        comboChildren.setSelectedIndex(0);
+        fieldChildren.setValue(0);
         comboEducation.setSelectedIndex(0);
+        fieldDepartment.setText("");
+        clearYear();
         comboEselon.setSelectedIndex(0);
+        comboEmployeeStatus.setSelectedIndex(0);
         fieldCpnsTMT.setDate(null);
         fieldPnsTMT.setDate(null);
         fieldGradeTMT.setDate(null);
         fieldEselonTMT.setDate(null);
+
+        fieldMKYear.setValue(0);
+        fieldMKMonth.setValue(0);
+        fieldMutation.setText("");
 
         courseTable.clear();
         facilityTable.clear();
@@ -800,6 +1045,8 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
             fieldName.selectAll();
         }
         cvTable.clear();
+        pictureStream = null;
+        imagePanel.setBackgroundPainter(getPainter());
     }
 
     private void setButtonState(String state) {
@@ -831,6 +1078,12 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         AutoCompleteDecorator.decorate(comboSex);
     }
 
+    private void loadReligion() {
+        comboReligion.removeAllItems();
+        comboReligion.setModel(new ListComboBoxModel<String>(Employee.religionAsList()));
+        AutoCompleteDecorator.decorate(comboReligion);
+    }
+
     private void loadGrade() {
         comboGrade.removeAllItems();
         comboGrade.setModel(new ListComboBoxModel<String>(Employee.gradeAsList()));
@@ -839,7 +1092,7 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
     private void loadFungsional() {
         comboFungsional.removeAllItems();
-        comboFungsional.setModel(new ListComboBoxModel<String>(Employee.fungsionalAsList()));
+        comboFungsional.setModel(new ListComboBoxModel<String>(Employee.fungsionalGradeAsList()));
         AutoCompleteDecorator.decorate(comboFungsional);
     }
 
@@ -855,12 +1108,6 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         AutoCompleteDecorator.decorate(comboMarital);
     }
 
-    private void loadChildren() {
-        comboChildren.removeAllItems();
-        comboChildren.setModel(new ListComboBoxModel<Integer>(Employee.childrenAsList()));
-        AutoCompleteDecorator.decorate(comboChildren);
-    }
-
     private void loadEselon() {
         comboEselon.removeAllItems();
         comboEselon.setModel(new ListComboBoxModel<String>(Employee.eselonAsList()));
@@ -873,20 +1120,38 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         AutoCompleteDecorator.decorate(comboEducation);
     }
 
-    private void createCourse() {
-        if (isnew) {
-            ArrayList<EmployeeCourses> courseses = EmployeeCourses.createCourses();
-            courseTable.clear();
-            courseTable.addEmployeeCourses(courseses);
-        } else if (isedit) {
+    private void loadEmployeeStatus() {
+        comboEmployeeStatus.removeAllItems();
+        comboEmployeeStatus.setModel(new ListComboBoxModel<String>(Employee.employeeStatusAsList()));
+        AutoCompleteDecorator.decorate(comboEmployeeStatus);
+    }
 
-            if (selectedEmployee != null) {
-                if (selectedEmployee.getCourseses().isEmpty()) {
-                    ArrayList<EmployeeCourses> courseses = EmployeeCourses.createCourses();
-                    courseTable.clear();
-                    courseTable.addEmployeeCourses(courseses);
+    private void loadComboUnit() {
+        try {
+            SwingWorker<ArrayList<Unit>, Void> lw = new SwingWorker<ArrayList<Unit>, Void>() {
+
+                @Override
+                protected ArrayList<Unit> doInBackground() throws Exception {
+                    ArrayList<Unit> units = mLogic.getUnit(mainframe.getSession());
+                    if (!units.isEmpty()) {
+                        for (Unit unit : units) {
+                            unit.setHirarchiecal(true);
+                        }
+                    }
+                    return units;
                 }
-            }
+            };
+            lw.execute();
+            ArrayList<Unit> units = lw.get();
+
+            units.add(0, new Unit());
+            comboUnit.setModel(new ListComboBoxModel<Unit>(units));
+            AutoCompleteDecorator.decorate(comboUnit);
+
+        } catch (InterruptedException ex) {
+            Exceptions.printStackTrace(ex);
+        } catch (ExecutionException ex) {
+            Exceptions.printStackTrace(ex);
         }
     }
 
@@ -957,6 +1222,13 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
                     cvTable.removeVitaes(vitaes);
                 }
             }
+        } else if (obj == btChoose) {
+            DivisionChooserDlg dlg = new DivisionChooserDlg(mainframe, mainframe.getConnection());
+            dlg.showDialog();
+            if (dlg.getResponse() == JOptionPane.YES_OPTION) {
+                Division division = dlg.getSelectedDivision();
+                fieldPosNotes.setText(division.getName());
+            }
         }
     }
 
@@ -966,7 +1238,6 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         setFormState();
         setButtonState("New");
         clearForm();
-        createCourse();
         createFacility();
         statusLabel.setText("Tambah Pegawai");
         defineCustomFocusTraversalPolicy();
@@ -980,7 +1251,6 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         fieldName.requestFocus();
         fieldName.selectAll();
         statusLabel.setText("Ubah Pegawai");
-        createCourse();
         createFacility();
         defineCustomFocusTraversalPolicy();
     }
@@ -1085,6 +1355,7 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
                     fieldBirthPlace.setText(selectedEmployee.getBirthPlace());
                     fieldBirthDate.setDate(selectedEmployee.getBirthDate());
                     comboSex.setSelectedIndex(selectedEmployee.getSex());
+                    comboReligion.setSelectedIndex(selectedEmployee.getReligion());
                     comboGrade.setSelectedIndex(0);
                     comboStruktural.setSelectedIndex(0);
                     comboFungsional.setSelectedIndex(0);
@@ -1098,13 +1369,19 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
                     comboMarital.setSelectedIndex(selectedEmployee.getMarital());
                     fieldSoulMate.setText(selectedEmployee.getSoulmate());
-                    comboChildren.setSelectedIndex(selectedEmployee.getChildren());
+                    fieldChildren.setValue(selectedEmployee.getChildren());
                     comboEducation.setSelectedIndex(selectedEmployee.getEducation());
+                    fieldDepartment.setText(selectedEmployee.getDepartment());
+                    fieldGraduateYear.setYear(selectedEmployee.getGraduatedYear());
                     comboEselon.setSelectedIndex(0);
+                    comboEmployeeStatus.setSelectedIndex(0);
                     fieldCpnsTMT.setDate(null);
                     fieldPnsTMT.setDate(null);
                     fieldGradeTMT.setDate(null);
                     fieldEselonTMT.setDate(null);
+                    fieldMKYear.setValue(0);
+                    fieldMKMonth.setValue(0);
+                    fieldMutation.setText("");
                     courseTable.clear();
                     ArrayList<EmployeeCourses> courseses = selectedEmployee.getCourseses();
                     courseTable.addEmployeeCourses(courseses);
@@ -1113,12 +1390,15 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
                     ArrayList<EmployeeFacility> facilitys = selectedEmployee.getFacilitys();
                     facilityTable.addEmployeeFacilitys(facilitys);
 
+                    imagePanel.setBackgroundPainter(getPainter());
+
                 } else {
                     fieldName.setText(selectedEmployee.getName());
                     fieldNIP.setText(selectedEmployee.getNip());
                     fieldBirthPlace.setText(selectedEmployee.getBirthPlace());
                     fieldBirthDate.setDate(selectedEmployee.getBirthDate());
                     comboSex.setSelectedIndex(selectedEmployee.getSex());
+                    comboReligion.setSelectedIndex(selectedEmployee.getReligion());
                     comboGrade.setSelectedIndex(selectedEmployee.getGrade());
                     comboFungsional.setSelectedIndex(selectedEmployee.getFungsional());
                     comboStruktural.setSelectedIndex(selectedEmployee.getStruktural());
@@ -1129,19 +1409,27 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
                     comboMarital.setSelectedIndex(selectedEmployee.getMarital());
                     fieldSoulMate.setText(selectedEmployee.getSoulmate());
-                    comboChildren.setSelectedIndex(selectedEmployee.getChildren());
+                    fieldChildren.setValue(selectedEmployee.getChildren());
                     comboEducation.setSelectedIndex(selectedEmployee.getEducation());
+                    fieldDepartment.setText(selectedEmployee.getDepartment());
+                    fieldGraduateYear.setYear(selectedEmployee.getGraduatedYear());
                     comboEselon.setSelectedIndex(selectedEmployee.getEselon());
+                    comboEmployeeStatus.setSelectedIndex(selectedEmployee.getEmployeeStatus());
                     fieldCpnsTMT.setDate(selectedEmployee.getCpnsTMT());
                     fieldPnsTMT.setDate(selectedEmployee.getPnsTMT());
                     fieldGradeTMT.setDate(selectedEmployee.getGradeTMT());
                     fieldEselonTMT.setDate(selectedEmployee.getEselonTMT());
+                    fieldMKYear.setValue(selectedEmployee.getMkYear());
+                    fieldMKMonth.setValue(selectedEmployee.getMkMonth());
+                    fieldMutation.setText(selectedEmployee.getMutation());
                     courseTable.clear();
                     ArrayList<EmployeeCourses> courseses = selectedEmployee.getCourseses();
                     courseTable.addEmployeeCourses(courseses);
                     facilityTable.clear();
                     ArrayList<EmployeeFacility> facilitys = selectedEmployee.getFacilitys();
                     facilityTable.addEmployeeFacilitys(facilitys);
+
+                    imagePanel.setBackgroundPainter(getPainter());
                 }
                 setButtonState("Save");
             } catch (SQLException ex) {
@@ -1162,7 +1450,10 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         String name = fieldName.getText();
         String nip = fieldNIP.getText();
         Integer sex = comboSex.getSelectedIndex();
+        Integer religion = comboReligion.getSelectedIndex();
         Integer grade = comboGrade.getSelectedIndex();
+        String department = fieldDepartment.getText();
+        Integer graduatedYear = fieldGraduateYear.getYear();
 
         if (name.equals("")) {
             errorString.append("<br>- Nama</br>");
@@ -1198,6 +1489,7 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         employee.setBirthPlace(fieldBirthPlace.getText());
         employee.setBirthDate(fieldBirthDate.getDate());
         employee.setSex(sex);
+        employee.setReligion(religion);
         employee.setGrade(grade);
         employee.setFungsional(comboFungsional.getSelectedIndex());
         employee.setStruktural(comboStruktural.getSelectedIndex());
@@ -1216,9 +1508,11 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
         employee.setMarital(comboMarital.getSelectedIndex());
         employee.setSoulmate(fieldSoulMate.getText());
-        employee.setChildren(comboChildren.getSelectedIndex());
+        employee.setChildren(fieldChildren.getValue());
         employee.setEselon(comboEselon.getSelectedIndex());
         employee.setEducation(comboEducation.getSelectedIndex());
+        employee.setDepartment(department);
+        employee.setGraduatedYear(graduatedYear);
 
         if (employee.getEselon() == -1) {
             employee.setEselon(Integer.valueOf(0));
@@ -1236,13 +1530,25 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
             employee.setEducation(Integer.valueOf(0));
         }
 
+        employee.setEmployeeStatus(comboEmployeeStatus.getSelectedIndex());
         employee.setCpnsTMT(fieldCpnsTMT.getDate());
         employee.setPnsTMT(fieldPnsTMT.getDate());
         employee.setGradeTMT(fieldGradeTMT.getDate());
         employee.setEselonTMT(fieldEselonTMT.getDate());
+        employee.setMkYear(fieldMKYear.getValue());
+        employee.setMkMonth(fieldMKMonth.getValue());
+        employee.setMutation(fieldMutation.getText());
 
         employee.setCourseses(courseses);
         employee.setFacilitys(facilitys);
+
+        if (selectedEmployee != null) {
+            employee.setUnit(selectedEmployee.getUnit());
+        } else {
+            employee.setUnit(unit);
+        }
+
+        employee.setPicture(pictureStream);
 
         return employee;
     }
@@ -1259,12 +1565,14 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         comp.add(fieldName);
         comp.add(fieldNIP);
         comp.add(comboSex.getEditor().getEditorComponent());
+        comp.add(comboReligion.getEditor().getEditorComponent());
         comp.add(fieldBirthPlace);
         comp.add(fieldBirthDate.getEditor());
 
         comp.add(comboMarital.getEditor().getEditorComponent());
         comp.add(fieldSoulMate);
-        comp.add(comboChildren.getEditor().getEditorComponent());
+        comp.add(fieldChildren);
+        comp.add(comboEmployeeStatus.getEditor().getEditorComponent());
         comp.add(fieldCpnsTMT.getEditor());
         comp.add(fieldPnsTMT.getEditor());
 
@@ -1275,7 +1583,13 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         comp.add(comboFungsional.getEditor().getEditorComponent());
         comp.add(fieldEselonTMT.getEditor());
         comp.add(fieldPosNotes);
+        comp.add(fieldMKYear);
+        comp.add(fieldMKMonth);
+        comp.add(fieldMutation);
         comp.add(comboEducation.getEditor().getEditorComponent());
+        comp.add(fieldDepartment);
+        comp.add(fieldGraduateYear);
+
 
         MotekarFocusTraversalPolicy policy = new MotekarFocusTraversalPolicy(comp);
         mainframe.setFocusTraversalPolicy(policy);
@@ -1293,8 +1607,8 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
             setModel(model);
         }
 
-        public void loadData() {
-            worker = new LoadEmployee((DefaultListModel) getModel());
+        public void loadData(String modifier) {
+            worker = new LoadEmployee((DefaultListModel) getModel(), modifier);
             progressListener = new EmployeeProgressListener(pbar);
             worker.addPropertyChangeListener(progressListener);
             worker.execute();
@@ -1364,218 +1678,6 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
                     return EmployeeList.this.NULL_ICON;
                 }
             });
-        }
-    }
-
-    private class EmployeeCoursesTable extends JXTable {
-
-        private EmployeeCoursesTableModel model = new EmployeeCoursesTableModel();
-
-        public EmployeeCoursesTable() {
-            setModel(model);
-            getTableHeader().setReorderingAllowed(false);
-        }
-
-        public void clear() {
-            model.clear();
-        }
-
-        public EmployeeCourses getSelectedCourseses() {
-            EmployeeCourses courses = null;
-
-            int row = getSelectedRow();
-
-            Object obj = model.getValueAt(row, 0);
-
-            if (obj instanceof EmployeeCourses) {
-                courses = (EmployeeCourses) obj;
-            }
-
-            return courses;
-        }
-
-        public ArrayList<EmployeeCourses> getCoursesess() {
-            return model.getCoursesess();
-        }
-
-        public ArrayList<EmployeeCourses> getSelectedCoursesess() {
-
-            ArrayList<EmployeeCourses> coursess = new ArrayList<EmployeeCourses>();
-
-            int[] rows = getSelectedRows();
-
-            if (rows != null) {
-                for (int i = 0; i < rows.length; i++) {
-                    EmployeeCourses courses = null;
-                    Object obj = model.getValueAt(rows[i], 0);
-                    if (obj instanceof EmployeeCourses) {
-                        courses = (EmployeeCourses) obj;
-                        coursess.add(courses);
-                    }
-                }
-            }
-
-            return coursess;
-        }
-
-        public void updateSelectedCourseses(EmployeeCourses courses) {
-            int row = getSelectedRow();
-            model.updateRow(row, getSelectedCourseses(), courses);
-        }
-
-        public void removeCourseses(ArrayList<EmployeeCourses> coursess) {
-            if (!coursess.isEmpty()) {
-                for (EmployeeCourses courses : coursess) {
-                    model.remove(courses);
-                }
-            }
-
-        }
-
-        public void addEmployeeCourses(ArrayList<EmployeeCourses> coursess) {
-            if (!coursess.isEmpty()) {
-                for (EmployeeCourses courses : coursess) {
-                    model.add(courses);
-                }
-            }
-        }
-
-        @Override
-        public Class<?> getColumnClass(int columnIndex) {
-            if (columnIndex == 1) {
-                return Boolean.class;
-            }
-            return super.getColumnClass(columnIndex);
-        }
-    }
-
-    private static class EmployeeCoursesTableModel extends AbstractTableModel {
-
-        public static final int COLUMN_COUNT = 2;
-        private static final String[] columnIds = {"Nama Diklat", "Mengikuti"};
-        private ArrayList<EmployeeCourses> coursess = new ArrayList<EmployeeCourses>();
-
-        @Override
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            if (columnIndex == 1) {
-                return true;
-            }
-            return false;
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return columnIds[column];
-        }
-
-        public void add(ArrayList<EmployeeCourses> coursess) {
-            int first = coursess.size();
-            int last = first + coursess.size() - 1;
-            coursess.addAll(coursess);
-            fireTableRowsInserted(first, last);
-        }
-
-        public void add(EmployeeCourses courses) {
-            if (!coursess.contains(courses)) {
-                insertRow(getRowCount(), courses);
-            }
-        }
-
-        public void insertRow(int row, EmployeeCourses courses) {
-            coursess.add(row, courses);
-            justifyRows(row, row + 1);
-            fireTableRowsInserted(row, row);
-        }
-
-        public void updateRow(int row, EmployeeCourses oldCourseses, EmployeeCourses newCourseses) {
-            int index = coursess.indexOf(oldCourseses);
-            coursess.set(index, newCourseses);
-            fireTableRowsUpdated(index, index);
-        }
-
-        public void remove(EmployeeCourses courses) {
-            int row = coursess.indexOf(courses);
-            coursess.remove(courses);
-            fireTableRowsDeleted(row, row);
-        }
-
-        public void clear() {
-            setRowCount(0);
-        }
-
-        protected void setRowCount(int rowCount) {
-            int old = getRowCount();
-            if (old == rowCount) {
-                return;
-            }
-
-            if (rowCount <= old) {
-                coursess.clear();
-                fireTableRowsDeleted(rowCount, old - 1);
-            } else {
-                coursess.ensureCapacity(rowCount);
-                justifyRows(old, rowCount);
-                fireTableRowsInserted(old, rowCount - 1);
-            }
-        }
-
-        private void justifyRows(int from, int to) {
-            coursess.ensureCapacity(getRowCount());
-
-            for (int i = from; i < to; i++) {
-                if (coursess.get(i) == null) {
-                    coursess.set(i, new EmployeeCourses());
-                }
-            }
-        }
-
-        public ArrayList<EmployeeCourses> getCoursesess() {
-            return coursess;
-        }
-
-        @Override
-        public int getRowCount() {
-            return coursess.size();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return COLUMN_COUNT;
-        }
-
-        public EmployeeCourses getCourseses(int row) {
-            if (!coursess.isEmpty()) {
-                return coursess.get(row);
-            }
-            return null;
-        }
-
-        @Override
-        public void setValueAt(Object aValue, int row, int column) {
-            EmployeeCourses courses = getCourseses(row);
-            switch (column) {
-                case 0:
-                    courses = (EmployeeCourses) aValue;
-                    break;
-                case 1:
-                    courses.setAttending((Boolean) aValue);
-                    break;
-            }
-        }
-
-        @Override
-        public Object getValueAt(int row, int column) {
-            Object toBeDisplayed = "n/a";
-            EmployeeCourses courses = getCourseses(row);
-            switch (column) {
-                case 0:
-                    toBeDisplayed = courses;
-                    break;
-                case 1:
-                    toBeDisplayed = courses.isAttending();
-                    break;
-            }
-            return toBeDisplayed;
         }
     }
 
@@ -2029,9 +2131,11 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
 
         private DefaultListModel model;
         private Exception exception;
+        private String modifier = "";
 
-        public LoadEmployee(DefaultListModel model) {
+        public LoadEmployee(DefaultListModel model, String modifier) {
             this.model = model;
+            this.modifier = modifier;
             model.clear();
         }
 
@@ -2054,7 +2158,7 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
         @Override
         protected DefaultListModel doInBackground() throws Exception {
             try {
-                ArrayList<Employee> employees = logic.getEmployee(mainframe.getSession());
+                ArrayList<Employee> employees = logic.getEmployee(mainframe.getSession(), modifier);
 
                 double progress = 0.0;
                 if (!employees.isEmpty()) {
@@ -2114,6 +2218,81 @@ public class EmployeePanel extends JXPanel implements ActionListener, ListSelect
                 this.progressBar.setVisible(false);
                 this.progressBar.setValue(0);
                 statusLabel.setText("Ready");
+            }
+        }
+    }
+
+    private class MouseHandler extends MouseAdapter {
+
+        private Cursor oldCursor;
+        private JFileChooser chooser;
+
+        @Override
+        public void mouseClicked(MouseEvent evt) {
+
+            if (iseditable) {
+                if (chooser == null) {
+                    chooser = new JFileChooser();
+                }
+                chooser.setFileFilter(new FileFilter() {
+
+                    @Override
+                    public boolean accept(File f) {
+                        if (f.isDirectory()) {
+                            return true;
+                        }
+                        String fileName = f.getName();
+                        return (fileName.toLowerCase().endsWith(".png") || fileName.toLowerCase().endsWith(".jpg")
+                                || fileName.toLowerCase().endsWith(".gif") || fileName.toLowerCase().endsWith(".bmp"));
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "Image File";
+                    }
+                });
+
+                int retVal = chooser.showOpenDialog(mainframe);
+                if (retVal == JFileChooser.APPROVE_OPTION) {
+                    File file = chooser.getSelectedFile();
+                    try {
+                        if (!file.exists()) {
+                            file = new File("./images/male.jpg");
+                        }
+
+                        if (evt.getSource() == imagePanel) {
+                            FileInputStream fileInputStream = new FileInputStream(file);
+
+                            pictureStream = new byte[(int) file.length()];
+                            fileInputStream.read(pictureStream);
+
+                            BufferedImage img = ImageIO.read(file);
+                            painter.setImage(img);
+//                        painter.setScaleToFit(true);
+                            painter.setFillHorizontal(true);
+                            painter.setFillVertical(true);
+                            painter.setAntialiasing(true);
+
+                        }
+                    } catch (Exception ex) {
+                    }
+                }
+            }
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent evt) {
+            if (oldCursor == null) {
+                oldCursor = imagePanel.getCursor();
+                imagePanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+        }
+
+        @Override
+        public void mouseExited(MouseEvent evt) {
+            if (oldCursor != null) {
+                imagePanel.setCursor(oldCursor);
+                oldCursor = null;
             }
         }
     }
