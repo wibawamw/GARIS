@@ -19,20 +19,26 @@ public class ArchieveTableCreatorSQL {
                 append("birthplace text,").
                 append("birthdate date,").
                 append("sex smallint,").
+                append("religion smallint,").
                 append("marital smallint,").
                 append("soulmate text,").
                 append("children smallint,").
                 append("education smallint,").
+                append("department text,").
                 append("grade smallint,").
                 append("fungsional smallint,").
                 append("eselon smallint,").
                 append("struktural smallint,").
+                append("workforce smallint,").
                 append("cpnstmt date,").
                 append("pnstmt date,").
                 append("gradetmt date,").
                 append("eselontmt date,").
                 append("positionnotes text,").
                 append("isgorvernor boolean,").
+                append("isnonemployee boolean,").
+                append("mkyear smallint,").
+                append("mkmonth smallint,").
 
                 append("CONSTRAINT employee_pkey PRIMARY KEY (autoindex)").
 
@@ -396,6 +402,7 @@ public class ArchieveTableCreatorSQL {
                 append("(").
                 append("autoindex bigserial NOT NULL,").
                 append("transactionname text,").
+                append("esselon smallint,").
                 append("transactiontype smallint,").
                 append("transporttype smallint,").
                 append("departure text,").
@@ -778,6 +785,7 @@ public class ArchieveTableCreatorSQL {
                 append("autoindex bigserial NOT NULL,").
                 append("detailindex bigint NOT NULL,").
                 append("activityindex bigint NOT NULL,").
+                append("amount numeric(1000,2),").
 
                 append("CONSTRAINT budgetsubdetail_pkey PRIMARY KEY (autoindex),").
                 append("CONSTRAINT budgetsubdetail_budgetdetail_fkey FOREIGN KEY (detailindex)").
@@ -799,6 +807,63 @@ public class ArchieveTableCreatorSQL {
 
         stm.executeUpdate(query.toString());
         System.out.println("BudgetSubDetail Table Uninstalled");
+    }
+    
+    public void installBudgetSubDetailChildTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("CREATE TABLE budgetsubdetailchild").
+                append("(").
+                append("subdetailindex bigint NOT NULL,").
+                append("description text,").
+                append("eselon smallint,").
+                append("counted integer,").
+                append("units text,").
+                append("amount numeric(1000,2),").
+
+
+                append("CONSTRAINT budgetsubdetailchild_budgetsubdetail_fkey FOREIGN KEY (subdetailindex)").
+                append("    REFERENCES budgetsubdetail (autoindex) MATCH SIMPLE").
+                append("    ON UPDATE CASCADE ON DELETE CASCADE ").
+
+                append(")");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("BudgetSubDetailChild Table Installed");
+    }
+
+    public void uninstallBudgetSubDetailChildTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("DROP TABLE budgetsubdetailchild CASCADE");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("BudgetSubDetailChild Table Uninstalled");
+    }
+    
+    public void installContractMailTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("CREATE TABLE contractmail").
+                append("(").
+                append("autoindex bigserial NOT NULL,").
+                append("mailnumber text,").
+                append("maildate date,").
+                append("receiver text,").
+                append("receiveraddress text,").
+                append("subject text,").
+                append("description text,").
+                append("CONSTRAINT contractmail_pkey PRIMARY KEY (autoindex)").
+
+                append(")");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("ContractMail Table Installed");
+    }
+
+    public void uninstallContractMailTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("DROP TABLE contractmail CASCADE");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("ContractMail Table Uninstalled");
     }
 
 }

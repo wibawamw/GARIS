@@ -1035,8 +1035,18 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
 
             BigDecimal budget = calculateBudget();
 
+            Activity activity = null;
+
+            Object objExp = comboExpedition.getSelectedItem();
+            if (objExp instanceof Expedition) {
+                Expedition exp = (Expedition) objExp;
+                if (exp != null) {
+                    activity = exp.getActivity();
+                }
+            }
+
             StandardPricePickDlg dlg = new StandardPricePickDlg(mainframe, mainframe.getSession(),
-                    mainframe.getConnection(), budget, ListSelectionModel.SINGLE_SELECTION);
+                    mainframe.getConnection(), budget,activity, ListSelectionModel.SINGLE_SELECTION);
             dlg.showDialog();
 
             if (dlg.getResponse() == JOptionPane.YES_OPTION) {
@@ -1132,6 +1142,10 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
                 }
 
                 budget = budget.subtract(used);
+                
+                if (amount != null) {
+                    budget = budget.add(amount.getPrice());
+                }
 
             } catch (SQLException ex) {
                 Exceptions.printStackTrace(ex);

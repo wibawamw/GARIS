@@ -8,24 +8,33 @@ import java.math.BigDecimal;
  */
 public class BudgetRealization {
 
-    private String code = "";
-    private String description = "";
-    private BigDecimal opening = BigDecimal.ZERO;
-    private BigDecimal debet = BigDecimal.ZERO;
+    private String eselon = "";
+    private String activity = "";
+    private BigDecimal budget = BigDecimal.ZERO;
     private BigDecimal credit = BigDecimal.ZERO;
     private BigDecimal closing = BigDecimal.ZERO;
-
-    private String marker = "";
+    private String description = "";
+    
+    private Integer counted = Integer.valueOf(0);
+    private Integer diff = Integer.valueOf(0);
 
     public BudgetRealization() {
     }
 
-    public String getCode() {
-        return code;
+    public String getActivity() {
+        return activity;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setActivity(String activity) {
+        this.activity = activity;
+    }
+
+    public BigDecimal getBudget() {
+        return budget;
+    }
+
+    public void setBudget(BigDecimal budget) {
+        this.budget = budget;
     }
 
     public BigDecimal getClosing() {
@@ -44,14 +53,6 @@ public class BudgetRealization {
         this.credit = credit;
     }
 
-    public BigDecimal getDebet() {
-        return debet;
-    }
-
-    public void setDebet(BigDecimal debet) {
-        this.debet = debet;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -60,19 +61,31 @@ public class BudgetRealization {
         this.description = description;
     }
 
-    public BigDecimal getOpening() {
-        return opening;
+    public String getEselon() {
+        return eselon;
     }
 
-    public void setOpening(BigDecimal opening) {
-        this.opening = opening;
+    public void setEselon(String eselon) {
+        this.eselon = eselon;
     }
 
-    public String getMarker() {
-        return marker;
+    public Integer getCounted() {
+        return counted;
     }
 
-    public void setMarker(String marker) {
-        this.marker = marker;
+    public void setCounted(Integer counted) {
+        this.counted = counted;
+    }
+
+    public Integer getDiff() {
+        return diff;
+    }
+
+    public void setDiff(Integer diff) {
+        this.diff = diff;
+    }
+
+    public Integer getCountedDiff() {
+        return counted - diff;
     }
 }

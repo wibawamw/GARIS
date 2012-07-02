@@ -57,6 +57,10 @@ public class ArchieveTableCreatorMain extends TableCreatorMain {
             sql.installBudgetTable(stm);
             sql.installBudgetDetailTable(stm);
             sql.installBudgetSubDetailTable(stm);
+            //
+            sql.installContractMailTable(stm);
+            //
+            sql.installBudgetSubDetailChildTable(stm);
 
 
             stm.close();
@@ -112,6 +116,10 @@ public class ArchieveTableCreatorMain extends TableCreatorMain {
             sql.uninstallBudgetTable(stm);
             sql.uninstallBudgetDetailTable(stm);
             sql.uninstallBudgetSubDetailTable(stm);
+            //
+            sql.uninstallContractMailTable(stm);
+            //
+            sql.uninstallBudgetSubDetailChildTable(stm);
 
             stm.close();
             conn.commit();

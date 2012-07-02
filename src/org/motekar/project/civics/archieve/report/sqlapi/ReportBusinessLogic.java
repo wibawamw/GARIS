@@ -3,6 +3,7 @@ package org.motekar.project.civics.archieve.report.sqlapi;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import org.motekar.project.civics.archieve.master.objects.Activity;
 import org.motekar.project.civics.archieve.master.objects.Employee;
 import org.motekar.project.civics.archieve.report.object.BudgetRealization;
 import org.motekar.util.user.misc.MotekarException;
@@ -24,12 +25,38 @@ public class ReportBusinessLogic {
         auth = new AuthBusinessLogic(conn);
     }
 
-    public ArrayList<BudgetRealization> getBudgetRealization(Long session, Integer years, Integer budgetType) throws SQLException {
+    public ArrayList<BudgetRealization> getBudgetRealizationAll(Long session, Integer years, Integer budgetType,String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getBudgetRealization(conn, years, budgetType);
+            return sql.getBudgetRealizationAll(conn, years, budgetType,modifier);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    public ArrayList<BudgetRealization> getBudgetRealizationByActivity(Long session, Integer years, Integer budgetType,Activity activity,String modifier) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getBudgetRealizationByActivity(conn, years, budgetType, activity, modifier);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    public ArrayList<BudgetRealization> getBudgetRealizationByEselon(Long session, Integer years, Integer budgetType,Integer eselon,String modifier) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getBudgetRealizationByEselon(conn, years, budgetType, eselon, modifier);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {
@@ -43,6 +70,19 @@ public class ReportBusinessLogic {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
             return sql.getEmployeeReport(conn);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    public ArrayList<Employee> getEmployeeNonPNSReport(Long session,String modifier) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getEmployeeNonPNSReport(conn,modifier);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {

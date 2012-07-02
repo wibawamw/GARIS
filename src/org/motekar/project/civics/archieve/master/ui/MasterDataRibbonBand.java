@@ -26,6 +26,7 @@ import org.pushingpixels.flamingo.api.ribbon.resize.IconRibbonBandResizePolicy;
 public class MasterDataRibbonBand extends JRibbonBand implements ActionListener {
 
     private JCommandButton btEmployee = new JCommandButton("Pegawai", Mainframe.getResizableIconFromSource("resource/business_user.png"));
+    private JCommandButton btEmployeeNonPNS = new JCommandButton("Pegawai Non PNS", Mainframe.getResizableIconFromSource("resource/emblem-people.png"));
     private JCommandButton btDivision = new JCommandButton("Bagian", Mainframe.getResizableIconFromSource("resource/Division.png"));
     private JCommandButton btPrice = new JCommandButton("Standar Harga", Mainframe.getResizableIconFromSource("resource/Postage stamp.png"));
     private JCommandButton btAccount = new JCommandButton("Struktur Rekening", Mainframe.getResizableIconFromSource("resource/Account.png"));
@@ -56,6 +57,20 @@ public class MasterDataRibbonBand extends JRibbonBand implements ActionListener 
         }
 
         btEmployee.setActionRichTooltip(employeeTooltip);
+        
+        RichTooltip employeeNonPNSTooltip = new RichTooltip();
+        employeeNonPNSTooltip.setTitle("Pegawai Non PNS");
+        employeeNonPNSTooltip.addDescriptionSection("Pengelolaan Pegawai selain PNS seperti tenaga kontrak, tenaga honorer, PTTP, "
+                + "yang ada di lingkungan SKPD");
+        try {
+            BufferedImage img = ImageIO.read(ArchieveMainframe.class.getResource("/resource/emblem-people.png"));
+            Image scaleImage = img.getScaledInstance(48, 48, Image.SCALE_SMOOTH);
+            employeeNonPNSTooltip.setMainImage(scaleImage);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        btEmployeeNonPNS.setActionRichTooltip(employeeTooltip);
 
 
         RichTooltip divisionTooltip = new RichTooltip();
@@ -125,6 +140,7 @@ public class MasterDataRibbonBand extends JRibbonBand implements ActionListener 
         btBudget.setActionRichTooltip(budgetTooltip);
 
         addCommandButton(btEmployee, RibbonElementPriority.TOP);
+        addCommandButton(btEmployeeNonPNS, RibbonElementPriority.MEDIUM);
         addCommandButton(btDivision, RibbonElementPriority.MEDIUM);
         addCommandButton(btPrice, RibbonElementPriority.MEDIUM);
         addCommandButton(btProgram, RibbonElementPriority.MEDIUM);
@@ -132,6 +148,7 @@ public class MasterDataRibbonBand extends JRibbonBand implements ActionListener 
         addCommandButton(btBudget, RibbonElementPriority.MEDIUM);
 
         btEmployee.addActionListener(this);
+        btEmployeeNonPNS.addActionListener(this);
         btDivision.addActionListener(this);
         btPrice.addActionListener(this);
         btProgram.addActionListener(this);
@@ -147,6 +164,8 @@ public class MasterDataRibbonBand extends JRibbonBand implements ActionListener 
         Object source = e.getSource();
         if (source == btEmployee) {
             mainframe.addChildFrame(btEmployee.getText(), new EmployeePanel(mainframe));
+        } else if (source == btEmployeeNonPNS) {
+            mainframe.addChildFrame(btEmployeeNonPNS.getText(), new EmployeeNonPNSPanel(mainframe));
         } else if (source == btPrice) {
             mainframe.addChildFrame(btPrice.getText(), new StandardPricePanel(mainframe));
         } else if (source == btDivision) {

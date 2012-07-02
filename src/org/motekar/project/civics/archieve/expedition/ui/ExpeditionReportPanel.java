@@ -8,49 +8,28 @@ import com.toedter.calendar.JYearChooser;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.JCheckBox;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperCompileManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRTableModelDataSource;
-import org.jdesktop.swingx.JXCollapsiblePane;
-import org.jdesktop.swingx.JXDatePicker;
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.JXLabel;
-import org.jdesktop.swingx.JXMultiSplitPane;
-import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.JXStatusBar;
-import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.JXTitledPanel;
-import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.*;
+import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
+import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.motekar.project.civics.archieve.expedition.objects.AssignmentLetter;
 import org.motekar.project.civics.archieve.expedition.objects.Expedition;
 import org.motekar.project.civics.archieve.expedition.sqlapi.ExpeditionBusinessLogic;
 import org.motekar.project.civics.archieve.master.objects.Employee;
+import org.motekar.project.civics.archieve.master.sqlapi.MasterBusinessLogic;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
 import org.motekar.project.civics.archieve.utils.report.ViewerPanel;
 import org.openide.util.Exceptions;
@@ -63,6 +42,7 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
 
     private ArchieveMainframe mainframe = null;
     private ExpeditionBusinessLogic logic;
+    private MasterBusinessLogic mLogic;
     private JXMultiSplitPane splitPane = new JXMultiSplitPane();
     private JXLabel statusLabel = new JXLabel("Ready");
     private JProgressBar viewerBar = new JProgressBar();
@@ -71,9 +51,11 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
     private JMonthChooser monthChooser = new JMonthChooser();
     private JYearChooser yearChooser = new JYearChooser();
     private JYearChooser yearChooser2 = new JYearChooser();
+    private JXComboBox comboEmployee = new JXComboBox();
     private JCheckBox checkBox = new JCheckBox();
     private JCheckBox checkBox2 = new JCheckBox();
     private JCheckBox checkBox3 = new JCheckBox();
+    private JCheckBox checkBox4 = new JCheckBox("Pegawai yg Ditugaskan");
     private ViewerPanel panelViewer = new ViewerPanel(null);
     private JasperPrint jasperPrint = new JasperPrint();
     private LoadPrintPanel printWorker;
@@ -82,6 +64,7 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
     public ExpeditionReportPanel(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
         logic = new ExpeditionBusinessLogic(mainframe.getConnection());
+        mLogic = new MasterBusinessLogic(mainframe.getConnection());
         construct();
     }
 
@@ -158,8 +141,31 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
 
         return bar;
     }
+    
+    private void loadComboEmployee() {
+        comboEmployee.removeAllItems();
+        try {
+            ArrayList<Employee> employees = mLogic.getAssignedEmployee(mainframe.getSession());
+
+            if (!employees.isEmpty()) {
+                for (Employee e : employees) {
+                    e.setStyled(false);
+                }
+
+                employees.add(0, new Employee());
+                comboEmployee.setModel(new ListComboBoxModel<Employee>(employees));
+
+                AutoCompleteDecorator.decorate(comboEmployee, new ExpeditionPanel.EmployeeConverter());
+            }
+
+        } catch (SQLException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
 
     private void construct() {
+        
+        loadComboEmployee();
 
         startDate.addActionListener(this);
         endDate.addActionListener(this);
@@ -214,7 +220,8 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
 
     private JPanel createSearchPanel() {
         FormLayout lm = new FormLayout(
-                "pref,10px,pref,5px, pref,5px,pref,5px,fill:default:grow,5px,250dlu", "pref,5px,pref,5px,pref");
+                "pref,10px,pref,5px, pref,5px,pref,5px,fill:default:grow,5px,250dlu", 
+                "pref,5px,pref,5px,pref,5px,pref");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
 
@@ -227,10 +234,21 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
         monthChooser.setEnabled(checkBox2.isSelected());
         yearChooser.setEnabled(checkBox2.isSelected());
         yearChooser2.setEnabled(checkBox3.isSelected());
+        comboEmployee.setEnabled(checkBox4.isSelected());
 
         checkBox.addActionListener(this);
         checkBox2.addActionListener(this);
         checkBox3.addActionListener(this);
+        checkBox4.addActionListener(this);
+        
+        comboEmployee.addItemListener(new ItemListener() {
+
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    reloadPrintPanel();
+                }
+            }
+        });
 
         ButtonGroup bg = new ButtonGroup();
         bg.add(checkBox);
@@ -253,6 +271,10 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
         builder.addLabel("Berdasarkan Tahun", cc.xy(1, 5));
         builder.add(checkBox3, cc.xy(3, 5));
         builder.add(yearChooser2, cc.xyw(5, 5, 5));
+        
+        builder.add(checkBox4, cc.xy(1, 7));
+        builder.add(comboEmployee, cc.xyw(3, 7, 7));
+        
         return builder.getPanel();
     }
 
@@ -293,11 +315,14 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
             yearChooser.setEnabled(checkBox2.isSelected());
             yearChooser2.setEnabled(checkBox3.isSelected());
             reloadPrintPanel();
+        } else if (source == checkBox4) {
+            comboEmployee.setEnabled(checkBox4.isSelected());
+            reloadPrintPanel();
         } else if (source == startDate) {
             reloadPrintPanel();
         } else if (source == endDate) {
             reloadPrintPanel();
-        }
+        } 
     }
 
     private class LoadPrintPanel extends SwingWorker<JasperPrint, Void> {
@@ -445,11 +470,105 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
             }
             return jrPrint;
         }
+        
+        private JasperReport loadReportFile2() throws InterruptedException, JRException {
+            if (isCancelled()) {
+                return null;
+            }
+
+            String filename = "ExpeditionReport2.jrxml";
+            JasperReport jasperReport = JasperCompileManager.compileReport("printing/" + filename);
+            setProgress(25);
+            Thread.sleep(100L);
+
+            return jasperReport;
+        }
+
+        private DefaultTableModel constructModel2(ArrayList<Expedition> data) throws InterruptedException {
+
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("No");
+            model.addColumn("DocNumber");
+            model.addColumn("startdate");
+            model.addColumn("enddate");
+            model.addColumn("destination");
+            model.addColumn("purpose");
+            model.addColumn("status");
+
+            double progress = 0.0;
+
+            if (!data.isEmpty()) {
+                for (int i = 0; i < data.size() && !isCancelled(); i++) {
+
+                    Expedition exp = data.get(i);
+
+                    AssignmentLetter letter = exp.getLetter();
+
+                    String status = "Belum\nSelesai";
+
+                    if (exp.isDone()) {
+                        status = "Selesai";
+                    }
+
+                    model.addRow(new Object[]{Integer.valueOf(i + 1), exp.getDocumentNumber(),
+                                exp.getStartDate(), exp.getEndDate(),
+                                exp.getDestination(),letter.getPurpose(), status});
+
+                    progress = 50 * (i + 1) / data.size();
+                    setProgress((int) progress);
+                    Thread.sleep(100L);
+                }
+            } else {
+                setProgress(75);
+            }
+
+            return model;
+        }
+
+        private Map constructParameter2(Employee assinedEmployee) throws InterruptedException {
+            Map param = new HashMap();
+
+            SimpleDateFormat sdf;
+
+            StringBuilder builder = new StringBuilder();
+
+            if (startDate != null && endDate != null) {
+                sdf = new SimpleDateFormat("dd/MM/yyyy");
+                builder.append(sdf.format(startDate)).
+                        append(" s.d. ").
+                        append(sdf.format(endDate));
+            } else if (month != 0) {
+                sdf = new SimpleDateFormat("MMMM yyyy", new Locale("in", "id", "id"));
+                GregorianCalendar cal = new GregorianCalendar(year, month-1, 1);
+                builder.append(sdf.format(cal.getTime()));
+            } else {
+                builder.append(year);
+            }
+
+            param.put("periode", builder.toString());
+            param.put("employee", assinedEmployee.getNip()+" "+assinedEmployee.getName());
+            
+            setProgress(80);
+            Thread.sleep(100L);
+
+            return param;
+        }
 
         @Override
         protected void process(List<Void> chunks) {
             mainframe.stopInActiveListener();
             viewerPanel.reload(jasperPrint);
+        }
+        
+        private String generateModifier(Employee employee) {
+            StringBuilder builder = new StringBuilder();
+            
+            if (employee != null) {
+                builder.append(" and assignedemployee = ").
+                        append(employee.getIndex());
+            }
+            
+            return builder.toString();
         }
 
         @Override
@@ -458,17 +577,57 @@ public class ExpeditionReportPanel extends JXPanel implements ActionListener {
 
                 ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
-                if (startDate != null && endDate != null) {
-                    expeditions = logic.getExpedition(mainframe.getSession(), startDate, endDate);
-                } else if (month != 0 || year != 0) {
-                    expeditions = logic.getExpedition(mainframe.getSession(), month, year);
+                Employee employee = null;
+                Object selEmployee = comboEmployee.getSelectedItem();
+                if (selEmployee instanceof Employee) {
+                    employee = (Employee) selEmployee;
                 }
 
+                if (!checkBox4.isSelected()) {
+                    employee = null;
+                }
+
+                if (employee != null) {
+                    if (!employee.getIndex().equals(Long.valueOf(0))) {
+                        if (startDate != null && endDate != null) {
+                            expeditions = logic.getExpedition(mainframe.getSession(), startDate, endDate, generateModifier(employee));
+                        } else if (month != 0 || year != 0) {
+                            expeditions = logic.getExpedition(mainframe.getSession(), month, year, generateModifier(employee));
+                        }
+                    } else {
+                        employee = null;
+                        if (startDate != null && endDate != null) {
+                            expeditions = logic.getExpedition(mainframe.getSession(), startDate, endDate, "");
+                        } else if (month != 0 || year != 0) {
+                            expeditions = logic.getExpedition(mainframe.getSession(), month, year, "");
+                        }
+                    }
+
+                } else {
+                    if (startDate != null && endDate != null) {
+                        expeditions = logic.getExpedition(mainframe.getSession(), startDate, endDate, "");
+                    } else if (month != 0 || year != 0) {
+                        expeditions = logic.getExpedition(mainframe.getSession(), month, year, "");
+                    }
+                }
+
+
                 if (!expeditions.isEmpty()) {
-                    JasperReport jrReport = loadReportFile();
-                    DefaultTableModel model = constructModel(expeditions);
-                    Map param = constructParameter();
-                    jasperPrint = createJasperPrint(jrReport, model, param);
+
+                    if (checkBox4.isSelected() && employee != null) {
+                        JasperReport jrReport = loadReportFile2();
+                        DefaultTableModel model = constructModel2(expeditions);
+                        Map param = constructParameter2(employee);
+                        jasperPrint = createJasperPrint(jrReport, model, param);
+                    } else {
+                        JasperReport jrReport = loadReportFile();
+                        DefaultTableModel model = constructModel(expeditions);
+                        Map param = constructParameter();
+                        jasperPrint = createJasperPrint(jrReport, model, param);
+                        
+                    }
+
+
                 } else {
                     jasperPrint = null;
                 }

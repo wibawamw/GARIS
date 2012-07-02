@@ -877,7 +877,7 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
         comboAssinedEmp.removeAllItems();
         try {
             ArrayList<Employee> commanderEmployee = mLogic.getCommanderEmployee(mainframe.getSession());
-            ArrayList<Employee> assignedEmployee = mLogic.getEmployee(mainframe.getSession());
+            ArrayList<Employee> assignedEmployee = mLogic.getAssignedEmployee(mainframe.getSession());
 
             if (!commanderEmployee.isEmpty()) {
                 for (Employee e : commanderEmployee) {
@@ -1626,7 +1626,7 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
                 ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
                 if (checkBox.isSelected()) {
-                    expeditions = logic.getExpedition(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear());
+                    expeditions = logic.getExpedition(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear(),"");
                 } else {
                     expeditions = logic.getExpedition(mainframe.getSession());
                 }

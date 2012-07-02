@@ -4,17 +4,7 @@ import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import org.motekar.project.civics.archieve.master.objects.Account;
-import org.motekar.project.civics.archieve.master.objects.Activity;
-import org.motekar.project.civics.archieve.master.objects.Budget;
-import org.motekar.project.civics.archieve.master.objects.BudgetDetail;
-import org.motekar.project.civics.archieve.master.objects.BudgetSubDetail;
-import org.motekar.project.civics.archieve.master.objects.Division;
-import org.motekar.project.civics.archieve.master.objects.Employee;
-import org.motekar.project.civics.archieve.master.objects.EmployeeCourses;
-import org.motekar.project.civics.archieve.master.objects.EmployeeFacility;
-import org.motekar.project.civics.archieve.master.objects.Program;
-import org.motekar.project.civics.archieve.master.objects.StandardPrice;
+import org.motekar.project.civics.archieve.master.objects.*;
 import org.motekar.util.user.misc.MotekarException;
 import org.motekar.util.user.sqlapi.AuthBusinessLogic;
 
@@ -51,6 +41,7 @@ public class MasterBusinessLogic {
             employee.setIndex(index);
             employee.setStyled(true);
 
+
             ArrayList<EmployeeCourses> courseses = employee.getCourseses();
             ArrayList<EmployeeFacility> facilitys = employee.getFacilitys();
 
@@ -67,6 +58,7 @@ public class MasterBusinessLogic {
                     sql.insertEmployeeFacility(conn, facility);
                 }
             }
+
 
             conn.commit();
             conn.setAutoCommit(true);
@@ -105,6 +97,7 @@ public class MasterBusinessLogic {
             sql.updateEmployee(conn, oldEmp.getIndex(), newEmp);
             newEmp.setIndex(oldEmp.getIndex());
             newEmp.setStyled(true);
+
 
             sql.deleteEmployeeCourses(conn, newEmp.getIndex());
             sql.deleteEmployeeFacility(conn, newEmp.getIndex());
@@ -183,13 +176,13 @@ public class MasterBusinessLogic {
             throw new RuntimeException(anyOtherException);
         }
     }
-
-    public ArrayList<Employee> getEmployee(Long session) throws SQLException {
+    
+    public ArrayList<Employee> getEmployee(Long session,boolean isNonEmployee) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getEmployee(conn);
+            return sql.getEmployee(conn,isNonEmployee);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {
@@ -416,6 +409,19 @@ public class MasterBusinessLogic {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
             return sql.getStandardPrice(conn);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    public ArrayList<StandardPrice> getStandardPrice(Long session,Activity activity) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getStandardPrice(conn, activity);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {
@@ -1457,6 +1463,17 @@ public class MasterBusinessLogic {
 
             sql.updateBudgetSubDetail(conn, oldSubDetail, newSubDetail);
             newSubDetail.setIndex(oldSubDetail.getIndex());
+            
+            sql.deleteBudgetSubDetailChild(conn, newSubDetail);
+            
+            ArrayList<BudgetSubDetailChild> childs = newSubDetail.getSubDetailChilds();
+            
+            if (!childs.isEmpty()) {
+                for (BudgetSubDetailChild child : childs) {
+                    child.setParentIndex(newSubDetail.getIndex());
+                    sql.insertBudgetSubDetailChild(conn, child);
+                }
+            }
 
             conn.commit();
             conn.setAutoCommit(true);
@@ -1522,6 +1539,19 @@ public class MasterBusinessLogic {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
             return sql.getBudgetSubDetail(conn,detail.getIndex());
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    public ArrayList<BudgetSubDetailChild> getBudgetSubDetailChild(Long session, BudgetSubDetail subDetail) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getBudgetSubDetailChild(conn,subDetail.getIndex());
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {

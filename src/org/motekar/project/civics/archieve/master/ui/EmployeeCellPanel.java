@@ -85,7 +85,7 @@ public class EmployeeCellPanel extends JXPanel {
 
                 AutoCompleteDecorator.decorate(comboEmployee, new EmployeeConverter());
             } else {
-                employeeData = logic.getEmployee(session);
+                employeeData = logic.getEmployee(session,false);
                 for (Employee e : employeeData) {
                     e.setStyled(false);
                 }

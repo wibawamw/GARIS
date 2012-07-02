@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
+import org.motekar.project.civics.archieve.mail.objects.ContractMail;
 import org.motekar.project.civics.archieve.mail.objects.Decree;
 import org.motekar.project.civics.archieve.mail.objects.Inbox;
 import org.motekar.project.civics.archieve.mail.objects.InboxDisposition;
@@ -210,7 +211,7 @@ public class MailSQL extends CommonSQL {
         query.append("select i.*,d.code divisioncode,d.divisionname from inbox i ").
                 append("left join division d ").
                 append("on i.receiver = d.code ").
-                append("where receivedate between ").
+                append("where maildate between ").
                 append("'").append(new java.sql.Date(date.getTime())).append("' ").
                 append(" and ").
                 append("'").append(new java.sql.Date(date2.getTime())).append("' ").
@@ -521,7 +522,7 @@ public class MailSQL extends CommonSQL {
                 append("'").append(new java.sql.Date(date.getTime())).append("' ").
                 append(" and ").
                 append("'").append(new java.sql.Date(date2.getTime())).append("' ").
-                append("order by senddate");
+                append("order by maildate");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
@@ -968,5 +969,176 @@ public class MailSQL extends CommonSQL {
         pstm.close();
 
         return regulations;
+    }
+    //
+    void insertContractMail(Connection conn, ContractMail mail) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("insert into contractmail(mailnumber,maildate,receiver,").
+                append("receiveraddress,subject,description)").
+                append("values(?,?,?,?,?,?)");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+        int col = 0;
+
+        pstm.setString(++col, mail.getMailNumber());
+        if (mail.getMailDate() == null) {
+            pstm.setNull(++col, Types.DATE);
+        } else {
+            pstm.setDate(++col, new java.sql.Date(mail.getMailDate().getTime()));
+        }
+        pstm.setString(++col, mail.getReceiver());
+        pstm.setString(++col, mail.getReceiverAddress());
+
+        pstm.setString(++col, mail.getSubject());
+        pstm.setString(++col, mail.getDescription());
+
+        pstm.executeUpdate();
+        pstm.close();
+    }
+
+    void updateContractMail(Connection conn, Long oldIndex, ContractMail mail) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("update contractmail set mailnumber = ?,maildate = ?,receiver = ?,").
+                append("receiveraddress = ?,subject = ?,description = ? ").
+                append("where autoindex = ?");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+        int col = 0;
+
+        pstm.setString(++col, mail.getMailNumber());
+        if (mail.getMailDate() == null) {
+            pstm.setNull(++col, Types.DATE);
+        } else {
+            pstm.setDate(++col, new java.sql.Date(mail.getMailDate().getTime()));
+        }
+        pstm.setString(++col, mail.getReceiver());
+        pstm.setString(++col, mail.getReceiverAddress());
+
+        pstm.setString(++col, mail.getSubject());
+        pstm.setString(++col, mail.getDescription());
+        
+        pstm.setLong(++col, oldIndex);
+        pstm.executeUpdate();
+        pstm.close();
+    }
+
+    void deleteContractMail(Connection conn, Long index) throws SQLException {
+        PreparedStatement pstm = conn.prepareStatement("delete from contractmail where autoindex = ?");
+        pstm.setLong(1, index);
+        pstm.executeUpdate();
+        pstm.close();
+    }
+
+    ArrayList<ContractMail> getContractMail(Connection conn) throws SQLException {
+        ArrayList<ContractMail> mails = new ArrayList<ContractMail>();
+
+        StringBuilder query = new StringBuilder();
+        query.append("select * from contractmail ").
+                append("order by maildate");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+
+        ResultSet rs = pstm.executeQuery();
+
+        while (rs.next()) {
+            ContractMail mail = new ContractMail();
+            mail.setIndex(rs.getLong("autoindex"));
+            mail.setMailDate(rs.getDate("maildate"));
+            mail.setMailNumber(rs.getString("mailnumber"));
+            mail.setReceiver(rs.getString("receiver"));
+            mail.setReceiverAddress(rs.getString("receiveraddress"));
+            mail.setSubject(rs.getString("subject"));
+            mail.setDescription(rs.getString("description"));
+
+            mail.setStyled(true);
+
+            mails.add(mail);
+        }
+
+        rs.close();
+        pstm.close();
+
+        return mails;
+    }
+
+    ArrayList<ContractMail> getContractMail(Connection conn, Integer month, Integer year) throws SQLException {
+        ArrayList<ContractMail> mails = new ArrayList<ContractMail>();
+
+        StringBuilder query = new StringBuilder();
+
+        if (month == 0) {
+            query.append("select * from contractmail ").
+                    append("where date_part('year',maildate) = ").
+                    append(year).
+                    append(" order by maildate");
+        } else {
+            query.append("select * from contractmail ").
+                    append("where date_part('month',maildate) = ").
+                    append(month).
+                    append(" and date_part('year',maildate) = ").
+                    append(year).
+                    append(" order by maildate");
+        }
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+
+        ResultSet rs = pstm.executeQuery();
+
+        while (rs.next()) {
+            ContractMail mail = new ContractMail();
+            mail.setIndex(rs.getLong("autoindex"));
+            mail.setMailDate(rs.getDate("maildate"));
+            mail.setMailNumber(rs.getString("mailnumber"));
+            mail.setReceiver(rs.getString("receiver"));
+            mail.setReceiverAddress(rs.getString("receiveraddress"));
+            mail.setSubject(rs.getString("subject"));
+            mail.setDescription(rs.getString("description"));
+
+            mail.setStyled(true);
+
+            mails.add(mail);
+        }
+
+        rs.close();
+        pstm.close();
+
+        return mails;
+    }
+
+    ArrayList<ContractMail> getContractMail(Connection conn, Date date, Date date2) throws SQLException {
+        ArrayList<ContractMail> mails = new ArrayList<ContractMail>();
+
+        StringBuilder query = new StringBuilder();
+
+        query.append("select * from contractmail ").
+                append("where maildate between ").
+                append("'").append(new java.sql.Date(date.getTime())).append("' ").
+                append(" and ").
+                append("'").append(new java.sql.Date(date2.getTime())).append("' ").
+                append("order by maildate");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+
+        ResultSet rs = pstm.executeQuery();
+
+        while (rs.next()) {
+            ContractMail mail = new ContractMail();
+            mail.setIndex(rs.getLong("autoindex"));
+            mail.setMailDate(rs.getDate("maildate"));
+            mail.setMailNumber(rs.getString("mailnumber"));
+            mail.setReceiver(rs.getString("receiver"));
+            mail.setReceiverAddress(rs.getString("receiveraddress"));
+            mail.setSubject(rs.getString("subject"));
+            mail.setDescription(rs.getString("description"));
+
+            mail.setStyled(true);
+
+            mails.add(mail);
+        }
+
+        rs.close();
+        pstm.close();
+
+        return mails;
     }
 }
