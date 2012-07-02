@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.StringTokenizer;
+import org.motekar.project.civics.archieve.mail.objects.ContractMail;
 import org.motekar.project.civics.archieve.mail.objects.Inbox;
 import org.motekar.project.civics.archieve.mail.objects.InboxDisposition;
 import org.motekar.project.civics.archieve.mail.objects.InboxFile;
@@ -677,6 +678,167 @@ public class MailBusinessLogic {
             } 
 
             return number;
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    //
+    
+    public ContractMail insertContractMail(Long session,ContractMail contractmail) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.insertContractMail(conn, contractmail);
+
+
+            Long index = sql.getMaxIndex(conn, "contractmail", "autoindex");
+            contractmail.setIndex(index);
+            contractmail.setStyled(true);
+
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+        return contractmail;
+    }
+
+    public ContractMail updateContractMail(Long session,ContractMail oldContractMail, ContractMail newContractMail) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.updateContractMail(conn,oldContractMail.getIndex(), newContractMail);
+            newContractMail.setIndex(oldContractMail.getIndex());
+            newContractMail.setStyled(true);
+
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+        return newContractMail;
+    }
+
+
+    public void deleteContractMail(Long session,Long index) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.deleteContractMail(conn, index);
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<ContractMail> getContractMail(Long session) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getContractMail(conn);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<ContractMail> getContractMail(Long session,Integer month, Integer year) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            return sql.getContractMail(conn, month, year);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<ContractMail> getContractMail(Long session,Date date, Date date2) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            return sql.getContractMail(conn, date, date2);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {

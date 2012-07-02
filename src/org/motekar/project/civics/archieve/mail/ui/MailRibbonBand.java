@@ -35,6 +35,9 @@ public class MailRibbonBand implements ActionListener {
     private JCommandButton btOutboxStatus = new JCommandButton("Status Surat Keluar",
             Mainframe.getResizableIconFromSource("resource/All mail.png"));
     
+    
+    private JCommandButton btContractMail = new JCommandButton("Surat Keluar Kontrak",
+            Mainframe.getResizableIconFromSource("resource/contractmail.png"));
 
     private ArchieveMainframe mainframe;
 
@@ -118,15 +121,30 @@ public class MailRibbonBand implements ActionListener {
         }
 
         btOutboxStatus.setActionRichTooltip(outboxStatusTooltip);
+        
+        RichTooltip contractMailTooltip = new RichTooltip();
+        contractMailTooltip.setTitle("Surat Keluar Kontrak");
+        contractMailTooltip.addDescriptionSection("Pengelolaan surat-surat perjanjian kontrak");
+        try {
+            BufferedImage img = ImageIO.read(ArchieveMainframe.class.getResource("/resource/contractmail.png"));
+            Image scaleImage = img.getScaledInstance(48, 48, Image.SCALE_SMOOTH);
+            contractMailTooltip.setMainImage(scaleImage);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        btContractMail.setActionRichTooltip(contractMailTooltip);
 
         
 
         mailOutbox.addCommandButton(btOutbox, RibbonElementPriority.TOP);
         mailOutbox.addCommandButton(btOutboxStatus, RibbonElementPriority.MEDIUM);
+        mailOutbox.addCommandButton(btContractMail, RibbonElementPriority.MEDIUM);
         
 
         btOutbox.addActionListener(this);
         btOutboxStatus.addActionListener(this);
+        btContractMail.addActionListener(this);
         
 
         mailOutbox.setResizePolicies((List) Arrays.asList(new CoreRibbonResizePolicies.None(mailOutbox.getControlPanel()),
@@ -145,7 +163,9 @@ public class MailRibbonBand implements ActionListener {
             mainframe.addChildFrame(btOutbox.getText(), new OutboxPanel(mainframe));
         } else if (source == btOutboxStatus) {
             mainframe.addChildFrame(btOutboxStatus.getText(), new OutboxStatusPanel(mainframe));
-        } 
+        }  else if (source == btContractMail) {
+            mainframe.addChildFrame(btContractMail.getText(), new ContractMailPanel(mainframe));
+        }
     }
 
 }

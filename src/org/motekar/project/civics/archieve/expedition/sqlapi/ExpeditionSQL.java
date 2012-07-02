@@ -273,7 +273,7 @@ public class ExpeditionSQL extends CommonSQL {
         return expedition;
     }
 
-    ArrayList<Expedition> getExpedition(Connection conn, Date startDate, Date endDate) throws SQLException {
+    ArrayList<Expedition> getExpedition(Connection conn, Date startDate, Date endDate, String modifier) throws SQLException {
         ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
         StringBuilder query = new StringBuilder();
@@ -291,7 +291,8 @@ public class ExpeditionSQL extends CommonSQL {
                 append("where startdate between ").
                 append("'").append(new java.sql.Date(startDate.getTime())).append("' ").
                 append(" and ").
-                append("'").append(new java.sql.Date(endDate.getTime())).append("' ");
+                append("'").append(new java.sql.Date(endDate.getTime())).append("' ").
+                append(modifier);
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
@@ -344,7 +345,7 @@ public class ExpeditionSQL extends CommonSQL {
         return expeditions;
     }
 
-    ArrayList<Expedition> getExpedition(Connection conn, Integer month, Integer year) throws SQLException {
+    ArrayList<Expedition> getExpedition(Connection conn, Integer month, Integer year, String modifier) throws SQLException {
         ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
         StringBuilder query = new StringBuilder();
@@ -362,7 +363,8 @@ public class ExpeditionSQL extends CommonSQL {
                     append("left join assignmentletter al2 ").
                     append("on al2.autoindex = exp.letterindex ").
                     append("where date_part('year',startdate) = ").
-                    append(year);
+                    append(year).
+                    append(modifier);
         } else {
             query.append("select exp.*,coalesce(al.autoindex,0,1) status,").
                     append("emp.nip assnip, emp.employeename assname,al2.purpose from expedition exp ").
@@ -378,7 +380,8 @@ public class ExpeditionSQL extends CommonSQL {
                     append("where date_part('month',startdate) = ").
                     append(month).
                     append(" and date_part('year',startdate) = ").
-                    append(year);
+                    append(year).
+                    append(modifier);
         }
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
@@ -966,7 +969,7 @@ public class ExpeditionSQL extends CommonSQL {
 
         StringBuilder query = new StringBuilder();
         query.append("select ae.*,employeename,nip,birthplace,birthdate,").
-                append("sex,grade,fungsional,struktural, positionnotes, isgorvernor ").
+                append("sex,grade,fungsional,struktural, positionnotes, isgorvernor,isnonemployee ").
                 append("from assignedemployee ae ").
                 append("inner join employee e ").
                 append("on e.autoindex = ae.employeeindex ").

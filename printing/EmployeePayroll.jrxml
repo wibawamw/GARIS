@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="EmployeePayroll" language="groovy" pageWidth="935" pageHeight="609" orientation="Landscape" columnWidth="915" leftMargin="10" rightMargin="10" topMargin="20" bottomMargin="20">
 	<property name="ireport.zoom" value="1.5"/>
-	<property name="ireport.x" value="241"/>
+	<property name="ireport.x" value="427"/>
 	<property name="ireport.y" value="0"/>
 	<field name="No" class="java.lang.Integer"/>
 	<field name="Name" class="java.lang.String"/>
@@ -25,6 +25,8 @@
 	<field name="month" class="java.lang.Integer"/>
 	<field name="year2" class="java.lang.Integer"/>
 	<field name="month2" class="java.lang.Integer"/>
+	<field name="Education" class="java.lang.String"/>
+	<field name="Department" class="java.lang.String"/>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
@@ -33,7 +35,7 @@
 			<staticText>
 				<reportElement x="0" y="0" width="915" height="30"/>
 				<textElement textAlignment="Center" verticalAlignment="Bottom">
-					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+					<font fontName="Times New Roman" size="10" isBold="true" isUnderline="false"/>
 				</textElement>
 				<text><![CDATA[DATA URUTAN KEPANGKATAN (DUK)]]></text>
 			</staticText>
@@ -46,7 +48,7 @@
 			<staticText>
 				<reportElement x="0" y="37" width="915" height="30"/>
 				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="11" isBold="true" isUnderline="false"/>
+					<font fontName="Times New Roman" size="10" isBold="true" isUnderline="false"/>
 				</textElement>
 				<text><![CDATA[KENAIKAN GAJI BERKALA]]></text>
 			</staticText>
@@ -55,7 +57,7 @@
 	<columnHeader>
 		<band height="76" splitType="Stretch">
 			<staticText>
-				<reportElement x="19" y="0" width="119" height="59"/>
+				<reportElement x="19" y="0" width="86" height="59"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -68,7 +70,7 @@
 				<text><![CDATA[Nama]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="138" y="0" width="38" height="38"/>
+				<reportElement x="105" y="0" width="38" height="38"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -81,7 +83,7 @@
 				<text><![CDATA[Jenis Kelamin]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="176" y="0" width="59" height="59"/>
+				<reportElement x="143" y="0" width="54" height="59"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -95,7 +97,7 @@
 Tanggal Lahir]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="235" y="0" width="76" height="59"/>
+				<reportElement x="197" y="0" width="75" height="59"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -108,7 +110,7 @@ Tanggal Lahir]]></text>
 				<text><![CDATA[NIP]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="311" y="0" width="42" height="59"/>
+				<reportElement x="272" y="0" width="42" height="59"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -121,7 +123,7 @@ Tanggal Lahir]]></text>
 				<text><![CDATA[SK CPNS TMT]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="353" y="0" width="42" height="59"/>
+				<reportElement x="314" y="0" width="42" height="59"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -135,7 +137,7 @@ Tanggal Lahir]]></text>
 TMT]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="395" y="0" width="95" height="59"/>
+				<reportElement x="356" y="0" width="80" height="59"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -161,7 +163,7 @@ TMT]]></text>
 				<text><![CDATA[No]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="490" y="0" width="42" height="59"/>
+				<reportElement x="436" y="0" width="42" height="59"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -174,7 +176,7 @@ TMT]]></text>
 				<text><![CDATA[TMT]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="138" y="38" width="19" height="21"/>
+				<reportElement x="105" y="38" width="19" height="21"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -187,7 +189,7 @@ TMT]]></text>
 				<text><![CDATA[L]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="157" y="38" width="19" height="21"/>
+				<reportElement x="124" y="38" width="19" height="21"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -200,7 +202,7 @@ TMT]]></text>
 				<text><![CDATA[P]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="532" y="0" width="67" height="59"/>
+				<reportElement x="478" y="0" width="55" height="59"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -213,7 +215,7 @@ TMT]]></text>
 				<text><![CDATA[Jabatan]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="599" y="0" width="42" height="59"/>
+				<reportElement x="533" y="0" width="42" height="59"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -226,7 +228,7 @@ TMT]]></text>
 				<text><![CDATA[TMT]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="641" y="0" width="26" height="59"/>
+				<reportElement x="575" y="0" width="26" height="59"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -252,7 +254,7 @@ TMT]]></text>
 				<text><![CDATA[1]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="19" y="59" width="119" height="17"/>
+				<reportElement x="19" y="59" width="86" height="17"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -265,7 +267,7 @@ TMT]]></text>
 				<text><![CDATA[2]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="138" y="59" width="19" height="17"/>
+				<reportElement x="105" y="59" width="19" height="17"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -278,7 +280,7 @@ TMT]]></text>
 				<text><![CDATA[3]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="157" y="59" width="19" height="17"/>
+				<reportElement x="124" y="59" width="19" height="17"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -291,7 +293,7 @@ TMT]]></text>
 				<text><![CDATA[4]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="176" y="59" width="59" height="17"/>
+				<reportElement x="143" y="59" width="54" height="17"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -304,7 +306,7 @@ TMT]]></text>
 				<text><![CDATA[5]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="235" y="59" width="76" height="17"/>
+				<reportElement x="197" y="59" width="75" height="17"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -317,7 +319,7 @@ TMT]]></text>
 				<text><![CDATA[6]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="311" y="59" width="42" height="17"/>
+				<reportElement x="272" y="59" width="42" height="17"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -330,7 +332,7 @@ TMT]]></text>
 				<text><![CDATA[7]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="353" y="59" width="42" height="17"/>
+				<reportElement x="314" y="59" width="42" height="17"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -343,7 +345,7 @@ TMT]]></text>
 				<text><![CDATA[8]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="395" y="59" width="95" height="17"/>
+				<reportElement x="356" y="59" width="80" height="17"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -356,7 +358,7 @@ TMT]]></text>
 				<text><![CDATA[9]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="490" y="59" width="42" height="17"/>
+				<reportElement x="436" y="59" width="42" height="17"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -369,7 +371,7 @@ TMT]]></text>
 				<text><![CDATA[10]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="532" y="59" width="67" height="17"/>
+				<reportElement x="478" y="59" width="55" height="17"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -382,7 +384,7 @@ TMT]]></text>
 				<text><![CDATA[11]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="599" y="59" width="42" height="17"/>
+				<reportElement x="533" y="59" width="42" height="17"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -395,7 +397,7 @@ TMT]]></text>
 				<text><![CDATA[12]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="641" y="59" width="26" height="17"/>
+				<reportElement x="575" y="59" width="26" height="17"/>
 				<box>
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -496,7 +498,7 @@ TMT]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="7" isBold="false"/>
 				</textElement>
-				<text><![CDATA[14]]></text>
+				<text><![CDATA[15]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="697" y="59" width="42" height="17"/>
@@ -509,7 +511,7 @@ TMT]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="7" isBold="false"/>
 				</textElement>
-				<text><![CDATA[15]]></text>
+				<text><![CDATA[16]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="739" y="59" width="42" height="17"/>
@@ -522,7 +524,7 @@ TMT]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="7" isBold="false"/>
 				</textElement>
-				<text><![CDATA[16]]></text>
+				<text><![CDATA[17]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="781" y="38" width="31" height="21"/>
@@ -587,7 +589,7 @@ TMT]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="7" isBold="false"/>
 				</textElement>
-				<text><![CDATA[17]]></text>
+				<text><![CDATA[18]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="812" y="59" width="31" height="17"/>
@@ -600,7 +602,7 @@ TMT]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="7" isBold="false"/>
 				</textElement>
-				<text><![CDATA[18]]></text>
+				<text><![CDATA[19]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="843" y="59" width="36" height="17"/>
@@ -613,7 +615,7 @@ TMT]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="7" isBold="false"/>
 				</textElement>
-				<text><![CDATA[19]]></text>
+				<text><![CDATA[20]]></text>
 			</staticText>
 			<staticText>
 				<reportElement x="879" y="59" width="36" height="17"/>
@@ -626,7 +628,34 @@ TMT]]></text>
 				<textElement textAlignment="Center" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="7" isBold="false"/>
 				</textElement>
-				<text><![CDATA[20]]></text>
+				<text><![CDATA[21]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="601" y="0" width="66" height="59"/>
+				<box>
+					<topPen lineWidth="0.5" lineStyle="Dotted"/>
+					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
+					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[Pendidikan /
+Jurusan]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="601" y="59" width="66" height="17"/>
+				<box>
+					<topPen lineWidth="0.0" lineStyle="Dotted"/>
+					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
+					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7" isBold="false"/>
+				</textElement>
+				<text><![CDATA[14]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
@@ -646,7 +675,7 @@ TMT]]></text>
 				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{No}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="19" y="0" width="119" height="40"/>
+				<reportElement x="19" y="0" width="86" height="40"/>
 				<box leftPadding="3" rightPadding="3">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -659,7 +688,7 @@ TMT]]></text>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{Name}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="138" y="0" width="19" height="40"/>
+				<reportElement x="105" y="0" width="19" height="40"/>
 				<box rightPadding="0">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -672,7 +701,7 @@ TMT]]></text>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{Male}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="157" y="0" width="19" height="40"/>
+				<reportElement x="124" y="0" width="19" height="40"/>
 				<box rightPadding="0">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -685,7 +714,7 @@ TMT]]></text>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{Female}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="176" y="0" width="59" height="20"/>
+				<reportElement x="143" y="0" width="54" height="20"/>
 				<box rightPadding="0">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -698,7 +727,7 @@ TMT]]></text>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{BirthPlace}]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
-				<reportElement x="176" y="20" width="59" height="20"/>
+				<reportElement x="143" y="20" width="54" height="20"/>
 				<box>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
 					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
@@ -709,7 +738,7 @@ TMT]]></text>
 				<textFieldExpression class="java.util.Date"><![CDATA[$F{BirthDate}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="235" y="0" width="76" height="40"/>
+				<reportElement x="197" y="0" width="75" height="40"/>
 				<box rightPadding="0">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -722,7 +751,7 @@ TMT]]></text>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{NIP}]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
-				<reportElement x="311" y="0" width="42" height="40"/>
+				<reportElement x="272" y="0" width="42" height="40"/>
 				<box>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
 					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
@@ -733,7 +762,7 @@ TMT]]></text>
 				<textFieldExpression class="java.util.Date"><![CDATA[$F{CpnsTMT}]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
-				<reportElement x="353" y="0" width="42" height="40"/>
+				<reportElement x="314" y="0" width="42" height="40"/>
 				<box>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
 					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
@@ -744,7 +773,7 @@ TMT]]></text>
 				<textFieldExpression class="java.util.Date"><![CDATA[$F{PnsTMT}]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
-				<reportElement x="490" y="0" width="42" height="40"/>
+				<reportElement x="436" y="0" width="42" height="40"/>
 				<box>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
 					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
@@ -755,7 +784,7 @@ TMT]]></text>
 				<textFieldExpression class="java.util.Date"><![CDATA[$F{GradeTMT}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="395" y="0" width="95" height="20"/>
+				<reportElement x="356" y="0" width="80" height="20"/>
 				<box rightPadding="0">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -768,7 +797,7 @@ TMT]]></text>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{Rank}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="395" y="20" width="95" height="20"/>
+				<reportElement x="356" y="20" width="80" height="20"/>
 				<box rightPadding="0">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -781,7 +810,7 @@ TMT]]></text>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{Grade}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="532" y="0" width="67" height="40"/>
+				<reportElement x="478" y="0" width="55" height="40"/>
 				<box rightPadding="0">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -794,7 +823,7 @@ TMT]]></text>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{Title}]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
-				<reportElement x="599" y="0" width="42" height="40"/>
+				<reportElement x="533" y="0" width="42" height="40"/>
 				<box>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
 					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
@@ -805,7 +834,7 @@ TMT]]></text>
 				<textFieldExpression class="java.util.Date"><![CDATA[$F{EselonTMT}]]></textFieldExpression>
 			</textField>
 			<textField pattern="" isBlankWhenNull="true">
-				<reportElement x="641" y="0" width="26" height="40"/>
+				<reportElement x="575" y="0" width="26" height="40"/>
 				<box rightPadding="0">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
@@ -903,6 +932,32 @@ TMT]]></text>
 					<font fontName="Times New Roman" size="7"/>
 				</textElement>
 				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{month2}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement x="601" y="0" width="66" height="20"/>
+				<box rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Dotted"/>
+					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
+					<bottomPen lineWidth="0.0" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{Education}]]></textFieldExpression>
+			</textField>
+			<textField pattern="" isBlankWhenNull="true">
+				<reportElement x="601" y="20" width="66" height="20"/>
+				<box rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Dotted"/>
+					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
+					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="7"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{Department}]]></textFieldExpression>
 			</textField>
 		</band>
 	</detail>

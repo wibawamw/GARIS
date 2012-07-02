@@ -1,6 +1,7 @@
 package org.motekar.project.civics.archieve.master.objects;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 
 /**
  *
@@ -13,6 +14,8 @@ public class BudgetSubDetail {
 
     private Activity activity = null;
     private BigDecimal amount = BigDecimal.ZERO;
+    
+    private ArrayList<BudgetSubDetailChild> subDetailChilds = new ArrayList<BudgetSubDetailChild>();
 
     public BudgetSubDetail() {
     }
@@ -56,6 +59,14 @@ public class BudgetSubDetail {
         this.parentIndex = parentIndex;
     }
 
+    public ArrayList<BudgetSubDetailChild> getSubDetailChilds() {
+        return subDetailChilds;
+    }
+
+    public void setSubDetailChilds(ArrayList<BudgetSubDetailChild> subDetailChilds) {
+        this.subDetailChilds = subDetailChilds;
+    }
+    
     @Override
     public String toString() {
         return activity.toString();

@@ -123,7 +123,7 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener{
     private BackgroundPanel background;
 
     public ArchieveMainframe() {
-        super("Government Archieves Information System (GARIS) 1.0.3");
+        super("Government Archieves Information System (GARIS) 1.0.5");
         setApplicationIcon(Mainframe.getResizableIconFromSource("resource/mail_logo.png"));
         constructMainframe();
         constructAndShowLoginPane();

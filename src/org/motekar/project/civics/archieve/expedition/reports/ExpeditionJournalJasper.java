@@ -139,29 +139,28 @@ public class ExpeditionJournalJasper extends SimpleAbstractJasper {
                             int size = expeditions.size();
 
                             Expedition firstExp = expeditions.get(0);
-                            Expedition lastExp = expeditions.get(size - 1);
 
                             StringBuilder expNumber = new StringBuilder();
-
-                            if (size > 1) {
-                                expNumber.append("SPPD Nomor : ").
-                                        append("090/ ").
-                                        append(firstExp.getIterationDocumentNumber()).
-                                        append(" - ").
-                                        append(lastExp.getIterationDocumentNumber()).
-                                        append(" /SPPD/").
-                                        append(firstExp.getYearDocumentNumber()).
-                                        append(", Tanggal ").
-                                        append(sdf.format(firstExp.getApprovalDate()));
-                            } else {
-                                expNumber.append("SPPD Nomor : ").
-                                        append("090/").
-                                        append(firstExp.getIterationDocumentNumber()).
-                                        append("/SPPD/").
-                                        append(firstExp.getYearDocumentNumber()).
-                                        append(", Tanggal ").
-                                        append(sdf.format(firstExp.getApprovalDate()));
+                            for (int i = 0; i < size; i++) {
+                                if (i == 0) {
+                                    if (size > 1) {
+                                        expNumber.append("SPPD Nomor : ").
+                                            append(expeditions.get(i).getDocumentNumber()).append(";");
+                                    } else {
+                                        expNumber.append("SPPD Nomor : ").
+                                            append(expeditions.get(i).getDocumentNumber());
+                                    }
+                                    
+                                } else if (i == expeditions.size() - 1) {
+                                    expNumber.append(expeditions.get(i).getDocumentNumber());
+                                } else {
+                                    expNumber.append(expeditions.get(i).getDocumentNumber()).append(";");
+                                }
+                                
                             }
+                            
+                            expNumber.append(", Tanggal ").
+                                        append(sdf.format(firstExp.getApprovalDate()));
 
                             param.put("expnumber", expNumber.toString());
                         }

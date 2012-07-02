@@ -24,10 +24,9 @@ public class AssignedEmployeeJasper extends SimpleAbstractJasper {
     private ArrayList<Employee> employees = new ArrayList<Employee>();
     private JasperReport jasperReport;
     private DefaultTableModel models;
-
     private ArchieveProperties properties;
 
-    public AssignedEmployeeJasper(ArrayList<Employee> employees,ArchieveProperties properties) {
+    public AssignedEmployeeJasper(ArrayList<Employee> employees, ArchieveProperties properties) {
         this.employees = employees;
         this.properties = properties;
     }
@@ -84,8 +83,8 @@ public class AssignedEmployeeJasper extends SimpleAbstractJasper {
                                 if (pos.toString().equalsIgnoreCase(Employee.SEKRETARIS_DAERAH)) {
                                     pos.append(" ").append(properties.getStateType()).
                                             append(" ").append(properties.getState());
-                                } else if (pos.toString().equalsIgnoreCase(Employee.KEPALA_DINAS) ||
-                                        pos.toString().equalsIgnoreCase(Employee.KEPALA_BADAN)){
+                                } else if (pos.toString().equalsIgnoreCase(Employee.KEPALA_DINAS)
+                                        || pos.toString().equalsIgnoreCase(Employee.KEPALA_BADAN)) {
                                     pos.append(" ").append(properties.getCompany());
                                 }
                             }
@@ -115,18 +114,22 @@ public class AssignedEmployeeJasper extends SimpleAbstractJasper {
     private String initCaps(String str) {
         StringBuilder caps = new StringBuilder();
 
-        String buff = str.toLowerCase();
+        if (str != null) {
+            if (!str.equals("")) {
+                String buff = str.toLowerCase();
 
-        StringTokenizer token = new StringTokenizer(buff," ");
+                StringTokenizer token = new StringTokenizer(buff, " ");
 
-        while (token.hasMoreElements()) {
-            String s = token.nextToken();
-            caps.append(s.substring(0, 1).toUpperCase());
-            caps.append(s.substring(1));
-            caps.append(" ");
+                while (token.hasMoreElements()) {
+                    String s = token.nextToken();
+                    caps.append(s.substring(0, 1).toUpperCase());
+                    caps.append(s.substring(1));
+                    caps.append(" ");
+                }
+
+                caps.deleteCharAt(caps.length() - 1);
+            }
         }
-
-        caps.deleteCharAt(caps.length()-1);
 
         return caps.toString();
     }

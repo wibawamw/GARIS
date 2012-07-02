@@ -875,7 +875,7 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
         comboAssinedEmp.removeAllItems();
         try {
             ArrayList<Employee> commanderEmployee = mLogic.getCommanderEmployee(mainframe.getSession());
-            ArrayList<Employee> assignedEmployee = mLogic.getEmployee(mainframe.getSession());
+            ArrayList<Employee> assignedEmployee = mLogic.getAssignedEmployee(mainframe.getSession());
 
             if (!commanderEmployee.isEmpty()) {
                 for (Employee e : commanderEmployee) {
@@ -1028,7 +1028,6 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
                 }
 
                 comboAssinedEmp.setSelectedItem(selectedExpedition.getAssignedEmployee());
-
                 fieldEmpGrade.setText(selectedExpedition.getAssignedEmployee().getGradeAsString());
 
                 StringBuilder position = new StringBuilder();
@@ -1610,7 +1609,7 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
                 ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
                 if (checkBox.isSelected()) {
-                    expeditions = logic.getExpedition(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear());
+                    expeditions = logic.getExpedition(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear(),"");
                 } else {
                     expeditions = logic.getExpedition(mainframe.getSession());
                 }
@@ -1937,6 +1936,7 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
     }
 
     private class ExpeditionAction extends AbstractAction {
+
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
             if (source == comboAssinedEmp) {
