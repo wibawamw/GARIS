@@ -1,128 +1,159 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BudgetRealization" language="groovy" pageWidth="595" pageHeight="842" columnWidth="575" leftMargin="10" rightMargin="10" topMargin="20" bottomMargin="20">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="BudgetRealization" language="groovy" pageWidth="595" pageHeight="842" columnWidth="539" leftMargin="28" rightMargin="28" topMargin="20" bottomMargin="20">
 	<property name="ireport.zoom" value="1.5"/>
-	<property name="ireport.x" value="0"/>
+	<property name="ireport.x" value="36"/>
 	<property name="ireport.y" value="0"/>
 	<parameter name="periode" class="java.lang.String"/>
-	<field name="Code" class="java.lang.String"/>
-	<field name="Description" class="java.lang.String"/>
-	<field name="Opening" class="java.math.BigDecimal"/>
-	<field name="Debet" class="java.math.BigDecimal"/>
+	<parameter name="actname" class="java.lang.String"/>
+	<field name="No" class="java.lang.Integer"/>
+	<field name="Eselon" class="java.lang.String"/>
+	<field name="Budget" class="java.math.BigDecimal"/>
 	<field name="Credit" class="java.math.BigDecimal"/>
 	<field name="Closing" class="java.math.BigDecimal"/>
+	<field name="Description" class="java.lang.String"/>
+	<variable name="BudgetTotal" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{Budget}]]></variableExpression>
+	</variable>
+	<variable name="CreditTotal" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{Credit}]]></variableExpression>
+	</variable>
+	<variable name="ClosingTotal" class="java.math.BigDecimal" calculation="Sum">
+		<variableExpression><![CDATA[$F{Closing}]]></variableExpression>
+	</variable>
 	<background>
 		<band splitType="Stretch"/>
 	</background>
 	<title>
-		<band height="62" splitType="Stretch">
+		<band height="82" splitType="Stretch">
 			<staticText>
-				<reportElement x="0" y="0" width="575" height="30"/>
+				<reportElement x="0" y="0" width="539" height="30"/>
 				<textElement textAlignment="Center" verticalAlignment="Bottom">
 					<font fontName="Calibri" size="11" isBold="true" isUnderline="false"/>
 				</textElement>
 				<text><![CDATA[Realisasi Anggaran Perjalanan Dinas]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="0" y="37" width="575" height="25"/>
+				<reportElement x="0" y="37" width="539" height="25"/>
 				<textElement textAlignment="Center" verticalAlignment="Top">
 					<font fontName="Calibri" size="10" isBold="true"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{periode}]]></textFieldExpression>
 			</textField>
 			<line>
-				<reportElement x="160" y="33" width="255" height="1" isPrintWhenDetailOverflows="true"/>
+				<reportElement x="136" y="33" width="255" height="1" isPrintWhenDetailOverflows="true"/>
 				<graphicElement>
 					<pen lineWidth="1.0" lineStyle="Solid"/>
 				</graphicElement>
 			</line>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="62" width="539" height="20" isRemoveLineWhenBlank="true"/>
+				<box leftPadding="4"/>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Calibri" size="9" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{actname}]]></textFieldExpression>
+			</textField>
 		</band>
 	</title>
 	<columnHeader>
 		<band height="19" splitType="Stretch">
 			<staticText>
-				<reportElement x="0" y="0" width="235" height="19"/>
+				<reportElement x="0" y="0" width="41" height="19"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.5" lineStyle="Dotted"/>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
 					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="9" isBold="false"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Uraian]]></text>
+				<text><![CDATA[No]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="235" y="0" width="85" height="19"/>
+				<reportElement x="126" y="0" width="100" height="19"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
 					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="9" isBold="false"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Saldo Awal]]></text>
+				<text><![CDATA[Anggaran]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="320" y="0" width="85" height="19"/>
+				<reportElement x="226" y="0" width="90" height="19"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
 					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="9" isBold="false"/>
-				</textElement>
-				<text><![CDATA[Penerimaan]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="405" y="0" width="85" height="19"/>
-				<box>
-					<topPen lineWidth="0.5" lineStyle="Dotted"/>
-					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
-					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
-					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
-				</box>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="9" isBold="false"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Pengeluaran]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="490" y="0" width="85" height="19"/>
+				<reportElement x="316" y="0" width="100" height="19"/>
 				<box>
 					<topPen lineWidth="0.5" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
 					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
 				</box>
-				<textElement textAlignment="Center" verticalAlignment="Top">
-					<font fontName="Times New Roman" size="9" isBold="false"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true"/>
 				</textElement>
-				<text><![CDATA[Saldo Akhir]]></text>
+				<text><![CDATA[Sisa Anggaran]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="41" y="0" width="85" height="19"/>
+				<box>
+					<topPen lineWidth="0.5" lineStyle="Dotted"/>
+					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
+					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Eselon]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="416" y="0" width="123" height="19"/>
+				<box>
+					<topPen lineWidth="0.5" lineStyle="Dotted"/>
+					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
+					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Keterangan]]></text>
 			</staticText>
 		</band>
 	</columnHeader>
 	<detail>
 		<band height="20" splitType="Stretch">
-			<textField pattern="dd/MM/yyyy">
-				<reportElement x="0" y="0" width="76" height="20"/>
-				<box leftPadding="3" rightPadding="3">
+			<textField pattern="###0">
+				<reportElement x="0" y="0" width="41" height="20"/>
+				<box leftPadding="0" rightPadding="3">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.5" lineStyle="Dotted"/>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
-					<rightPen lineWidth="0.0" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
 				</box>
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="8"/>
 				</textElement>
-				<textFieldExpression class="java.lang.String"><![CDATA[$F{Code}]]></textFieldExpression>
+				<textFieldExpression class="java.lang.Integer"><![CDATA[$F{No}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,##0;(#,##0)">
-				<reportElement x="235" y="0" width="85" height="20"/>
+				<reportElement x="126" y="0" width="100" height="20"/>
 				<box leftPadding="0" rightPadding="3">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
@@ -131,22 +162,10 @@
 				<textElement textAlignment="Right" verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="8"/>
 				</textElement>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{Opening}]]></textFieldExpression>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{Budget}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,##0;(#,##0)">
-				<reportElement x="320" y="0" width="85" height="20"/>
-				<box leftPadding="0" rightPadding="3">
-					<topPen lineWidth="0.0" lineStyle="Dotted"/>
-					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
-					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
-				</box>
-				<textElement textAlignment="Right" verticalAlignment="Middle">
-					<font fontName="Times New Roman" size="8"/>
-				</textElement>
-				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{Debet}]]></textFieldExpression>
-			</textField>
-			<textField pattern="#,##0;(#,##0)">
-				<reportElement x="405" y="0" width="85" height="20"/>
+				<reportElement x="226" y="0" width="90" height="20"/>
 				<box leftPadding="0" rightPadding="3">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
@@ -158,7 +177,7 @@
 				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{Credit}]]></textFieldExpression>
 			</textField>
 			<textField pattern="#,##0;(#,##0)">
-				<reportElement x="490" y="0" width="85" height="20"/>
+				<reportElement x="316" y="0" width="100" height="20"/>
 				<box leftPadding="0" rightPadding="3">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
@@ -170,14 +189,27 @@
 				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$F{Closing}]]></textFieldExpression>
 			</textField>
 			<textField pattern="dd/MM/yyyy">
-				<reportElement x="76" y="0" width="159" height="20"/>
+				<reportElement x="41" y="0" width="85" height="20"/>
+				<box leftPadding="0" rightPadding="0">
+					<topPen lineWidth="0.0" lineStyle="Dotted"/>
+					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
+					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{Eselon}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy">
+				<reportElement x="416" y="0" width="123" height="20"/>
 				<box leftPadding="3" rightPadding="3">
 					<topPen lineWidth="0.0" lineStyle="Dotted"/>
 					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
 					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
 					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
 				</box>
-				<textElement textAlignment="Justified" verticalAlignment="Middle">
+				<textElement verticalAlignment="Middle">
 					<font fontName="Times New Roman" size="8"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{Description}]]></textFieldExpression>
@@ -201,14 +233,14 @@
 				<text><![CDATA[Tanggal Cetak  : ]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="437" y="0" width="80" height="20"/>
+				<reportElement x="409" y="0" width="80" height="20"/>
 				<textElement textAlignment="Right" verticalAlignment="Bottom">
 					<font fontName="Times New Roman" size="8"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA["Hal. "+$V{PAGE_NUMBER}+" dari"]]></textFieldExpression>
 			</textField>
 			<textField evaluationTime="Report">
-				<reportElement x="517" y="0" width="40" height="20"/>
+				<reportElement x="489" y="0" width="40" height="20"/>
 				<textElement verticalAlignment="Bottom">
 					<font fontName="Times New Roman" size="8"/>
 				</textElement>
@@ -216,4 +248,69 @@
 			</textField>
 		</band>
 	</pageFooter>
+	<summary>
+		<band height="20">
+			<staticText>
+				<reportElement x="0" y="0" width="126" height="20"/>
+				<box rightPadding="5">
+					<topPen lineWidth="0.0" lineStyle="Dotted"/>
+					<leftPen lineWidth="0.5" lineStyle="Dotted"/>
+					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="9" isBold="true"/>
+				</textElement>
+				<text><![CDATA[TOTAL]]></text>
+			</staticText>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="126" y="0" width="100" height="20"/>
+				<box leftPadding="0" rightPadding="3">
+					<topPen lineWidth="0.0" lineStyle="Dotted"/>
+					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{BudgetTotal}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="226" y="0" width="90" height="20"/>
+				<box leftPadding="0" rightPadding="3">
+					<topPen lineWidth="0.0" lineStyle="Dotted"/>
+					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{CreditTotal}]]></textFieldExpression>
+			</textField>
+			<textField pattern="#,##0;(#,##0)">
+				<reportElement x="316" y="0" width="100" height="20"/>
+				<box leftPadding="0" rightPadding="3">
+					<topPen lineWidth="0.0" lineStyle="Dotted"/>
+					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
+				</box>
+				<textElement textAlignment="Right" verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression class="java.math.BigDecimal"><![CDATA[$V{ClosingTotal}]]></textFieldExpression>
+			</textField>
+			<textField pattern="dd/MM/yyyy" isBlankWhenNull="true">
+				<reportElement x="416" y="0" width="123" height="20"/>
+				<box leftPadding="3" rightPadding="3">
+					<topPen lineWidth="0.0" lineStyle="Dotted"/>
+					<leftPen lineWidth="0.0" lineStyle="Dotted"/>
+					<bottomPen lineWidth="0.5" lineStyle="Dotted"/>
+					<rightPen lineWidth="0.5" lineStyle="Dotted"/>
+				</box>
+				<textElement verticalAlignment="Middle">
+					<font fontName="Times New Roman" size="8"/>
+				</textElement>
+			</textField>
+		</band>
+	</summary>
 </jasperReport>

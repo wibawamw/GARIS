@@ -648,7 +648,7 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
         fieldTaxNumber.setEnabled(iseditable);
         fieldReceivedFrom.setEnabled(iseditable);
         fieldNotes.setEnabled(iseditable);
-        fieldAmount.setEnabled(iseditable);
+        fieldAmount.setEnabled(false);
         btPickStandardPrice.setEnabled(iseditable);
         fieldReceivedPlace.setEnabled(iseditable);
         comboHeadEmployee.setEnabled(iseditable);
@@ -1035,8 +1035,18 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
 
             BigDecimal budget = calculateBudget();
 
+            Activity activity = null;
+
+            Object objExp = comboExpedition.getSelectedItem();
+            if (objExp instanceof Expedition) {
+                Expedition exp = (Expedition) objExp;
+                if (exp != null) {
+                    activity = exp.getActivity();
+                }
+            }
+
             StandardPricePickDlg dlg = new StandardPricePickDlg(mainframe, mainframe.getSession(),
-                    mainframe.getConnection(), budget, ListSelectionModel.SINGLE_SELECTION);
+                    mainframe.getConnection(), budget,activity, ListSelectionModel.SINGLE_SELECTION);
             dlg.showDialog();
 
             if (dlg.getResponse() == JOptionPane.YES_OPTION) {
@@ -1132,6 +1142,10 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
                 }
 
                 budget = budget.subtract(used);
+                
+                if (amount != null) {
+                    budget = budget.add(amount.getPrice());
+                }
 
             } catch (SQLException ex) {
                 Exceptions.printStackTrace(ex);
@@ -1675,12 +1689,18 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
             }
 
             File file = properties.getLogo();
+            File file2 = properties.getLogo4();
 
             if (!file.exists()) {
                 file = new File("./images/logo_daerah.jpg");
             }
 
+            if (!file2.exists()) {
+                file2 = new File("./images/logo_daerah.jpg");
+            }
+
             ImageIcon ico = new ImageIcon(file.getPath());
+            ImageIcon ico2 = new ImageIcon(file2.getPath());
 
             param.put("statename", stateName.toString());
             param.put("governname", properties.getCompany().toUpperCase());
@@ -1688,6 +1708,7 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
             param.put("capital", properties.getCapital().toUpperCase());
 
             param.put("logo", ico.getImage());
+            param.put("logo2", ico2.getImage());
 
             param.put("dinasname", properties.getCompany().toUpperCase());
             param.put("dinascode", "");
@@ -1737,7 +1758,12 @@ public class ExpeditionChequePanel extends JXPanel implements ActionListener, Li
             param.put("clerknip", cheque.getClerk().getNip());
 
             param.put("paidtoname", cheque.getPaidTo().getName());
-            param.put("paidtonip", cheque.getPaidTo().getNip());
+            if (!cheque.getPaidTo().getNip().equals("")) {
+                param.put("paidtonip", "NIP. " + cheque.getPaidTo().getNip());
+            } else {
+                param.put("paidtonip", "");
+            }
+
 
             param.put("headname", cheque.getHeadEmployee().getName());
             param.put("headnip", cheque.getHeadEmployee().getNip());

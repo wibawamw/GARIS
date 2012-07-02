@@ -65,6 +65,7 @@ import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.renderer.StringValue;
 import org.motekar.project.civics.archieve.expedition.objects.AssignmentLetter;
+import org.motekar.project.civics.archieve.expedition.objects.Expedition;
 import org.motekar.project.civics.archieve.expedition.objects.ExpeditionJournal;
 import org.motekar.project.civics.archieve.expedition.objects.ExpeditionResult;
 import org.motekar.project.civics.archieve.expedition.reports.ExpeditionJournalJasper;
@@ -98,10 +99,13 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
     private JXLabel statusLabel = new JXLabel("Ready");
     private JProgressBar pbar = new JProgressBar();
     private JXTextField fieldSearch = new JXTextField();
-    private JXTextField fieldDocNumber = new JXTextField();
-    private JXComboBox comboLetter = new JXComboBox();
+    private JXComboBox comboExpedition = new JXComboBox();
+    private JXTextField fieldEmployeeName = new JXTextField();
+    private JXTextField fieldEmployeeNIP = new JXTextField();
+    private JXTextField fieldEmpGrade = new JXTextField();
+    private JXTextField fieldPosition = new JXTextField();
+    private JXTextField fieldFundingSource = new JXTextField();
     private JXTextArea fieldPurpose = new JXTextArea();
-    private JXTextField fieldRepPlace = new JXTextField();
     private JXDatePicker fieldRepDate = new JXDatePicker();
     private JTabbedPane tabbedPane = new JTabbedPane();
     private ExpeditionResultTable resultTable = new ExpeditionResultTable();
@@ -132,6 +136,7 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
     private JMonthChooser monthChooser = new JMonthChooser();
     private JCheckBox checkBox = new JCheckBox();
     private ArchieveProperties properties;
+    //
 
     public ExpeditionJournalPanel(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
@@ -235,8 +240,8 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
     protected Component createMainPanel() {
         FormLayout lm = new FormLayout(
                 "pref,10px,fill:default:grow,5px,pref,20px",
-                "pref,5px,pref,5px,fill:default,"
-                + "fill:default:grow,5px,5px,pref,5px,pref,5px,"
+                "pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,5px,fill:default,"
+                + "fill:default:grow,5px,5px,pref,5px,"
                 + "pref,fill:default:grow,fill:default:grow,10px");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
@@ -246,31 +251,38 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
         JScrollPane scPane = new JScrollPane();
         scPane.setViewportView(resultTable);
 
-        lm.setRowGroups(new int[][]{{1, 3, 5, 7, 9, 11}});
-
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportView(fieldPurpose);
 
         CellConstraints cc = new CellConstraints();
 
-        builder.addLabel("Nomor Dokumen", cc.xy(1, 1));
-        builder.add(fieldDocNumber, cc.xyw(3, 1, 3));
+        builder.addLabel("SPPD", cc.xy(1, 1));
+        builder.add(comboExpedition, cc.xyw(3, 1, 3));
 
-        builder.addLabel("Dasar Dokumen", cc.xy(1, 3));
-        builder.add(comboLetter, cc.xyw(3, 3, 3));
+        builder.addLabel("  Nama", cc.xy(1, 3));
+        builder.add(fieldEmployeeName, cc.xyw(3, 3, 3));
 
-        builder.addLabel("Maksud dan Tujuan", cc.xy(1, 5));
-        builder.add(scrollPane, cc.xywh(3, 5, 3, 3));
+        builder.addLabel("  NIP", cc.xy(1, 5));
+        builder.add(fieldEmployeeNIP, cc.xyw(3, 5, 3));
 
-        builder.addLabel("Tempat Pelaporan", cc.xy(1, 9));
-        builder.add(fieldRepPlace, cc.xyw(3, 9, 3));
+        builder.addLabel("  Pangkat / Golongan", cc.xy(1, 7));
+        builder.add(fieldEmpGrade, cc.xyw(3, 7, 3));
 
-        builder.addLabel("Tanggal Pelaporan", cc.xy(1, 11));
-        builder.add(fieldRepDate, cc.xyw(3, 11, 3));
+        builder.addLabel("  Jabatan", cc.xy(1, 9));
+        builder.add(fieldPosition, cc.xyw(3, 9, 3));
 
-        builder.addLabel("Hasil", cc.xy(1, 13));
-        builder.add(scPane, cc.xywh(3, 13, 2, 3));
-        builder.add(createStrip2(1.0, 1.0), cc.xy(5, 13));
+        builder.addLabel("Sumber Biaya", cc.xy(1, 11));
+        builder.add(fieldFundingSource, cc.xyw(3, 11, 3));
+
+        builder.addLabel("Maksud dan Tujuan", cc.xy(1, 13));
+        builder.add(scrollPane, cc.xywh(3, 13, 3, 3));
+
+        builder.addLabel("Tanggal", cc.xy(1, 17));
+        builder.add(fieldRepDate, cc.xyw(3, 17, 3));
+
+        builder.addLabel("Hasil", cc.xy(1, 19));
+        builder.add(scPane, cc.xywh(3, 19, 2, 3));
+        builder.add(createStrip2(1.0, 1.0), cc.xy(5, 19));
 
         tabbedPane.addTab("Input Data", builder.getPanel());
         tabbedPane.addTab("Cetak", createPrintPanel());
@@ -394,7 +406,7 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
 
     private void construct() {
 
-        loadComboLetter();
+        loadComboExpedition();
 
         fieldSearch.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -439,9 +451,9 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
         resultTable.addHighlighter(HighlighterFactory.createSimpleStriping(color.getWatermarkDarkColor()));
         resultTable.setShowGrid(false, false);
 
-        comboLetter.setEditable(true);
+        comboExpedition.setEditable(true);
 
-        comboLetter.setAction(new JournalAction());
+        comboExpedition.setAction(new JournalAction());
 
         btAdd.addActionListener(this);
         btEdit.addActionListener(this);
@@ -492,12 +504,16 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
 
     private void setFormState() {
 
-        fieldDocNumber.setEnabled(iseditable);
-        fieldRepPlace.setEnabled(iseditable);
         fieldRepDate.setEnabled(iseditable);
         fieldPurpose.setEnabled(false);
 
-        comboLetter.setEnabled(iseditable);
+        fieldEmployeeName.setEnabled(false);
+        fieldEmployeeNIP.setEnabled(false);
+        fieldEmpGrade.setEnabled(false);
+        fieldPosition.setEnabled(false);
+        fieldFundingSource.setEnabled(iseditable);
+
+        comboExpedition.setEnabled(iseditable);
 
         fieldSearch.setEnabled(!iseditable);
         journalList.setEnabled(!iseditable);
@@ -510,18 +526,20 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
 
     private void clearForm() {
 
-        fieldDocNumber.setText("");
-        fieldRepPlace.setText("");
         fieldRepDate.setDate(null);
         fieldPurpose.setText("");
+        fieldEmployeeName.setText("");
+        fieldEmployeeNIP.setText("");
+        fieldEmpGrade.setText("");
+        fieldPosition.setText("");
+        fieldFundingSource.setText("");
 
-        comboLetter.setSelectedIndex(0);
+        comboExpedition.setSelectedIndex(0);
 
         resultTable.clear();
 
-        if (fieldDocNumber.isEnabled()) {
-            fieldDocNumber.requestFocus();
-            fieldDocNumber.selectAll();
+        if (comboExpedition.isEnabled()) {
+            comboExpedition.getEditor().getEditorComponent().requestFocus();
         }
 
         jasperRemoveAll();
@@ -557,15 +575,36 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
             try {
                 selectedJournal = logic.getCompleteExpeditionJournal(mainframe.getSession(), selectedJournal);
 
-                fieldDocNumber.setText(selectedJournal.getReportNumber());
-                fieldRepPlace.setText(selectedJournal.getReportPlace());
                 fieldRepDate.setDate(selectedJournal.getReportDate());
 
-                AssignmentLetter letter = selectedJournal.getLetter();
-                letter.setStyled(false);
+                Expedition expedition = selectedJournal.getExpedition();
+                expedition.setStyled(false);
 
-                comboLetter.setSelectedItem(letter);
+                comboExpedition.setSelectedItem(expedition);
 
+                fieldEmployeeName.setText(expedition.getAssignedEmployee().getName());
+                fieldEmployeeNIP.setText(expedition.getAssignedEmployee().getNip());
+
+                if (!expedition.getAssignedEmployee().isNonEmployee()) {
+                    fieldEmpGrade.setText(expedition.getAssignedEmployee().getGradeAsString());
+
+                    StringBuilder position = new StringBuilder();
+
+                    if (expedition.getAssignedEmployee().getStrukturalAsString().equals("")) {
+                        position.append(expedition.getAssignedEmployee().getFungsionalAsString()).
+                                append(" ").append(expedition.getAssignedEmployee().getPositionNotes());
+                    } else {
+                        position.append(expedition.getAssignedEmployee().getStrukturalAsString());
+                    }
+
+                    fieldPosition.setText(position.toString());
+                } else {
+                    fieldEmpGrade.setText("");
+                    fieldPosition.setText("");
+                }
+
+                fieldFundingSource.setText(selectedJournal.getFundingSource());
+                AssignmentLetter letter = logic.getAssignmentLetterInExpedition(mainframe.getSession(),expedition.getIndex());
                 fieldPurpose.setText(letter.getPurpose());
 
                 resultTable.clear();
@@ -588,21 +627,21 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
         }
     }
 
-    private void loadComboLetter() {
-        comboLetter.removeAllItems();
+    private void loadComboExpedition() {
+        comboExpedition.removeAllItems();
         try {
-            ArrayList<AssignmentLetter> letter = logic.getAssignmentLetterInExpedition(mainframe.getSession());
+            ArrayList<Expedition> expeditions = logic.getExpedition(mainframe.getSession());
 
-            if (!letter.isEmpty()) {
-                for (AssignmentLetter al : letter) {
-                    al = logic.getCompleteAssignmentLetter(mainframe.getSession(), al);
-                    al.setStyled(false);
+            if (!expeditions.isEmpty()) {
+                for (Expedition ex : expeditions) {
+                    ex = logic.getCompleteExpedition(mainframe.getSession(), ex);
+                    ex.setStyled(false);
                 }
 
-                letter.add(0, new AssignmentLetter());
-                comboLetter.setModel(new ListComboBoxModel<AssignmentLetter>(letter));
+                expeditions.add(0, new Expedition());
+                comboExpedition.setModel(new ListComboBoxModel<Expedition>(expeditions));
 
-                AutoCompleteDecorator.decorate(comboLetter, new AssignmentLetterConverter());
+                AutoCompleteDecorator.decorate(comboExpedition, new ExpeditionConverter());
             }
 
         } catch (SQLException ex) {
@@ -613,28 +652,16 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
     private ExpeditionJournal getExpeditionJournal() throws MotekarException {
         errorString = new StringBuilder();
 
-        String reportNumber = fieldDocNumber.getText();
+        Expedition expedition = null;
 
-        if (reportNumber.equals("")) {
-            errorString.append("<br>- Nomor Dokumen</br>");
+        Object objExp = comboExpedition.getSelectedItem();
+
+        if (objExp instanceof Expedition) {
+            expedition = (Expedition) objExp;
         }
 
-        AssignmentLetter letter = null;
-
-        Object objExp = comboLetter.getSelectedItem();
-
-        if (objExp instanceof AssignmentLetter) {
-            letter = (AssignmentLetter) objExp;
-        }
-
-        if (letter == null) {
-            errorString.append("<br>- Dasar Dokumen</br>");
-        }
-
-        String reportPlace = fieldRepPlace.getText();
-
-        if (reportPlace.equals("")) {
-            errorString.append("<br>- Tempat Pelaporan</br>");
+        if (expedition == null) {
+            errorString.append("<br>- SPPD</br>");
         }
 
         Date reportDate = fieldRepDate.getDate();
@@ -648,13 +675,14 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
         if (results.isEmpty()) {
             errorString.append("<br>- Hasil Perjalanan Dinas</br>");
         }
+        
+        String fundingSource = fieldFundingSource.getText();
 
         ExpeditionJournal journal = new ExpeditionJournal();
-        journal.setReportNumber(reportNumber);
-        journal.setReportPlace(reportPlace);
         journal.setReportDate(reportDate);
         journal.setResult(results);
-        journal.setLetter(letter);
+        journal.setExpedition(expedition);
+        journal.setFundingSource(fundingSource);
 
         return journal;
     }
@@ -674,8 +702,7 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
         isedit = true;
         setFormState();
         setButtonState("New");
-        fieldDocNumber.requestFocus();
-        fieldDocNumber.selectAll();
+        comboExpedition.getEditor().getEditorComponent().requestFocus();
         statusLabel.setText("Ubah Laporan Perjalanan Dinas");
         defineCustomFocusTraversalPolicy();
     }
@@ -789,9 +816,7 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
 
     private void defineCustomFocusTraversalPolicy() {
         ArrayList<Component> comp = new ArrayList<Component>();
-        comp.add(fieldDocNumber);
-        comp.add(comboLetter.getEditor().getEditorComponent());
-        comp.add(fieldRepPlace);
+        comp.add(comboExpedition.getEditor().getEditorComponent());
         comp.add(fieldRepDate.getEditor());
 
         MotekarFocusTraversalPolicy policy = new MotekarFocusTraversalPolicy(comp);
@@ -922,7 +947,7 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
                 if (isCancelled()) {
                     break;
                 }
-                statusLabel.setText("Memuat Laporan Perjalanan Dinas Nomor " + journal.getReportNumber());
+                statusLabel.setText("Memuat Laporan Perjalanan Dinas Nomor " + journal.getExpedition());
                 model.addElement(journal);
             }
         }
@@ -1213,19 +1238,19 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
         }
     }
 
-    private class AssignmentLetterConverter extends ObjectToStringConverter {
+    private class ExpeditionConverter extends ObjectToStringConverter {
 
         @Override
         public String[] getPossibleStringsForItem(Object item) {
             if (item == null) {
                 return null;
             }
-            if (!(item instanceof AssignmentLetter)) {
+            if (!(item instanceof Expedition)) {
                 return new String[0];
             }
-            AssignmentLetter letter = (AssignmentLetter) item;
+            Expedition expedition = (Expedition) item;
             return new String[]{
-                        letter.toString(), letter.getDocumentNumber()
+                        expedition.toString(), expedition.getDocumentNumber()
                     };
         }
 
@@ -1269,16 +1294,44 @@ public class ExpeditionJournalPanel extends JXPanel implements ActionListener, L
 
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
-            if (source == comboLetter) {
-                Object obj = comboLetter.getSelectedItem();
+            if (source == comboExpedition) {
+                Object obj = comboExpedition.getSelectedItem();
                 if (obj != null) {
-                    AssignmentLetter letter = null;
-                    if (obj instanceof AssignmentLetter) {
-                        letter = (AssignmentLetter) obj;
+                    Expedition expedition = null;
+                    if (obj instanceof Expedition) {
+                        expedition = (Expedition) obj;
                     }
 
-                    if (letter != null) {
-                        fieldPurpose.setText(letter.getPurpose());
+                    if (expedition != null) {
+                        AssignmentLetter letter = expedition.getLetter();
+                        if (letter != null) {
+                            fieldPurpose.setText(letter.getPurpose());
+                        }
+
+                        Employee assignedEmployee = expedition.getAssignedEmployee();
+
+                        if (assignedEmployee != null) {
+                            fieldEmployeeName.setText(assignedEmployee.getName());
+                            fieldEmployeeNIP.setText(assignedEmployee.getNip());
+
+                            if (!assignedEmployee.isNonEmployee()) {
+                                fieldEmpGrade.setText(assignedEmployee.getGradeAsString());
+
+                                StringBuilder position = new StringBuilder();
+
+                                if (assignedEmployee.getStrukturalAsString().equals("")) {
+                                    position.append(assignedEmployee.getFungsionalAsString()).
+                                            append(" ").append(expedition.getAssignedEmployee().getPositionNotes());
+                                } else {
+                                    position.append(assignedEmployee.getStrukturalAsString());
+                                }
+
+                                fieldPosition.setText(position.toString());
+                            } else {
+                                fieldEmpGrade.setText("");
+                                fieldPosition.setText("");
+                            }
+                        }
                     }
                 }
             }

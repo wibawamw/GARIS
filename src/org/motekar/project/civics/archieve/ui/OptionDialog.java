@@ -71,6 +71,7 @@ public class OptionDialog implements ActionListener {
     private JXPanel imagePanel = new JXPanel();
     private JXPanel imagePanel2 = new JXPanel();
     private JXPanel imagePanel3 = new JXPanel();
+    private JXPanel imagePanel4 = new JXPanel();
     private JCommandButton btOK = new JCommandButton(Mainframe.getResizableIconFromSource("resource/disk.png", new Dimension(32, 32)));
     private JCommandButton btCancel = new JCommandButton(Mainframe.getResizableIconFromSource("resource/cancel_sign.png", new Dimension(32, 32)));
     private JDialog dlg;
@@ -78,14 +79,16 @@ public class OptionDialog implements ActionListener {
     private ImagePainter painter = null;
     private ImagePainter painter2 = null;
     private ImagePainter painter3 = null;
+    private ImagePainter painter4 = null;
     private static String IMAGE_FOLDER = "./images/";
     private String fileToCopy = "";
     private String fileToCopy2 = "";
     private String fileToCopy3 = "";
+    private String fileToCopy4 = "";
     private File defFile = null;
     private File defFile2 = null;
     private File defFile3 = null;
-
+    private File defFile4 = null;
     private int response = JOptionPane.NO_OPTION;
 
     public OptionDialog(ArchieveMainframe frame, ArchieveProperties properties) {
@@ -128,10 +131,12 @@ public class OptionDialog implements ActionListener {
         imagePanel.addMouseListener(new MouseHandler());
         imagePanel2.addMouseListener(new MouseHandler());
         imagePanel3.addMouseListener(new MouseHandler());
+        imagePanel4.addMouseListener(new MouseHandler());
 
         imagePanel.setBorder(BorderFactory.createEtchedBorder());
         imagePanel2.setBorder(BorderFactory.createEtchedBorder());
         imagePanel3.setBorder(BorderFactory.createEtchedBorder());
+        imagePanel4.setBorder(BorderFactory.createEtchedBorder());
 
         panel.add(createHeader(), BorderLayout.NORTH);
         panel.add(createContentPanel(), BorderLayout.CENTER);
@@ -143,7 +148,7 @@ public class OptionDialog implements ActionListener {
 
     private JPanel createContentPanel() {
         FormLayout lm = new FormLayout(
-                "right:pref,10px,pref,fill:default:grow,5px,pref,fill:default:grow,5px,pref,fill:default:grow,5px",
+                "right:pref,10px,pref,fill:default:grow,5px,pref,fill:default:grow,5px,pref,fill:default:grow,5px,pref,fill:default:grow,5px",
                 "pref,5px,pref,fill:default:grow,5px,pref,5px,pref,5px,pref,5px,pref,5px,pref,fill:default:grow,5px,5px,pref,50px");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
@@ -160,22 +165,22 @@ public class OptionDialog implements ActionListener {
         scPane.setViewportView(fieldAddress);
 
         builder.addLabel("Dinas/Badan/Kantor", cc.xy(1, 1));
-        builder.add(fieldName, cc.xyw(3, 1,8));
+        builder.add(fieldName, cc.xyw(3, 1, 11));
 
         builder.addLabel("Alamat", cc.xy(1, 3));
-        builder.add(scPane, cc.xywh(3, 3, 8, 2));
+        builder.add(scPane, cc.xywh(3, 3, 11, 2));
 
         builder.addLabel("Jenis Pemerintahan", cc.xy(1, 6));
-        builder.add(comboStateType, cc.xyw(3, 6,8));
+        builder.add(comboStateType, cc.xyw(3, 6, 11));
 
         builder.addLabel("Kabupaten / Kota", cc.xy(1, 8));
-        builder.add(fieldState, cc.xyw(3, 8,8));
+        builder.add(fieldState, cc.xyw(3, 8, 11));
 
         builder.addLabel("Ibukota", cc.xy(1, 10));
-        builder.add(fieldCapital, cc.xyw(3, 10,8));
+        builder.add(fieldCapital, cc.xyw(3, 10, 11));
 
         builder.addLabel("Propinsi", cc.xy(1, 12));
-        builder.add(fieldProvince, cc.xyw(3, 12,8));
+        builder.add(fieldProvince, cc.xyw(3, 12, 11));
 
         builder.addLabel("Logo Daerah", cc.xy(1, 14));
         builder.add(imagePanel, cc.xywh(3, 14, 2, 3));
@@ -184,8 +189,10 @@ public class OptionDialog implements ActionListener {
 
         builder.add(imagePanel3, cc.xywh(9, 14, 2, 3));
 
+        builder.add(imagePanel4, cc.xywh(12, 14, 2, 3));
+
         builder.add(checkDivision, cc.xy(1, 18));
-        builder.add(comboDivision, cc.xyw(3, 18,8));
+        builder.add(comboDivision, cc.xyw(3, 18, 11));
 
         return builder.getPanel();
     }
@@ -225,6 +232,7 @@ public class OptionDialog implements ActionListener {
         imagePanel.setBackgroundPainter(getPainter());
         imagePanel2.setBackgroundPainter(getPainter2());
         imagePanel3.setBackgroundPainter(getPainter3());
+        imagePanel4.setBackgroundPainter(getPainter4());
 
         if (!properties.getDivisionCode().equals("")) {
             checkDivision.setSelected(true);
@@ -273,6 +281,9 @@ public class OptionDialog implements ActionListener {
         File originalFile3 = new File(fileToCopy3);
         File fileCopied3 = new File(IMAGE_FOLDER + originalFile3.getName());
 
+        File originalFile4 = new File(fileToCopy4);
+        File fileCopied4 = new File(IMAGE_FOLDER + originalFile4.getName());
+
         if (originalFile.exists()) {
             copyfile(originalFile, fileCopied);
         } else {
@@ -291,10 +302,17 @@ public class OptionDialog implements ActionListener {
             fileCopied3 = defFile3;
         }
 
+        if (originalFile4.exists()) {
+            copyfile(originalFile4, fileCopied4);
+        } else {
+            fileCopied4 = defFile4;
+        }
+
 
         properties.setLogo(fileCopied);
         properties.setLogo2(fileCopied2);
         properties.setLogo3(fileCopied3);
+        properties.setLogo4(fileCopied4);
 
     }
 
@@ -371,6 +389,31 @@ public class OptionDialog implements ActionListener {
             Exceptions.printStackTrace(ex);
         }
         return painter3;
+    }
+
+    private Painter getPainter4() {
+        try {
+
+            File file = properties.getLogo4();
+            defFile4 = properties.getLogo4();
+
+            if (!file.exists() || file.isDirectory()) {
+                file = new File("./images/logo_daerah.jpg");
+                defFile4 = new File("./images/logo_daerah.jpg");
+            }
+
+            BufferedImage img = ImageIO.read(file);
+
+            painter4 = new ImagePainter(img, AbstractLayoutPainter.HorizontalAlignment.CENTER, AbstractLayoutPainter.VerticalAlignment.CENTER);
+            painter4.setScaleToFit(true);
+            painter4.setFillHorizontal(true);
+            painter4.setFillVertical(true);
+            painter4.setAntialiasing(true);
+
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+        return painter4;
     }
 
     private void loadComboStateType() {
@@ -534,7 +577,17 @@ public class OptionDialog implements ActionListener {
                         painter3.setFillHorizontal(true);
                         painter3.setFillVertical(true);
                         painter3.setAntialiasing(true);
+                    } else if (evt.getSource() == imagePanel4) {
+                        fileToCopy4 = file.getPath();
+
+                        BufferedImage img = ImageIO.read(file);
+                        painter4.setImage(img);
+                        painter4.setScaleToFit(true);
+                        painter4.setFillHorizontal(true);
+                        painter4.setFillVertical(true);
+                        painter4.setAntialiasing(true);
                     }
+
                 } catch (Exception ex) {
                 }
             }

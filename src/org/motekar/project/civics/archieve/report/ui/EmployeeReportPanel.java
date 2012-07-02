@@ -10,9 +10,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +44,6 @@ import org.jdesktop.swingx.MultiSplitLayout;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.joda.time.DateTime;
 import org.joda.time.Period;
-import org.joda.time.Years;
 import org.motekar.project.civics.archieve.master.objects.Employee;
 import org.motekar.project.civics.archieve.master.objects.EmployeeCourses;
 import org.motekar.project.civics.archieve.master.objects.EmployeeFacility;
@@ -61,6 +58,7 @@ import org.openide.util.Exceptions;
  *
  * @author Muhamad Wibawa
  */
+
 public class EmployeeReportPanel extends JXPanel implements ActionListener {
 
     private ArchieveMainframe mainframe = null;
@@ -108,9 +106,9 @@ public class EmployeeReportPanel extends JXPanel implements ActionListener {
         helpLabel.setTextAlignment(JXLabel.TextAlignment.JUSTIFY);
 
         String text = "Penjelasan Singkat\n"
-                + "Realisasi Anggaran merupakan daftar realisasi anggaran berdasarkan program dan kegiatan\n"
-                + "Untuk melihat data Realisasi Anggaran pilih periode tahun anggaran serta tipe anggarannya.\n"
-                + "Untuk melakukan cetak daftar Realisasi Anggaran, dari data yang telah difilter sebelumnya (panel dibawah) "
+                + "Daftar Urutan Kepangkatan merupakan daftar urutan kepangkatan berdasarkan program dan kegiatan\n"
+                + "Untuk melihat data Daftar Urutan Kepangkatan pilih periode tahun anggaran serta tipe anggarannya.\n"
+                + "Untuk melakukan cetak daftar Daftar Urutan Kepangkatan, dari data yang telah difilter sebelumnya (panel dibawah) "
                 + "pilih tombol bergambar printer. Sedang untuk menyimpannya dalam bentuk file seperti file excel(xls), "
                 + "document(doc) maupun pdf klik tombol bergambar disket. Tombol tersebut tidak akan aktif jika data yang "
                 + "difilter tidak terdapat di database.";
@@ -288,6 +286,8 @@ public class EmployeeReportPanel extends JXPanel implements ActionListener {
             model.addColumn("StageCourses");
             model.addColumn("FungCourses");
             model.addColumn("TechCourses");
+            model.addColumn("Education");
+            model.addColumn("Department");
 
             double progress = 0.0;
 
@@ -359,7 +359,8 @@ public class EmployeeReportPanel extends JXPanel implements ActionListener {
                                 male, female, emp.getBirthPlace(), emp.getBirthDate(),
                                 emp.getNip(), emp.getCpnsTMT(), emp.getPnsTMT(), emp.getPangkatAsString(),
                                 emp.getGradeAsString(), emp.getGradeTMT(), title.toString(),
-                                emp.getEselonTMT(), emp.getEselonAsString(), crs, crs2, crs3});
+                                emp.getEselonTMT(), emp.getEselonAsString(), crs, crs2, crs3,
+                                emp.getEducationAsString(), emp.getDepartment()});
 
 
                     progress = 50 * (i + 1) / data.size();
@@ -407,6 +408,8 @@ public class EmployeeReportPanel extends JXPanel implements ActionListener {
             model.addColumn("Houses");
             model.addColumn("Motorcycle");
             model.addColumn("Car");
+            model.addColumn("Education");
+            model.addColumn("Department");
 
             double progress = 0.0;
 
@@ -478,7 +481,8 @@ public class EmployeeReportPanel extends JXPanel implements ActionListener {
                                 male, female, emp.getBirthPlace(), emp.getBirthDate(),
                                 emp.getNip(), emp.getCpnsTMT(), emp.getPnsTMT(), emp.getPangkatAsString(),
                                 emp.getGradeAsString(), emp.getGradeTMT(), title.toString(),
-                                emp.getEselonTMT(), emp.getEselonAsString(), fcl, fcl2, fcl3});
+                                emp.getEselonTMT(), emp.getEselonAsString(), fcl, fcl2, fcl3,
+                                emp.getEducationAsString(), emp.getDepartment()});
 
 
                     progress = 50 * (i + 1) / data.size();
@@ -530,6 +534,8 @@ public class EmployeeReportPanel extends JXPanel implements ActionListener {
             model.addColumn("month");
             model.addColumn("year2");
             model.addColumn("month2");
+            model.addColumn("Education");
+            model.addColumn("Department");
 
             double progress = 0.0;
 
@@ -570,48 +576,108 @@ public class EmployeeReportPanel extends JXPanel implements ActionListener {
 
                     DateTime nowDate = new DateTime(now);
                     DateTime tmtCpns = new DateTime(emp.getCpnsTMT());
-                    DateTime tmtPns = new DateTime(emp.getPnsTMT());
                     DateTime tmtGrade = new DateTime(emp.getGradeTMT());
 
-                    Period gradePeriod = new Period(tmtGrade,nowDate);
-                    Period allPeriod = new Period(tmtCpns,nowDate);
-
-                    Years yearBtw = Years.yearsBetween(tmtPns,nowDate);
+                    Period gradePeriod = new Period(tmtGrade, nowDate);
 
                     Integer lastYear = Integer.valueOf(0);
 
                     Date lastDate = null;
                     Date nextDate = null;
 
-                    if ((yearBtw.getYears() % 2) == 0) {
-                        lastYear = nowDate.getYear();
-                        GregorianCalendar cal = new GregorianCalendar();
-                        cal.set(lastYear, Calendar.JANUARY, 1);
-                        lastDate = cal.getTime();
-                        cal.set(lastYear+2, Calendar.JANUARY, 1);
-                        nextDate = cal.getTime();
-                    } else {
-                        lastYear = nowDate.getYear()-1;
-                        GregorianCalendar cal = new GregorianCalendar();
-                        cal.set(lastYear, Calendar.JANUARY, 1);
-                        lastDate = cal.getTime();
-                        cal.set(lastYear+2, Calendar.JANUARY, 1);
-                        nextDate = cal.getTime();
-                    }
-
                     Integer year = gradePeriod.getYears();
                     Integer month = gradePeriod.getMonths();
 
-                    Integer year2 = allPeriod.getYears();
-                    Integer month2 = allPeriod.getMonths();
+                    Integer year2 = emp.getMkYear();
+                    Integer month2 = emp.getMkMonth();
+
+                    if (!year2.equals(Integer.valueOf(0))) {
+                        if (emp.getGrade().equals(Employee.GRADE_IA) || emp.getGrade().equals(Employee.GRADE_IB)
+                                || emp.getGrade().equals(Employee.GRADE_IC) || emp.getGrade().equals(Employee.GRADE_ID)
+                                || emp.getGrade().equals(Employee.GRADE_IIIA) || emp.getGrade().equals(Employee.GRADE_IIIB)
+                                || emp.getGrade().equals(Employee.GRADE_IIIC) || emp.getGrade().equals(Employee.GRADE_IIID)) {
+
+                            // Genap
+                            if ((year2 % 2) == 0) {
+                                if (month2.equals(Integer.valueOf(0))) {
+                                    DateTime ld = tmtCpns.plusYears(year2);
+                                    lastYear = ld.getYear();
+                                    lastDate = ld.toDate();
+                                    ld = ld.plusYears(2);
+                                    nextDate = ld.toDate();
+                                } else {
+                                    DateTime ld = tmtCpns.plusYears(year2);
+                                    ld = ld.plusMonths(12 - month2);
+                                    ld = ld.plusYears(1);
+                                    lastYear = ld.getYear();
+                                    lastDate = ld.toDate();
+                                    ld = ld.plusYears(2);
+                                    nextDate = ld.toDate();
+                                }
+
+                            } else {
+                                if (month2.equals(Integer.valueOf(0))) {
+                                    DateTime ld = tmtCpns.plusYears(year2);
+                                    ld = ld.plusYears(1);
+                                    lastYear = ld.getYear();
+                                    lastDate = ld.toDate();
+                                    ld = ld.plusYears(2);
+                                    nextDate = ld.toDate();
+                                } else {
+                                    DateTime ld = tmtCpns.plusYears(year2);
+                                    ld = ld.plusMonths(12 - month2);
+                                    lastYear = ld.getYear();
+                                    lastDate = ld.toDate();
+                                    ld = ld.plusYears(2);
+                                    nextDate = ld.toDate();
+                                }
+                            }
+                        } else {
+                            // Ganjil
+                            if ((year2 % 2) == 0) {
+                                if (month2.equals(Integer.valueOf(0))) {
+                                    DateTime ld = tmtCpns.plusYears(year2);
+                                    ld = ld.plusYears(1);
+                                    lastYear = ld.getYear();
+                                    lastDate = ld.toDate();
+                                    ld = ld.plusYears(2);
+                                    nextDate = ld.toDate();
+                                } else {
+                                    DateTime ld = tmtCpns.plusYears(year2);
+                                    ld = ld.plusMonths(12 - month2);
+                                    lastYear = ld.getYear();
+                                    lastDate = ld.toDate();
+                                    ld = ld.plusYears(2);
+                                    nextDate = ld.toDate();
+                                }
+
+                            } else {
+                                if (month2.equals(Integer.valueOf(0))) {
+                                    DateTime ld = tmtCpns.plusYears(year2);
+                                    lastYear = ld.getYear();
+                                    lastDate = ld.toDate();
+                                    ld = ld.plusYears(2);
+                                    nextDate = ld.toDate();
+                                } else {
+                                    DateTime ld = tmtCpns.plusYears(year2);
+                                    ld = ld.plusMonths(12 - month2);
+                                    ld = ld.plusYears(1);
+                                    lastYear = ld.getYear();
+                                    lastDate = ld.toDate();
+                                    ld = ld.plusYears(2);
+                                    nextDate = ld.toDate();
+                                }
+                            }
+                        }
+                    }
 
                     model.addRow(new Object[]{Integer.valueOf(i + 1), emp.getName(),
                                 male, female, emp.getBirthPlace(), emp.getBirthDate(),
                                 emp.getNip(), emp.getCpnsTMT(), emp.getPnsTMT(), emp.getPangkatAsString(),
                                 emp.getGradeAsString(), emp.getGradeTMT(), title.toString(),
-                                emp.getEselonTMT(), emp.getEselonAsString(), 
-                                lastYear, lastDate, nextDate,year,month,
-                                year2,month2});
+                                emp.getEselonTMT(), emp.getEselonAsString(),
+                                lastYear, lastDate, nextDate, year, month,
+                                year2, month2, emp.getEducationAsString(), emp.getDepartment()});
 
 
                     progress = 50 * (i + 1) / data.size();

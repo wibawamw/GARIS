@@ -203,7 +203,7 @@ public class BackgroundPanel extends JXPanel {
         txtPainter2.setFilters(shadow);
         txtPainter2.setAreaEffects(effect);
 
-        TextPainter txtPainter3 = new TextPainter("Versi 1.0.3");
+        TextPainter txtPainter3 = new TextPainter("Versi 1.0.5");
         txtPainter3.setFont(new Font(defFont.getName(), Font.BOLD, 16));
         txtPainter3.setHorizontalAlignment(HorizontalAlignment.RIGHT);
         txtPainter3.setVerticalAlignment(VerticalAlignment.TOP);

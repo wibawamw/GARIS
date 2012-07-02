@@ -9,8 +9,11 @@ import java.util.Arrays;
 import java.util.List;
 import javax.imageio.ImageIO;
 import org.motekar.project.civics.archieve.expedition.ui.ExpeditionReportPanel;
+import org.motekar.project.civics.archieve.mail.ui.ContractMailReportPanel;
+import org.motekar.project.civics.archieve.mail.ui.HealthMailReportPanel;
 import org.motekar.project.civics.archieve.mail.ui.InboxReportPanel;
 import org.motekar.project.civics.archieve.mail.ui.OutboxReportPanel;
+import org.motekar.project.civics.archieve.mail.ui.ReferenceMailReportPanel;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
 import org.motekar.util.user.ui.Mainframe;
 import org.openide.util.Exceptions;
@@ -27,8 +30,11 @@ import org.pushingpixels.flamingo.api.ribbon.resize.IconRibbonBandResizePolicy;
  */
 public class ReportRibbonBand implements ActionListener {
 
-    private JCommandButton btDUKReport = new JCommandButton("Data Urutan Kepangkatan",
+    private JCommandButton btDUKReport = new JCommandButton("Daftar Urutan Kepangkatan",
             Mainframe.getResizableIconFromSource("resource/duk.png"));
+    
+    private JCommandButton btNonPNSReport = new JCommandButton("Daftar Pegawai Non PNS",
+            Mainframe.getResizableIconFromSource("resource/user_list.png"));
 
     private JCommandButton btInboxReport = new JCommandButton("Laporan Surat Masuk",
             Mainframe.getResizableIconFromSource("resource/new_mail_accept.png"));
@@ -38,6 +44,14 @@ public class ReportRibbonBand implements ActionListener {
             Mainframe.getResizableIconFromSource("resource/mail_accept.png"));
     private JCommandButton btOutboxStatistics = new JCommandButton("Statistik Surat Keluar",
             Mainframe.getResizableIconFromSource("resource/line_chart.png"));
+    //
+    
+    private JCommandButton btReferenceMail = new JCommandButton("Daftar Surat Keluar Rujukan",
+            Mainframe.getResizableIconFromSource("resource/referencemail.png"));
+    private JCommandButton btContractMail = new JCommandButton("Daftar Surat Keluar Kontrak",
+            Mainframe.getResizableIconFromSource("resource/contractmail.png"));
+    private JCommandButton btHealthMail = new JCommandButton("Daftar Surat Keluar Keterangan Sehat",
+            Mainframe.getResizableIconFromSource("resource/healthmail.png"));
     /**
      *
      */
@@ -72,10 +86,25 @@ public class ReportRibbonBand implements ActionListener {
         }
 
         btDUKReport.setActionRichTooltip(dukTooltip);
+        
+        RichTooltip nonPNSTooltip = new RichTooltip();
+        nonPNSTooltip.setTitle("Daftar Pegawai Non PNS");
+        nonPNSTooltip.addDescriptionSection("Berisi daftar semua pegawai non PNS");
+        try {
+            BufferedImage img = ImageIO.read(ArchieveMainframe.class.getResource("/resource/user_list.png"));
+            Image scaleImage = img.getScaledInstance(48, 48, Image.SCALE_SMOOTH);
+            nonPNSTooltip.setMainImage(scaleImage);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        btNonPNSReport.setActionRichTooltip(nonPNSTooltip);
 
         masterReport.addCommandButton(btDUKReport, RibbonElementPriority.TOP);
+        masterReport.addCommandButton(btNonPNSReport, RibbonElementPriority.MEDIUM);
 
         btDUKReport.addActionListener(this);
+        btNonPNSReport.addActionListener(this);
 
         masterReport.setResizePolicies((List) Arrays.asList(new CoreRibbonResizePolicies.None(masterReport.getControlPanel()),
                 new IconRibbonBandResizePolicy(masterReport.getControlPanel())));
@@ -140,17 +169,63 @@ public class ReportRibbonBand implements ActionListener {
         }
 
         btOutboxStatistics.setActionRichTooltip(statisticsOutboxTooltip);
+        
+        
+        RichTooltip referenceMailTooltip = new RichTooltip();
+        referenceMailTooltip.setTitle("Daftar Surat Keluar Rujukan");
+        referenceMailTooltip.addDescriptionSection("Berisi daftar surat-surat yang keluar rujukan");
+        try {
+            BufferedImage img = ImageIO.read(ArchieveMainframe.class.getResource("/resource/referencemail.png"));
+            Image scaleImage = img.getScaledInstance(48, 48, Image.SCALE_SMOOTH);
+            referenceMailTooltip.setMainImage(scaleImage);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        btReferenceMail.setActionRichTooltip(referenceMailTooltip);
+        
+        RichTooltip contractMailTooltip = new RichTooltip();
+        contractMailTooltip.setTitle("Daftar Surat Keluar Kontrak");
+        contractMailTooltip.addDescriptionSection("Berisi daftar surat-surat yang keluar kontrak");
+        try {
+            BufferedImage img = ImageIO.read(ArchieveMainframe.class.getResource("/resource/contractmail.png"));
+            Image scaleImage = img.getScaledInstance(48, 48, Image.SCALE_SMOOTH);
+            contractMailTooltip.setMainImage(scaleImage);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        btContractMail.setActionRichTooltip(contractMailTooltip);
+        
+        RichTooltip healthMailTooltip = new RichTooltip();
+        healthMailTooltip.setTitle("Daftar Surat Keluar Keterangan Sehat");
+        healthMailTooltip.addDescriptionSection("Berisi daftar surat-surat yang keluar Keterangan Sehat");
+        try {
+            BufferedImage img = ImageIO.read(ArchieveMainframe.class.getResource("/resource/healthmail.png"));
+            Image scaleImage = img.getScaledInstance(48, 48, Image.SCALE_SMOOTH);
+            healthMailTooltip.setMainImage(scaleImage);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        btHealthMail.setActionRichTooltip(healthMailTooltip);
 
 
         mailReport.addCommandButton(btInboxReport, RibbonElementPriority.TOP);
 //        mailReport.addCommandButton(btInboxStatistics, RibbonElementPriority.MEDIUM);
         mailReport.addCommandButton(btOutboxReport, RibbonElementPriority.MEDIUM);
 //        mailOutbox.addCommandButton(btOutboxStatistics, RibbonElementPriority.MEDIUM);
+        mailReport.addCommandButton(btReferenceMail, RibbonElementPriority.MEDIUM);
+        mailReport.addCommandButton(btContractMail, RibbonElementPriority.MEDIUM);
+        mailReport.addCommandButton(btHealthMail, RibbonElementPriority.MEDIUM);
 
         btInboxReport.addActionListener(this);
         btInboxStatistics.addActionListener(this);
         btOutboxReport.addActionListener(this);
         btOutboxStatistics.addActionListener(this);
+        btReferenceMail.addActionListener(this);
+        btContractMail.addActionListener(this);
+        btHealthMail.addActionListener(this);
 
         mailReport.setResizePolicies((List) Arrays.asList(new CoreRibbonResizePolicies.None(mailReport.getControlPanel()),
                 new IconRibbonBandResizePolicy(mailReport.getControlPanel())));
@@ -234,6 +309,14 @@ public class ReportRibbonBand implements ActionListener {
             mainframe.addChildFrame(btBudgetRealization.getText(), new BudgetRealizationPanel(mainframe));
         } else if (source == btDUKReport) {
             mainframe.addChildFrame(btDUKReport.getText(), new EmployeeReportPanel(mainframe));
+        } else if (source == btReferenceMail) {
+            mainframe.addChildFrame(btReferenceMail.getText(), new ReferenceMailReportPanel(mainframe));
+        } else if (source == btContractMail) {
+            mainframe.addChildFrame(btContractMail.getText(), new ContractMailReportPanel(mainframe));
+        } else if (source == btHealthMail) {
+            mainframe.addChildFrame(btHealthMail.getText(), new HealthMailReportPanel(mainframe));
+        } else if (source == btNonPNSReport) {
+            mainframe.addChildFrame(btNonPNSReport.getText(), new EmployeeNonPNSReportPanel(mainframe));
         }
     }
 }

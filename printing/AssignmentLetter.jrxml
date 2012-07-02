@@ -2,8 +2,9 @@
 <jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="AssignmentLetter" language="groovy" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="535" leftMargin="30" rightMargin="30" topMargin="20" bottomMargin="20">
 	<property name="ireport.zoom" value="1.0"/>
 	<property name="ireport.x" value="0"/>
-	<property name="ireport.y" value="136"/>
+	<property name="ireport.y" value="0"/>
 	<parameter name="logo" class="java.awt.Image"/>
+	<parameter name="logo2" class="java.awt.Image"/>
 	<parameter name="purpose" class="java.lang.String"/>
 	<parameter name="approvalplace" class="java.lang.String"/>
 	<parameter name="approvaldate" class="java.util.Date"/>
@@ -49,36 +50,40 @@
 				</graphicElement>
 			</line>
 			<textField>
-				<reportElement x="96" y="56" width="439" height="18"/>
+				<reportElement x="71" y="57" width="393" height="18"/>
 				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
 					<font fontName="Times New Roman" size="14" isBold="true" isUnderline="false"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{capital}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="96" y="38" width="439" height="18"/>
+				<reportElement x="71" y="39" width="393" height="18"/>
 				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
 					<font fontName="Times New Roman" size="12" isBold="false" isItalic="true" isUnderline="false"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{governaddress}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="96" y="20" width="439" height="18"/>
+				<reportElement x="71" y="21" width="393" height="18"/>
 				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
 					<font fontName="Times New Roman" size="14" isBold="true" isUnderline="false"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA[$P{governname}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="96" y="0" width="439" height="20"/>
+				<reportElement x="71" y="1" width="393" height="20"/>
 				<textElement textAlignment="Center" verticalAlignment="Top" markup="none">
 					<font fontName="Times New Roman" size="14" isBold="true" isUnderline="false"/>
 				</textElement>
 				<textFieldExpression class="java.lang.String"><![CDATA["PEMERINTAH "+$P{statename}]]></textFieldExpression>
 			</textField>
 			<image scaleImage="FillFrame" hAlign="Center" vAlign="Top" isUsingCache="true">
-				<reportElement x="25" y="2" width="71" height="71" forecolor="#FFFFFF"/>
+				<reportElement x="0" y="0" width="71" height="71" forecolor="#FFFFFF"/>
 				<imageExpression class="java.awt.Image"><![CDATA[$P{logo}]]></imageExpression>
+			</image>
+			<image scaleImage="FillFrame" hAlign="Center" vAlign="Top" isUsingCache="true">
+				<reportElement x="464" y="0" width="71" height="71" forecolor="#FFFFFF"/>
+				<imageExpression class="java.awt.Image"><![CDATA[$P{logo2}]]></imageExpression>
 			</image>
 		</band>
 	</title>

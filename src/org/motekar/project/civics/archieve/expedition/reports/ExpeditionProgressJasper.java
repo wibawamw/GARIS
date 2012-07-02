@@ -7,6 +7,7 @@ import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperReport;
+import org.motekar.project.civics.archieve.expedition.objects.Expedition;
 import org.motekar.project.civics.archieve.master.objects.Employee;
 import org.motekar.project.civics.archieve.utils.misc.ArchieveProperties;
 import org.motekar.project.civics.archieve.utils.report.AbstractJasper;
@@ -19,12 +20,14 @@ import org.openide.util.Exceptions;
 public class ExpeditionProgressJasper extends AbstractJasper {
 
     private Employee commander;
+    private Expedition expedition;
     private JasperReport jasperReport;
     private Map params = new HashMap();
     private ArchieveProperties properties;
 
-    public ExpeditionProgressJasper(Employee commander, ArchieveProperties properties) {
+    public ExpeditionProgressJasper(Employee commander,Expedition expedition, ArchieveProperties properties) {
         this.commander = commander;
+        this.expedition = expedition;
         this.properties = properties;
         createJasperPrint();
     }
@@ -88,6 +91,17 @@ public class ExpeditionProgressJasper extends AbstractJasper {
                         param.put("ApproverName", commander.getName());
                         param.put("ApproverNIP", commander.getNip());
                         param.put("ApproverTitle", pos.toString().toUpperCase());
+                        param.put("ApproverGrade", commander.getGradeAsString());
+                        
+                        StringBuilder stateName = new StringBuilder();
+
+                        if (properties.getStateType().equals(ArchieveProperties.KABUPATEN)) {
+                            stateName.append(ArchieveProperties.KABUPATEN.toUpperCase()).append(" ").
+                                    append(properties.getState().toUpperCase());
+                        }
+                        
+                        param.put("StateName", stateName.toString());
+                        param.put("Departure", expedition.getDeparture());
                     }
                     return param;
                 }

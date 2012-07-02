@@ -11,7 +11,11 @@
 		<band height="20" splitType="Stretch">
 			<textField>
 				<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="530" height="20"/>
-				<box leftPadding="3" bottomPadding="0" rightPadding="10"/>
+				<box leftPadding="3" bottomPadding="0" rightPadding="10">
+					<leftPen lineWidth="0.0"/>
+					<bottomPen lineWidth="0.5"/>
+					<rightPen lineWidth="0.5"/>
+				</box>
 				<textElement textAlignment="Justified" verticalAlignment="Top">
 					<font fontName="Times New Roman" size="12"/>
 				</textElement>

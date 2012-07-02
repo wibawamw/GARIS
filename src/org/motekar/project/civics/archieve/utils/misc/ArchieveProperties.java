@@ -23,6 +23,7 @@ public class ArchieveProperties extends MotekarProperties{
     private File logo = new File("images/logo_daerah.jpg");
     private File logo2 = new File("images/logo_daerah.jpg");
     private File logo3 = new File("images/logo_daerah.jpg");
+    private File logo4 = new File("images/logo_daerah.jpg");
 
     public ArchieveProperties() {
     }
@@ -125,5 +126,21 @@ public class ArchieveProperties extends MotekarProperties{
 
     public void setLogo3(String fileName) {
         this.logo3 = new File(fileName);
+    }
+
+    public File getLogo4() {
+        return logo4;
+    }
+
+    public void setLogo4(File logo4) {
+        this.logo4 = logo4;
+    }
+    
+    public String getLogo4FileName() {
+        return logo4.getPath();
+    }
+    
+    public void setLogo4(String fileName) {
+        this.logo4 = new File(fileName);
     }
 }

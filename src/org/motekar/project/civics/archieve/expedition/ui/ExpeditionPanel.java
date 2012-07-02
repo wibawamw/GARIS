@@ -875,7 +875,7 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
         comboAssinedEmp.removeAllItems();
         try {
             ArrayList<Employee> commanderEmployee = mLogic.getCommanderEmployee(mainframe.getSession());
-            ArrayList<Employee> assignedEmployee = mLogic.getEmployee(mainframe.getSession());
+            ArrayList<Employee> assignedEmployee = mLogic.getAssignedEmployee(mainframe.getSession());
 
             if (!commanderEmployee.isEmpty()) {
                 for (Employee e : commanderEmployee) {
@@ -1029,18 +1029,23 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
 
                 comboAssinedEmp.setSelectedItem(selectedExpedition.getAssignedEmployee());
 
-                fieldEmpGrade.setText(selectedExpedition.getAssignedEmployee().getGradeAsString());
+                if (!selectedExpedition.getAssignedEmployee().isNonEmployee()) {
+                    fieldEmpGrade.setText(selectedExpedition.getAssignedEmployee().getGradeAsString());
 
-                StringBuilder position = new StringBuilder();
+                    StringBuilder position = new StringBuilder();
 
-                if (selectedExpedition.getAssignedEmployee().getStrukturalAsString().equals("")) {
-                    position.append(selectedExpedition.getAssignedEmployee().getFungsionalAsString()).
-                            append(" ").append(selectedExpedition.getAssignedEmployee().getPositionNotes());
+                    if (selectedExpedition.getAssignedEmployee().getStrukturalAsString().equals("")) {
+                        position.append(selectedExpedition.getAssignedEmployee().getFungsionalAsString()).
+                                append(" ").append(selectedExpedition.getAssignedEmployee().getPositionNotes());
+                    } else {
+                        position.append(selectedExpedition.getAssignedEmployee().getStrukturalAsString());
+                    }
+
+                    fieldPosition.setText(position.toString());
                 } else {
-                    position.append(selectedExpedition.getAssignedEmployee().getStrukturalAsString());
+                    fieldEmpGrade.setText("");
+                    fieldPosition.setText("");
                 }
-
-                fieldPosition.setText(position.toString());
 
                 comboTransport.setSelectedIndex(selectedExpedition.getTransportation());
 
@@ -1610,7 +1615,7 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
                 ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
                 if (checkBox.isSelected()) {
-                    expeditions = logic.getExpedition(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear());
+                    expeditions = logic.getExpedition(mainframe.getSession(), monthChooser.getMonth() + 1, yearChooser.getYear(),"");
                 } else {
                     expeditions = logic.getExpedition(mainframe.getSession());
                 }
@@ -1937,6 +1942,7 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
     }
 
     private class ExpeditionAction extends AbstractAction {
+
         public void actionPerformed(ActionEvent e) {
             Object source = e.getSource();
             if (source == comboAssinedEmp) {
@@ -1945,12 +1951,18 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
                 if (obj != null) {
                     if (obj instanceof Employee) {
                         Employee employee = (Employee) obj;
-                        fieldEmpGrade.setText(employee.getGradeAsString());
-                        if (employee.getStrukturalAsString().equals("")) {
-                            fieldPosition.setText(employee.getFungsionalAsString());
+                        if (!employee.isNonEmployee()) {
+                            fieldEmpGrade.setText(employee.getGradeAsString());
+                            if (employee.getStrukturalAsString().equals("")) {
+                                fieldPosition.setText(employee.getFungsionalAsString());
+                            } else {
+                                fieldPosition.setText(employee.getStrukturalAsString());
+                            }
                         } else {
-                            fieldPosition.setText(employee.getStrukturalAsString());
+                            fieldEmpGrade.setText("");
+                            fieldPosition.setText("");
                         }
+
                     }
 
                 }
@@ -2091,7 +2103,7 @@ public class ExpeditionPanel extends JXPanel implements ActionListener, ListSele
                     ExpeditionProgressCommJasper epcj = new ExpeditionProgressCommJasper(expedition.getLetter().getCommander(), properties);
                     pages.addAll(epcj.getPages());
                 } else {
-                    ExpeditionProgressJasper epj = new ExpeditionProgressJasper(expedition.getLetter().getCommander(), properties);
+                    ExpeditionProgressJasper epj = new ExpeditionProgressJasper(expedition.getLetter().getCommander(),expedition, properties);
                     pages.addAll(epj.getPages());
                 }
 

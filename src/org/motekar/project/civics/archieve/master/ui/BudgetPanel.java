@@ -14,54 +14,27 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Currency;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingWorker;
+import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreePath;
-import org.jdesktop.swingx.JXCollapsiblePane;
-import org.jdesktop.swingx.JXComboBox;
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.JXFormattedTextField;
-import org.jdesktop.swingx.JXLabel;
-import org.jdesktop.swingx.JXMultiSplitPane;
-import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.JXStatusBar;
-import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.JXTitledPanel;
-import org.jdesktop.swingx.JXTree;
-import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.*;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
+import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.error.ErrorInfo;
-import org.jdesktop.swingx.renderer.DefaultTreeRenderer;
-import org.jdesktop.swingx.renderer.IconValue;
-import org.jdesktop.swingx.renderer.StringValue;
-import org.motekar.project.civics.archieve.master.objects.Activity;
-import org.motekar.project.civics.archieve.master.objects.Budget;
-import org.motekar.project.civics.archieve.master.objects.BudgetDetail;
-import org.motekar.project.civics.archieve.master.objects.BudgetSubDetail;
-import org.motekar.project.civics.archieve.master.objects.NodeIndex;
-import org.motekar.project.civics.archieve.master.objects.Program;
+import org.jdesktop.swingx.renderer.*;
+import org.motekar.project.civics.archieve.master.objects.*;
 import org.motekar.project.civics.archieve.master.sqlapi.MasterBusinessLogic;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
 import org.motekar.util.user.misc.MotekarException;
@@ -70,6 +43,10 @@ import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
 import org.pushingpixels.flamingo.api.common.JCommandButtonStrip;
 import org.pushingpixels.flamingo.api.common.RichTooltip;
+import org.pushingpixels.substance.api.ComponentState;
+import org.pushingpixels.substance.api.SubstanceColorScheme;
+import org.pushingpixels.substance.api.SubstanceLookAndFeel;
+import org.pushingpixels.substance.api.SubstanceSkin;
 
 /**
  *
@@ -79,7 +56,7 @@ public class BudgetPanel extends JXPanel implements ActionListener {
 
     private ArchieveMainframe mainframe = null;
     private MasterBusinessLogic logic;
-    private BudgetTree bTree = new BudgetTree();
+    private BudgetPanel.BudgetTree bTree = new BudgetPanel.BudgetTree();
     private JXMultiSplitPane splitPane = new JXMultiSplitPane();
     private JXLabel statusLabel = new JXLabel("Ready");
     private JProgressBar pbar = new JProgressBar();
@@ -92,24 +69,30 @@ public class BudgetPanel extends JXPanel implements ActionListener {
     private JXLabel labelActivity = new JXLabel();
     private JXFormattedTextField fieldAmountActivity;
     /**
-     * 
+     *
      */
     private JYearChooser fYearChooser = new JYearChooser();
     private JXComboBox fComboBudgetType = new JXComboBox();
     /**
-     * 
+     *
      */
     private JPanel cardPanel = new JPanel();
     private JCommandButton btEdit = new JCommandButton(Mainframe.getResizableIconFromSource("resource/blog_compose.png"));
     private JCommandButton btSave = new JCommandButton(Mainframe.getResizableIconFromSource("resource/blog_accept.png"));
     private JCommandButton btCancel = new JCommandButton(Mainframe.getResizableIconFromSource("resource/block_blue.png"));
+    //
+    private BudgetPanel.BudgetSubDetailChildTable table = new BudgetPanel.BudgetSubDetailChildTable();
+    private JCommandButton btInsDetail = new JCommandButton(Mainframe.getResizableIconFromSource("resource/Add.png"));
+    private JCommandButton btEditDetail = new JCommandButton(Mainframe.getResizableIconFromSource("resource/Edit.png"));
+    private JCommandButton btDelDetail = new JCommandButton(Mainframe.getResizableIconFromSource("resource/Del.png"));
+    //
     private boolean iseditable = false;
     private Budget selectedBudget = null;
     private BudgetDetail selectedDetail = null;
     private BudgetSubDetail selectedSubDetail = null;
     private StringBuilder errorString = new StringBuilder();
-    private LoadBudget worker;
-    private BudgetDetailProgressListener progressListener;
+    private BudgetPanel.LoadBudget worker;
+    private BudgetPanel.BudgetDetailProgressListener progressListener;
     private NumberFormat currFormat;
 
     public BudgetPanel(ArchieveMainframe mainframe) {
@@ -301,7 +284,8 @@ public class BudgetPanel extends JXPanel implements ActionListener {
     protected JPanel createBudgetSubDetailPanel() {
         FormLayout lm = new FormLayout(
                 "pref,20px,pref,5px,fill:default:grow,20px",
-                "pref,5px,pref,5px,pref,5px,pref,5px,50px");
+                "pref,5px,pref,5px,pref,5px,pref,20px,"
+                + "pref,10px,pref,3px,fill:default:grow,20px");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
 
@@ -323,7 +307,24 @@ public class BudgetPanel extends JXPanel implements ActionListener {
         builder.addLabel("Anggaran", cc.xy(1, 7));
         builder.add(fieldAmountActivity, cc.xyw(3, 7, 3));
 
+        builder.addSeparator("Rincian Kegiatan", cc.xyw(1, 9, 5));
+
+        builder.add(createStrip2(1.0, 1.0), cc.xy(1, 11));
+        builder.add(createPanelTable(), cc.xywh(1, 13, 5, 1));
+
         return builder.getPanel();
+    }
+
+    private JXPanel createPanelTable() {
+        JXPanel tablePanel = new JXPanel();
+
+        JScrollPane scPane = new JScrollPane();
+        scPane.setViewportView(table);
+
+        tablePanel.setLayout(new BorderLayout());
+        tablePanel.add(scPane, BorderLayout.CENTER);
+
+        return tablePanel;
     }
 
     private void constructCardPanel() {
@@ -371,6 +372,36 @@ public class BudgetPanel extends JXPanel implements ActionListener {
         return buttonStrip;
     }
 
+    private JCommandButtonStrip createStrip2(double hgapScaleFactor,
+            double vgapScaleFactor) {
+
+        RichTooltip addTooltip = new RichTooltip();
+        addTooltip.setTitle("Tambah Rincian");
+
+        btInsDetail.setActionRichTooltip(addTooltip);
+
+        RichTooltip editTooltip = new RichTooltip();
+        editTooltip.setTitle("Ubah Rincian");
+
+        btEditDetail.setActionRichTooltip(editTooltip);
+
+        RichTooltip deleteTooltip = new RichTooltip();
+        deleteTooltip.setTitle("Hapus Rincian");
+
+        btDelDetail.setActionRichTooltip(deleteTooltip);
+
+
+        JCommandButtonStrip buttonStrip = new JCommandButtonStrip(JCommandButtonStrip.StripOrientation.HORIZONTAL);
+        buttonStrip.setHGapScaleFactor(hgapScaleFactor);
+        buttonStrip.setVGapScaleFactor(vgapScaleFactor);
+        buttonStrip.add(btInsDetail);
+        buttonStrip.add(btEditDetail);
+        buttonStrip.add(btDelDetail);
+
+
+        return buttonStrip;
+    }
+
     private void construct() {
 
         loadBudgetType();
@@ -380,6 +411,18 @@ public class BudgetPanel extends JXPanel implements ActionListener {
         btEdit.addActionListener(this);
         btSave.addActionListener(this);
         btCancel.addActionListener(this);
+
+        btInsDetail.addActionListener(this);
+        btEditDetail.addActionListener(this);
+        btDelDetail.addActionListener(this);
+
+
+
+        SubstanceSkin skin = SubstanceLookAndFeel.getCurrentSkin();
+        SubstanceColorScheme color = skin.getColorScheme(table, ComponentState.DEFAULT);
+
+        table.addHighlighter(HighlighterFactory.createSimpleStriping(color.getWatermarkLightColor()));
+        table.setShowGrid(false, false);
 
         bTree.getSelectionModel().setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -419,8 +462,8 @@ public class BudgetPanel extends JXPanel implements ActionListener {
 
         fComboBudgetType.addActionListener(this);
 
-        String LAY_OUT = "(ROW weight=1.0 (LEAF name=editor1 weight=0.36)"
-                + "(LEAF name=editor2 weight=0.39) (LEAF name=editor3 weight=0.25))";
+        String LAY_OUT = "(ROW weight=1.0 (LEAF name=editor1 weight=0.30)"
+                + "(LEAF name=editor2 weight=0.45) (LEAF name=editor3 weight=0.25))";
         MultiSplitLayout.Node modelRoot = MultiSplitLayout.parseModel(LAY_OUT);
         splitPane.getMultiSplitLayout().setModel(modelRoot);
 
@@ -450,7 +493,7 @@ public class BudgetPanel extends JXPanel implements ActionListener {
 
         ArrayList<String> budgetTypes = new ArrayList<String>();
 
-        budgetTypes.add(0," ");
+        budgetTypes.add(0, " ");
         budgetTypes.add("APBD");
         budgetTypes.add("APBD Perubahan");
 
@@ -468,6 +511,7 @@ public class BudgetPanel extends JXPanel implements ActionListener {
         comboBudgetType.setEnabled(false);
         fieldAmountActivity.setEnabled(iseditable);
         bTree.setEnabled(!iseditable);
+        table.setEditable(iseditable);
     }
 
     private void clearForm() {
@@ -487,23 +531,37 @@ public class BudgetPanel extends JXPanel implements ActionListener {
             btEdit.setEnabled(false);
             btSave.setEnabled(true);
             btCancel.setEnabled(true);
+            btInsDetail.setEnabled(true);
+            btEditDetail.setEnabled(true);
+            btDelDetail.setEnabled(true);
         } else if (state.equals("Save")) {
             btEdit.setEnabled(true);
             btSave.setEnabled(false);
             btCancel.setEnabled(false);
-
+            btInsDetail.setEnabled(false);
+            btEditDetail.setEnabled(false);
+            btDelDetail.setEnabled(false);
         } else if (state.equals("disableAdd")) {
             btEdit.setEnabled(true);
             btSave.setEnabled(false);
             btCancel.setEnabled(false);
+            btInsDetail.setEnabled(true);
+            btEditDetail.setEnabled(true);
+            btDelDetail.setEnabled(true);
         } else if (state.equals("disableAll")) {
             btEdit.setEnabled(false);
             btSave.setEnabled(false);
             btCancel.setEnabled(false);
+            btInsDetail.setEnabled(false);
+            btEditDetail.setEnabled(false);
+            btDelDetail.setEnabled(false);
         } else {
             btEdit.setEnabled(false);
             btSave.setEnabled(false);
             btCancel.setEnabled(false);
+            btInsDetail.setEnabled(false);
+            btEditDetail.setEnabled(false);
+            btDelDetail.setEnabled(false);
         }
     }
 
@@ -525,6 +583,8 @@ public class BudgetPanel extends JXPanel implements ActionListener {
         if (amount.equals(BigDecimal.ZERO)) {
             errorString.append("<br>- Anggaran</br>");
         }
+        
+        ArrayList<BudgetSubDetailChild> subDetailChilds = table.getBudgetSubDetailChilds();
 
         if (errorString.length() > 0) {
             throw new MotekarException("<html>Harap diperhatikan untuk diisi : " + errorString.toString() + "</html>");
@@ -532,6 +592,7 @@ public class BudgetPanel extends JXPanel implements ActionListener {
 
         BudgetSubDetail subDetail = new BudgetSubDetail(selectedSubDetail);
         subDetail.setAmount(amount);
+        subDetail.setSubDetailChilds(subDetailChilds);
         return subDetail;
     }
 
@@ -591,6 +652,48 @@ public class BudgetPanel extends JXPanel implements ActionListener {
             onCancel();
         } else if (obj == fComboBudgetType) {
             bTree.loadData();
+        } else if (obj == btInsDetail) {
+            BudgetSubDetailChildDlg dlg = new BudgetSubDetailChildDlg(mainframe);
+            dlg.showDialog();
+
+            if (dlg.getResponse() == JOptionPane.YES_OPTION) {
+                BudgetSubDetailChild subDetailChild = dlg.getSubDetailChild();
+                table.addBudgetSubDetailChild(subDetailChild);
+
+                fieldAmountActivity.setValue(table.getTotalAmount());
+            }
+
+        } else if (obj == btEditDetail) {
+            BudgetSubDetailChild child = table.getSelectedBudgetSubDetailChild();
+
+            if (child != null) {
+                BudgetSubDetailChildDlg dlg = new BudgetSubDetailChildDlg(mainframe, child);
+                dlg.showDialog();
+
+                if (dlg.getResponse() == JOptionPane.YES_OPTION) {
+                    BudgetSubDetailChild subDetailChild = dlg.getSubDetailChild();
+                    table.updateSelectedBudgetSubDetailChild(subDetailChild);
+                    
+                    fieldAmountActivity.setValue(table.getTotalAmount());
+                }
+            }
+
+        } else if (obj == btDelDetail) {
+            ArrayList<BudgetSubDetailChild> childs = table.getSelectedBudgetSubDetailChilds();
+
+            if (!childs.isEmpty()) {
+                Object[] options = {"Ya", "Tidak"};
+                int choise = JOptionPane.showOptionDialog(this,
+                        " Anda yakin menghapus semua data ini ? (Y/T)",
+                        "Konfirmasi",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE, null,
+                        options, options[1]);
+                if (choise == JOptionPane.YES_OPTION) {
+                    table.removeBudgetSubDetailChild(childs);
+                    fieldAmountActivity.setValue(table.getTotalAmount());
+                }
+            }
         }
     }
 
@@ -612,6 +715,10 @@ public class BudgetPanel extends JXPanel implements ActionListener {
 
             labelActivity.setText(selectedSubDetail.toString());
             fieldAmountActivity.setValue(selectedSubDetail.getAmount());
+            
+            table.clear();
+            table.addBudgetSubDetailChild(selectedSubDetail.getSubDetailChilds());
+            
             setButtonState("Save");
             ((CardLayout) cardPanel.getLayout()).show(cardPanel, "2");
         } else if (selectedDetail != null) {
@@ -671,9 +778,9 @@ public class BudgetPanel extends JXPanel implements ActionListener {
             clearForm();
             setButtonState("");
             ((CardLayout) cardPanel.getLayout()).show(cardPanel, "0");
-            
-            worker = new LoadBudget(this);
-            progressListener = new BudgetDetailProgressListener(pbar);
+
+            worker = new BudgetPanel.LoadBudget(this);
+            progressListener = new BudgetPanel.BudgetDetailProgressListener(pbar);
             worker.addPropertyChangeListener(progressListener);
             worker.execute();
         }
@@ -770,9 +877,9 @@ public class BudgetPanel extends JXPanel implements ActionListener {
                     if (o instanceof String) {
                         return null;
                     } else if (o instanceof BudgetDetail) {
-                        return BudgetTree.this.GROUP_ICON;
+                        return BudgetPanel.BudgetTree.this.GROUP_ICON;
                     } else if (o instanceof BudgetSubDetail) {
-                        return BudgetTree.this.CHILD_ICON;
+                        return BudgetPanel.BudgetTree.this.CHILD_ICON;
                     }
                     return null;
                 }
@@ -787,13 +894,13 @@ public class BudgetPanel extends JXPanel implements ActionListener {
 
     private class LoadBudget extends SwingWorker<DefaultTreeModel, Object> {
 
-        private BudgetTree budgetTree;
+        private BudgetPanel.BudgetTree budgetTree;
         private DefaultTreeModel model;
         private DefaultMutableTreeNode root;
         private Exception exception;
         private ArrayList<NodeIndex> nodeIndexs = new ArrayList<NodeIndex>();
 
-        public LoadBudget(BudgetTree budgetTree) {
+        public LoadBudget(BudgetPanel.BudgetTree budgetTree) {
             this.budgetTree = budgetTree;
             this.model = (DefaultTreeModel) budgetTree.getModel();
             root = new DefaultMutableTreeNode("Anggaran");
@@ -988,6 +1095,9 @@ public class BudgetPanel extends JXPanel implements ActionListener {
                     for (int i = 0; i < size && !isCancelled(); i++) {
                         progress = 100 * (i + 1) / size;
                         BudgetSubDetail subDetail = subDetails.get(i);
+                        
+                        subDetail.setSubDetailChilds(logic.getBudgetSubDetailChild(mainframe.getSession(), subDetail));
+                        
                         publish(subDetail);
                         setProgress((int) progress);
                         Thread.sleep(100L);
@@ -1044,6 +1154,317 @@ public class BudgetPanel extends JXPanel implements ActionListener {
                 this.progressBar.setValue(0);
                 statusLabel.setText("Ready");
             }
+        }
+    }
+
+    private class BudgetSubDetailChildTable extends JXTable {
+
+        private BudgetPanel.BudgetSubDetailChildTableModel model;
+
+        public BudgetSubDetailChildTable() {
+            model = new BudgetPanel.BudgetSubDetailChildTableModel();
+            setModel(model);
+            getTableHeader().setReorderingAllowed(false);
+
+            TableColumnModel colModel = getColumnModel();
+            colModel.getColumn(0).setMinWidth(50);
+            colModel.getColumn(0).setMaxWidth(50);
+        }
+
+        public void clear() {
+            model.clear();
+        }
+
+        public BudgetSubDetailChild getSelectedBudgetSubDetailChild() {
+            ArrayList<BudgetSubDetailChild> selectedBudgetSubDetailChilds = getSelectedBudgetSubDetailChilds();
+            return selectedBudgetSubDetailChilds.get(0);
+        }
+
+        public ArrayList<BudgetSubDetailChild> getBudgetSubDetailChilds() {
+            return model.getBudgetSubDetailChilds();
+        }
+
+        public ArrayList<BudgetSubDetailChild> getSelectedBudgetSubDetailChilds() {
+
+            ArrayList<BudgetSubDetailChild> childs = new ArrayList<BudgetSubDetailChild>();
+
+            int rows = getRowSorter().getModelRowCount();
+
+            for (int i = 0; i < rows; i++) {
+                BudgetSubDetailChild child = null;
+                Object objBool = model.getValueAt(i, 0);
+
+                if (objBool instanceof Boolean) {
+                    Boolean selected = (Boolean) objBool;
+                    if (selected.booleanValue()) {
+                        Object obj = model.getValueAt(i, 1);
+                        if (obj instanceof BudgetSubDetailChild) {
+                            child = (BudgetSubDetailChild) obj;
+                            childs.add(child);
+                        }
+                    }
+                }
+            }
+
+            return childs;
+        }
+
+        public void updateSelectedBudgetSubDetailChild(BudgetSubDetailChild child) {
+            model.updateRow(getSelectedBudgetSubDetailChild(), child);
+        }
+
+        public void removeBudgetSubDetailChild(ArrayList<BudgetSubDetailChild> childs) {
+            if (!childs.isEmpty()) {
+                for (BudgetSubDetailChild child : childs) {
+                    model.remove(child);
+                }
+            }
+
+        }
+
+        public void addBudgetSubDetailChild(ArrayList<BudgetSubDetailChild> childs) {
+            if (!childs.isEmpty()) {
+                for (BudgetSubDetailChild child : childs) {
+                    model.add(child);
+                }
+            }
+        }
+
+        public void addBudgetSubDetailChild(BudgetSubDetailChild child) {
+            model.add(child);
+        }
+
+        public void insertEmptyBudgetSubDetailChild() {
+            addBudgetSubDetailChild(new BudgetSubDetailChild());
+        }
+
+        public BigDecimal getTotalAmount() {
+            BigDecimal total = BigDecimal.ZERO;
+
+            ArrayList<BudgetSubDetailChild> childs = model.getBudgetSubDetailChilds();
+
+            if (!childs.isEmpty()) {
+                for (BudgetSubDetailChild child : childs) {
+                    BigDecimal tt = BigDecimal.ZERO;
+                    tt = tt.add(child.getAmount());
+                    tt = tt.multiply(BigDecimal.valueOf(child.getCounted()));
+
+                    total = total.add(tt);
+                }
+            }
+
+            return total;
+        }
+
+        @Override
+        public TableCellRenderer getDefaultRenderer(Class<?> columnClass) {
+            if (columnClass.equals(Boolean.class)) {
+                return new DefaultTableRenderer(new CheckBoxProvider());
+            } else if (columnClass.equals(BigDecimal.class)) {
+                NumberFormat amountDisplayFormat = NumberFormat.getNumberInstance();
+                amountDisplayFormat.setMinimumFractionDigits(0);
+                amountDisplayFormat.setMaximumFractionDigits(2);
+                amountDisplayFormat.setCurrency(Currency.getInstance(new Locale("in", "id", "id")));
+
+                return new DefaultTableRenderer(new FormatStringValue(amountDisplayFormat), JLabel.RIGHT);
+            } else if (columnClass.equals(Integer.class)) {
+                NumberFormat amountDisplayFormat = NumberFormat.getNumberInstance();
+                amountDisplayFormat.setMinimumFractionDigits(0);
+                amountDisplayFormat.setMaximumFractionDigits(0);
+                amountDisplayFormat.setCurrency(Currency.getInstance(new Locale("in", "id", "id")));
+                amountDisplayFormat.setGroupingUsed(false);
+
+                return new DefaultTableRenderer(new FormatStringValue(amountDisplayFormat), JLabel.CENTER);
+            } else if (columnClass.equals(Date.class)) {
+                return new DefaultTableRenderer(new FormatStringValue(new SimpleDateFormat("dd MMM yyyy",
+                        new Locale("in", "id", "id"))), JLabel.CENTER);
+            } else if (columnClass.equals(JLabel.class)) {
+                return new DefaultTableRenderer(new FormatStringValue(), JLabel.CENTER);
+            }
+            return super.getDefaultRenderer(columnClass);
+        }
+    }
+
+    private static class BudgetSubDetailChildTableModel extends AbstractTableModel {
+
+        public static final int COLUMN_COUNT = 7;
+        private static final String[] COLUMN = {"", "Uraian","Eselon", "Jumlah", "Satuan", "Sebesar (Rp.)", "Total"};
+        private ArrayList<BudgetSubDetailChild> childs = new ArrayList<BudgetSubDetailChild>();
+
+        public BudgetSubDetailChildTableModel() {
+        }
+
+        @Override
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            if (columnIndex == 0) {
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public String getColumnName(int column) {
+            return COLUMN[column];
+        }
+
+        public void add(ArrayList<BudgetSubDetailChild> clins) {
+            int first = clins.size();
+            int last = first + clins.size() - 1;
+            childs.addAll(clins);
+            fireTableRowsInserted(first, last);
+        }
+
+        public void add(BudgetSubDetailChild child) {
+            insertRow(getRowCount(), child);
+        }
+
+        public void insertRow(int row, BudgetSubDetailChild child) {
+            childs.add(row, child);
+            justifyRows(row, row + 1);
+            fireTableRowsInserted(row, row);
+        }
+
+        public void updateRow(BudgetSubDetailChild oldBudgetSubDetailChild, BudgetSubDetailChild newBudgetSubDetailChild) {
+            int index = childs.indexOf(oldBudgetSubDetailChild);
+            childs.set(index, newBudgetSubDetailChild);
+            fireTableRowsUpdated(index, index);
+        }
+
+        public void remove(BudgetSubDetailChild child) {
+            int row = childs.indexOf(child);
+            childs.remove(child);
+            fireTableRowsDeleted(row, row);
+        }
+
+        public void clear() {
+            setRowCount(0);
+        }
+
+        protected void setRowCount(int rowCount) {
+            int old = getRowCount();
+            if (old == rowCount) {
+                return;
+            }
+
+            if (rowCount <= old) {
+                childs.clear();
+                fireTableRowsDeleted(rowCount, old - 1);
+            } else {
+                childs.ensureCapacity(rowCount);
+                justifyRows(old, rowCount);
+                fireTableRowsInserted(old, rowCount - 1);
+            }
+        }
+
+        private void justifyRows(int from, int to) {
+            childs.ensureCapacity(getRowCount());
+
+            for (int i = from; i < to; i++) {
+                if (childs.get(i) == null) {
+                    childs.set(i, new BudgetSubDetailChild());
+                }
+            }
+        }
+
+        public ArrayList<BudgetSubDetailChild> getBudgetSubDetailChilds() {
+            return childs;
+        }
+
+        @Override
+        public int getRowCount() {
+            return childs.size();
+        }
+
+        @Override
+        public int getColumnCount() {
+            return COLUMN_COUNT;
+        }
+
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            if (columnIndex == 0) {
+                return Boolean.class;
+            } else if (columnIndex == 4) {
+                return JLabel.class;
+            } else if (columnIndex == 3) {
+                return Integer.class;
+            } else if (columnIndex == 5 || columnIndex == 6) {
+                return BigDecimal.class;
+            }
+            return super.getColumnClass(columnIndex);
+        }
+
+        public BudgetSubDetailChild getBudgetSubDetailChild(int row) {
+            if (!childs.isEmpty()) {
+                return childs.get(row);
+            }
+            return null;
+        }
+
+        public void setBudgetSubDetailChild(int row, BudgetSubDetailChild child) {
+            if (!childs.isEmpty()) {
+                childs.set(row, child);
+            }
+        }
+
+        @Override
+        public void setValueAt(Object aValue, int row, int column) {
+            BudgetSubDetailChild child = getBudgetSubDetailChild(row);
+            switch (column) {
+                case 0:
+                    if (aValue instanceof Boolean) {
+                        child.setSelected((Boolean) aValue);
+                    }
+
+                    break;
+
+                case 1:
+                    break;
+
+                case 2:
+                    break;
+                case 3:
+                    break;
+                case 4:
+                    break;
+                case 5:
+                    break;
+            }
+        }
+
+        @Override
+        public Object getValueAt(int row, int column) {
+            Object toBeDisplayed = "n/a";
+            BudgetSubDetailChild child = getBudgetSubDetailChild(row);
+            switch (column) {
+                case 0:
+                    toBeDisplayed = child.isSelected();
+                    break;
+                case 1:
+                    toBeDisplayed = child;
+                    break;
+                case 2:
+                    toBeDisplayed = child.getEselonAsString();
+                    break;
+                case 3:
+                    toBeDisplayed = child.getCounted();
+                    break;
+                case 4:
+                    toBeDisplayed = child.getUnits();
+                    break;
+                case 5:
+                    toBeDisplayed = child.getAmount();
+                    break;
+                case 6:
+
+                    BigDecimal total = BigDecimal.ZERO;
+                    total = total.add(child.getAmount());
+                    total = total.multiply(BigDecimal.valueOf(child.getCounted()));
+
+                    toBeDisplayed = total;
+                    break;
+            }
+            return toBeDisplayed;
         }
     }
 }

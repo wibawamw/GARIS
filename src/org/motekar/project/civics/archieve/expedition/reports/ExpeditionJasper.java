@@ -77,24 +77,29 @@ public class ExpeditionJasper extends AbstractJasper {
                     if (expedition != null) {
                         Employee commander = expedition.getLetter().getCommander();
                         commander.setStyled(false);
-                        Employee assinedEmployee = expedition.getAssignedEmployee();
-                        assinedEmployee.setStyled(false);
+                        Employee assignedEmployee = expedition.getAssignedEmployee();
+                        assignedEmployee.setStyled(false);
 
                         StringBuilder position = new StringBuilder();
-                        if (assinedEmployee.getStrukturalAsString().equals("")) {
-                            position.append(assinedEmployee.getFungsionalAsString());
-                            position.append(" ");
-                            position.append(assinedEmployee.getPositionNotes());
-                        } else {
-                            position.append(assinedEmployee.getStrukturalAsString());
-                            if (position.toString().equalsIgnoreCase(Employee.SEKRETARIS_DAERAH)) {
-                                position.append(" ").append(properties.getStateType()).
-                                        append(" ").append(properties.getState());
-                            } else if (position.toString().equalsIgnoreCase(Employee.KEPALA_DINAS)
-                                    || position.toString().equalsIgnoreCase(Employee.KEPALA_BADAN)) {
-                                position.append(" ").append(properties.getCompany());
+
+                        if (!assignedEmployee.isNonEmployee()) {
+                            if (assignedEmployee.getStrukturalAsString().equals("")) {
+                                position.append(assignedEmployee.getFungsionalAsString());
+                                position.append(" ");
+                                position.append(assignedEmployee.getPositionNotes());
+                            } else {
+                                position.append(assignedEmployee.getStrukturalAsString());
+                                if (position.toString().equalsIgnoreCase(Employee.SEKRETARIS_DAERAH)) {
+                                    position.append(" ").append(properties.getStateType()).
+                                            append(" ").append(properties.getState());
+                                } else if (position.toString().equalsIgnoreCase(Employee.KEPALA_DINAS)
+                                        || position.toString().equalsIgnoreCase(Employee.KEPALA_BADAN)) {
+                                    position.append(" ").append(properties.getCompany());
+                                }
                             }
                         }
+
+
 
                         StringBuilder pos = new StringBuilder();
                         if (commander.getStrukturalAsString().equals("")) {
@@ -113,12 +118,18 @@ public class ExpeditionJasper extends AbstractJasper {
 
 
                         File file = properties.getLogo();
+                        File file2 = properties.getLogo4();
 
                         if (!file.exists()) {
                             file = new File("./images/logo_daerah.jpg");
                         }
+                        
+                        if (!file2.exists()) {
+                            file2 = new File("./images/logo_daerah.jpg");
+                        }
 
                         ImageIcon ico = new ImageIcon(file.getPath());
+                        ImageIcon ico2 = new ImageIcon(file2.getPath());
 
                         param.put("subreport", fjp.loadReportFile());
                         param.put("datasource", fjp.getDataSource());
@@ -136,16 +147,22 @@ public class ExpeditionJasper extends AbstractJasper {
                         param.put("capital", properties.getCapital().toUpperCase());
 
                         param.put("logo", ico.getImage());
+                        param.put("logo2", ico2.getImage());
 
                         param.put("docnumber", expedition.getDocumentNumber());
                         param.put("commander", initCaps(commander.getStrukturalAsString()));
-                        param.put("assignedemployee", assinedEmployee.getName());
-                        param.put("grades", assinedEmployee.getGradeAsString());
+                        param.put("assignedemployee", assignedEmployee.getName());
+                        param.put("assignedemployeenip", assignedEmployee.getNip());
+                        if (!assignedEmployee.isNonEmployee()) {
+                            param.put("grades", assignedEmployee.getGradeAsString());
+                        } else {
+                            param.put("grades", "");
+                        }
                         param.put("position", initCaps(position.toString()));
                         param.put("departure", expedition.getDeparture());
                         param.put("destination", expedition.getDestination());
                         param.put("transportation", expedition.getTransportationAsString());
-                        param.put("duration", String.valueOf(day.getDays()));
+                        param.put("duration", String.valueOf(day.getDays() + 1));
                         param.put("startdate", expedition.getStartDate());
                         param.put("enddate", expedition.getEndDate());
                         param.put("purpose", expedition.getLetter().getPurpose());
@@ -175,7 +192,7 @@ public class ExpeditionJasper extends AbstractJasper {
                         }
 
                         param.put("chargebudget", builder.toString());
-                        
+
                     }
                     return param;
                 }
@@ -194,19 +211,22 @@ public class ExpeditionJasper extends AbstractJasper {
     private String initCaps(String str) {
         StringBuilder caps = new StringBuilder();
 
-        String buff = str.toLowerCase();
+        if (str != null) {
+            if (!str.equals("")) {
+                String buff = str.toLowerCase();
 
-        StringTokenizer token = new StringTokenizer(buff, " ");
+                StringTokenizer token = new StringTokenizer(buff, " ");
 
-        while (token.hasMoreElements()) {
-            String s = token.nextToken();
-            caps.append(s.substring(0, 1).toUpperCase());
-            caps.append(s.substring(1));
-            caps.append(" ");
+                while (token.hasMoreElements()) {
+                    String s = token.nextToken();
+                    caps.append(s.substring(0, 1).toUpperCase());
+                    caps.append(s.substring(1));
+                    caps.append(" ");
+                }
+
+                caps.deleteCharAt(caps.length() - 1);
+            }
         }
-
-        caps.deleteCharAt(caps.length() - 1);
-
         return caps.toString();
     }
 }

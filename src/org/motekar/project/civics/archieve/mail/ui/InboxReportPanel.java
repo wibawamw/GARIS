@@ -164,6 +164,9 @@ public class InboxReportPanel extends JXPanel implements ActionListener {
 
         startDate.addActionListener(this);
         endDate.addActionListener(this);
+        
+        startDate.setFormats("dd/MM/yyyy");
+        endDate.setFormats("dd/MM/yyyy");
 
         monthChooser.addPropertyChangeListener("month", new PropertyChangeListener() {
 

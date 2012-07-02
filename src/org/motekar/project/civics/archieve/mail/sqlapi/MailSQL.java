@@ -7,12 +7,15 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
+import org.motekar.project.civics.archieve.mail.objects.ContractMail;
+import org.motekar.project.civics.archieve.mail.objects.HealthMail;
 import org.motekar.project.civics.archieve.mail.objects.Inbox;
 import org.motekar.project.civics.archieve.mail.objects.InboxDisposition;
 import org.motekar.project.civics.archieve.mail.objects.InboxFile;
 import org.motekar.project.civics.archieve.mail.objects.Outbox;
 import org.motekar.project.civics.archieve.mail.objects.OutboxDisposition;
 import org.motekar.project.civics.archieve.mail.objects.OutboxFile;
+import org.motekar.project.civics.archieve.mail.objects.ReferenceMail;
 import org.motekar.project.civics.archieve.master.objects.Division;
 import org.motekar.project.civics.archieve.sqlapi.CommonSQL;
 
@@ -208,7 +211,7 @@ public class MailSQL extends CommonSQL {
         query.append("select i.*,d.code divisioncode,d.divisionname from inbox i ").
                 append("left join division d ").
                 append("on i.receiver = d.code ").
-                append("where receivedate between ").
+                append("where maildate between ").
                 append("'").append(new java.sql.Date(date.getTime())).append("' ").
                 append(" and ").
                 append("'").append(new java.sql.Date(date2.getTime())).append("' ").
@@ -519,7 +522,7 @@ public class MailSQL extends CommonSQL {
                 append("'").append(new java.sql.Date(date.getTime())).append("' ").
                 append(" and ").
                 append("'").append(new java.sql.Date(date2.getTime())).append("' ").
-                append("order by senddate");
+                append("order by maildate");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
@@ -678,5 +681,520 @@ public class MailSQL extends CommonSQL {
         pstm.close();
 
         return outboxFiles;
+    }
+    
+    //
+    
+    void insertReferenceMail(Connection conn, ReferenceMail mail) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("insert into referencemail(mailnumber,maildate,receiver,").
+                append("receiveraddress,subject,description)").
+                append("values(?,?,?,?,?,?)");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+        int col = 0;
+
+        pstm.setString(++col, mail.getMailNumber());
+        if (mail.getMailDate() == null) {
+            pstm.setNull(++col, Types.DATE);
+        } else {
+            pstm.setDate(++col, new java.sql.Date(mail.getMailDate().getTime()));
+        }
+        pstm.setString(++col, mail.getReceiver());
+        pstm.setString(++col, mail.getReceiverAddress());
+
+        pstm.setString(++col, mail.getSubject());
+        pstm.setString(++col, mail.getDescription());
+
+        pstm.executeUpdate();
+        pstm.close();
+    }
+
+    void updateReferenceMail(Connection conn, Long oldIndex, ReferenceMail mail) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("update referencemail set mailnumber = ?,maildate = ?,receiver = ?,").
+                append("receiveraddress = ?,subject = ?,description = ? ").
+                append("where autoindex = ?");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+        int col = 0;
+
+        pstm.setString(++col, mail.getMailNumber());
+        if (mail.getMailDate() == null) {
+            pstm.setNull(++col, Types.DATE);
+        } else {
+            pstm.setDate(++col, new java.sql.Date(mail.getMailDate().getTime()));
+        }
+        pstm.setString(++col, mail.getReceiver());
+        pstm.setString(++col, mail.getReceiverAddress());
+
+        pstm.setString(++col, mail.getSubject());
+        pstm.setString(++col, mail.getDescription());
+        
+        pstm.setLong(++col, oldIndex);
+        pstm.executeUpdate();
+        pstm.close();
+    }
+
+    void deleteReferenceMail(Connection conn, Long index) throws SQLException {
+        PreparedStatement pstm = conn.prepareStatement("delete from referencemail where autoindex = ?");
+        pstm.setLong(1, index);
+        pstm.executeUpdate();
+        pstm.close();
+    }
+
+    ArrayList<ReferenceMail> getReferenceMail(Connection conn) throws SQLException {
+        ArrayList<ReferenceMail> mails = new ArrayList<ReferenceMail>();
+
+        StringBuilder query = new StringBuilder();
+        query.append("select * from referencemail ").
+                append("order by maildate");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+
+        ResultSet rs = pstm.executeQuery();
+
+        while (rs.next()) {
+            ReferenceMail mail = new ReferenceMail();
+            mail.setIndex(rs.getLong("autoindex"));
+            mail.setMailDate(rs.getDate("maildate"));
+            mail.setMailNumber(rs.getString("mailnumber"));
+            mail.setReceiver(rs.getString("receiver"));
+            mail.setReceiverAddress(rs.getString("receiveraddress"));
+            mail.setSubject(rs.getString("subject"));
+            mail.setDescription(rs.getString("description"));
+
+            mail.setStyled(true);
+
+            mails.add(mail);
+        }
+
+        rs.close();
+        pstm.close();
+
+        return mails;
+    }
+
+    ArrayList<ReferenceMail> getReferenceMail(Connection conn, Integer month, Integer year) throws SQLException {
+        ArrayList<ReferenceMail> mails = new ArrayList<ReferenceMail>();
+
+        StringBuilder query = new StringBuilder();
+
+        if (month == 0) {
+            query.append("select * from referencemail ").
+                    append("where date_part('year',maildate) = ").
+                    append(year).
+                    append(" order by maildate");
+        } else {
+            query.append("select * from referencemail ").
+                    append("where date_part('month',maildate) = ").
+                    append(month).
+                    append(" and date_part('year',maildate) = ").
+                    append(year).
+                    append(" order by maildate");
+        }
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+
+        ResultSet rs = pstm.executeQuery();
+
+        while (rs.next()) {
+            ReferenceMail mail = new ReferenceMail();
+            mail.setIndex(rs.getLong("autoindex"));
+            mail.setMailDate(rs.getDate("maildate"));
+            mail.setMailNumber(rs.getString("mailnumber"));
+            mail.setReceiver(rs.getString("receiver"));
+            mail.setReceiverAddress(rs.getString("receiveraddress"));
+            mail.setSubject(rs.getString("subject"));
+            mail.setDescription(rs.getString("description"));
+
+            mail.setStyled(true);
+
+            mails.add(mail);
+        }
+
+        rs.close();
+        pstm.close();
+
+        return mails;
+    }
+
+    ArrayList<ReferenceMail> getReferenceMail(Connection conn, Date date, Date date2) throws SQLException {
+        ArrayList<ReferenceMail> mails = new ArrayList<ReferenceMail>();
+
+        StringBuilder query = new StringBuilder();
+
+        query.append("select * from referencemail ").
+                append("where maildate between ").
+                append("'").append(new java.sql.Date(date.getTime())).append("' ").
+                append(" and ").
+                append("'").append(new java.sql.Date(date2.getTime())).append("' ").
+                append("order by maildate");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+
+        ResultSet rs = pstm.executeQuery();
+
+        while (rs.next()) {
+            ReferenceMail mail = new ReferenceMail();
+            mail.setIndex(rs.getLong("autoindex"));
+            mail.setMailDate(rs.getDate("maildate"));
+            mail.setMailNumber(rs.getString("mailnumber"));
+            mail.setReceiver(rs.getString("receiver"));
+            mail.setReceiverAddress(rs.getString("receiveraddress"));
+            mail.setSubject(rs.getString("subject"));
+            mail.setDescription(rs.getString("description"));
+
+            mail.setStyled(true);
+
+            mails.add(mail);
+        }
+
+        rs.close();
+        pstm.close();
+
+        return mails;
+    }
+    
+    void insertContractMail(Connection conn, ContractMail mail) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("insert into contractmail(mailnumber,maildate,receiver,").
+                append("receiveraddress,subject,description)").
+                append("values(?,?,?,?,?,?)");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+        int col = 0;
+
+        pstm.setString(++col, mail.getMailNumber());
+        if (mail.getMailDate() == null) {
+            pstm.setNull(++col, Types.DATE);
+        } else {
+            pstm.setDate(++col, new java.sql.Date(mail.getMailDate().getTime()));
+        }
+        pstm.setString(++col, mail.getReceiver());
+        pstm.setString(++col, mail.getReceiverAddress());
+
+        pstm.setString(++col, mail.getSubject());
+        pstm.setString(++col, mail.getDescription());
+
+        pstm.executeUpdate();
+        pstm.close();
+    }
+
+    void updateContractMail(Connection conn, Long oldIndex, ContractMail mail) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("update contractmail set mailnumber = ?,maildate = ?,receiver = ?,").
+                append("receiveraddress = ?,subject = ?,description = ? ").
+                append("where autoindex = ?");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+        int col = 0;
+
+        pstm.setString(++col, mail.getMailNumber());
+        if (mail.getMailDate() == null) {
+            pstm.setNull(++col, Types.DATE);
+        } else {
+            pstm.setDate(++col, new java.sql.Date(mail.getMailDate().getTime()));
+        }
+        pstm.setString(++col, mail.getReceiver());
+        pstm.setString(++col, mail.getReceiverAddress());
+
+        pstm.setString(++col, mail.getSubject());
+        pstm.setString(++col, mail.getDescription());
+        
+        pstm.setLong(++col, oldIndex);
+        pstm.executeUpdate();
+        pstm.close();
+    }
+
+    void deleteContractMail(Connection conn, Long index) throws SQLException {
+        PreparedStatement pstm = conn.prepareStatement("delete from contractmail where autoindex = ?");
+        pstm.setLong(1, index);
+        pstm.executeUpdate();
+        pstm.close();
+    }
+
+    ArrayList<ContractMail> getContractMail(Connection conn) throws SQLException {
+        ArrayList<ContractMail> mails = new ArrayList<ContractMail>();
+
+        StringBuilder query = new StringBuilder();
+        query.append("select * from contractmail ").
+                append("order by maildate");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+
+        ResultSet rs = pstm.executeQuery();
+
+        while (rs.next()) {
+            ContractMail mail = new ContractMail();
+            mail.setIndex(rs.getLong("autoindex"));
+            mail.setMailDate(rs.getDate("maildate"));
+            mail.setMailNumber(rs.getString("mailnumber"));
+            mail.setReceiver(rs.getString("receiver"));
+            mail.setReceiverAddress(rs.getString("receiveraddress"));
+            mail.setSubject(rs.getString("subject"));
+            mail.setDescription(rs.getString("description"));
+
+            mail.setStyled(true);
+
+            mails.add(mail);
+        }
+
+        rs.close();
+        pstm.close();
+
+        return mails;
+    }
+
+    ArrayList<ContractMail> getContractMail(Connection conn, Integer month, Integer year) throws SQLException {
+        ArrayList<ContractMail> mails = new ArrayList<ContractMail>();
+
+        StringBuilder query = new StringBuilder();
+
+        if (month == 0) {
+            query.append("select * from contractmail ").
+                    append("where date_part('year',maildate) = ").
+                    append(year).
+                    append(" order by maildate");
+        } else {
+            query.append("select * from contractmail ").
+                    append("where date_part('month',maildate) = ").
+                    append(month).
+                    append(" and date_part('year',maildate) = ").
+                    append(year).
+                    append(" order by maildate");
+        }
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+
+        ResultSet rs = pstm.executeQuery();
+
+        while (rs.next()) {
+            ContractMail mail = new ContractMail();
+            mail.setIndex(rs.getLong("autoindex"));
+            mail.setMailDate(rs.getDate("maildate"));
+            mail.setMailNumber(rs.getString("mailnumber"));
+            mail.setReceiver(rs.getString("receiver"));
+            mail.setReceiverAddress(rs.getString("receiveraddress"));
+            mail.setSubject(rs.getString("subject"));
+            mail.setDescription(rs.getString("description"));
+
+            mail.setStyled(true);
+
+            mails.add(mail);
+        }
+
+        rs.close();
+        pstm.close();
+
+        return mails;
+    }
+
+    ArrayList<ContractMail> getContractMail(Connection conn, Date date, Date date2) throws SQLException {
+        ArrayList<ContractMail> mails = new ArrayList<ContractMail>();
+
+        StringBuilder query = new StringBuilder();
+
+        query.append("select * from contractmail ").
+                append("where maildate between ").
+                append("'").append(new java.sql.Date(date.getTime())).append("' ").
+                append(" and ").
+                append("'").append(new java.sql.Date(date2.getTime())).append("' ").
+                append("order by maildate");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+
+        ResultSet rs = pstm.executeQuery();
+
+        while (rs.next()) {
+            ContractMail mail = new ContractMail();
+            mail.setIndex(rs.getLong("autoindex"));
+            mail.setMailDate(rs.getDate("maildate"));
+            mail.setMailNumber(rs.getString("mailnumber"));
+            mail.setReceiver(rs.getString("receiver"));
+            mail.setReceiverAddress(rs.getString("receiveraddress"));
+            mail.setSubject(rs.getString("subject"));
+            mail.setDescription(rs.getString("description"));
+
+            mail.setStyled(true);
+
+            mails.add(mail);
+        }
+
+        rs.close();
+        pstm.close();
+
+        return mails;
+    }
+    
+    void insertHealthMail(Connection conn, HealthMail mail) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("insert into healthmail(mailnumber,maildate,receiver,").
+                append("receiveraddress,subject,description)").
+                append("values(?,?,?,?,?,?)");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+        int col = 0;
+
+        pstm.setString(++col, mail.getMailNumber());
+        if (mail.getMailDate() == null) {
+            pstm.setNull(++col, Types.DATE);
+        } else {
+            pstm.setDate(++col, new java.sql.Date(mail.getMailDate().getTime()));
+        }
+        pstm.setString(++col, mail.getReceiver());
+        pstm.setString(++col, mail.getReceiverAddress());
+
+        pstm.setString(++col, mail.getSubject());
+        pstm.setString(++col, mail.getDescription());
+
+        pstm.executeUpdate();
+        pstm.close();
+    }
+
+    void updateHealthMail(Connection conn, Long oldIndex, HealthMail mail) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("update healthmail set mailnumber = ?,maildate = ?,receiver = ?,").
+                append("receiveraddress = ?,subject = ?,description = ? ").
+                append("where autoindex = ?");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+        int col = 0;
+
+        pstm.setString(++col, mail.getMailNumber());
+        if (mail.getMailDate() == null) {
+            pstm.setNull(++col, Types.DATE);
+        } else {
+            pstm.setDate(++col, new java.sql.Date(mail.getMailDate().getTime()));
+        }
+        pstm.setString(++col, mail.getReceiver());
+        pstm.setString(++col, mail.getReceiverAddress());
+
+        pstm.setString(++col, mail.getSubject());
+        pstm.setString(++col, mail.getDescription());
+        
+        pstm.setLong(++col, oldIndex);
+        pstm.executeUpdate();
+        pstm.close();
+    }
+
+    void deleteHealthMail(Connection conn, Long index) throws SQLException {
+        PreparedStatement pstm = conn.prepareStatement("delete from healthmail where autoindex = ?");
+        pstm.setLong(1, index);
+        pstm.executeUpdate();
+        pstm.close();
+    }
+
+    ArrayList<HealthMail> getHealthMail(Connection conn) throws SQLException {
+        ArrayList<HealthMail> mails = new ArrayList<HealthMail>();
+
+        StringBuilder query = new StringBuilder();
+        query.append("select * from healthmail ").
+                append("order by maildate");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+
+        ResultSet rs = pstm.executeQuery();
+
+        while (rs.next()) {
+            HealthMail mail = new HealthMail();
+            mail.setIndex(rs.getLong("autoindex"));
+            mail.setMailDate(rs.getDate("maildate"));
+            mail.setMailNumber(rs.getString("mailnumber"));
+            mail.setReceiver(rs.getString("receiver"));
+            mail.setReceiverAddress(rs.getString("receiveraddress"));
+            mail.setSubject(rs.getString("subject"));
+            mail.setDescription(rs.getString("description"));
+
+            mail.setStyled(true);
+
+            mails.add(mail);
+        }
+
+        rs.close();
+        pstm.close();
+
+        return mails;
+    }
+
+    ArrayList<HealthMail> getHealthMail(Connection conn, Integer month, Integer year) throws SQLException {
+        ArrayList<HealthMail> mails = new ArrayList<HealthMail>();
+
+        StringBuilder query = new StringBuilder();
+
+        if (month == 0) {
+            query.append("select * from healthmail ").
+                    append("where date_part('year',maildate) = ").
+                    append(year).
+                    append(" order by maildate");
+        } else {
+            query.append("select * from healthmail ").
+                    append("where date_part('month',maildate) = ").
+                    append(month).
+                    append(" and date_part('year',maildate) = ").
+                    append(year).
+                    append(" order by maildate");
+        }
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+
+        ResultSet rs = pstm.executeQuery();
+
+        while (rs.next()) {
+            HealthMail mail = new HealthMail();
+            mail.setIndex(rs.getLong("autoindex"));
+            mail.setMailDate(rs.getDate("maildate"));
+            mail.setMailNumber(rs.getString("mailnumber"));
+            mail.setReceiver(rs.getString("receiver"));
+            mail.setReceiverAddress(rs.getString("receiveraddress"));
+            mail.setSubject(rs.getString("subject"));
+            mail.setDescription(rs.getString("description"));
+
+            mail.setStyled(true);
+
+            mails.add(mail);
+        }
+
+        rs.close();
+        pstm.close();
+
+        return mails;
+    }
+
+    ArrayList<HealthMail> getHealthMail(Connection conn, Date date, Date date2) throws SQLException {
+        ArrayList<HealthMail> mails = new ArrayList<HealthMail>();
+
+        StringBuilder query = new StringBuilder();
+
+        query.append("select * from healthmail ").
+                append("where maildate between ").
+                append("'").append(new java.sql.Date(date.getTime())).append("' ").
+                append(" and ").
+                append("'").append(new java.sql.Date(date2.getTime())).append("' ").
+                append("order by maildate");
+
+        PreparedStatement pstm = conn.prepareStatement(query.toString());
+
+        ResultSet rs = pstm.executeQuery();
+
+        while (rs.next()) {
+            HealthMail mail = new HealthMail();
+            mail.setIndex(rs.getLong("autoindex"));
+            mail.setMailDate(rs.getDate("maildate"));
+            mail.setMailNumber(rs.getString("mailnumber"));
+            mail.setReceiver(rs.getString("receiver"));
+            mail.setReceiverAddress(rs.getString("receiveraddress"));
+            mail.setSubject(rs.getString("subject"));
+            mail.setDescription(rs.getString("description"));
+
+            mail.setStyled(true);
+
+            mails.add(mail);
+        }
+
+        rs.close();
+        pstm.close();
+
+        return mails;
     }
 }

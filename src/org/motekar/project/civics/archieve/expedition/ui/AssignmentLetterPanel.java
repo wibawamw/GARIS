@@ -777,7 +777,7 @@ public class AssignmentLetterPanel extends JXPanel implements ActionListener, Li
                 options, options[1]);
         if (choise == JOptionPane.YES_OPTION) {
             try {
-                boolean inexp = logic.getAssignmentLetterInExpedition(mainframe.getSession(), selectedLetter.getIndex());
+                boolean inexp = logic.isAssignmentLetterInExpedition(mainframe.getSession(), selectedLetter.getIndex());
 
                 if (!inexp) {
                     logic.deleteAssignmentLetter(mainframe.getSession(), selectedLetter.getIndex());

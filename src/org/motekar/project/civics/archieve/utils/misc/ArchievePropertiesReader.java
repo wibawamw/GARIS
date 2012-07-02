@@ -71,6 +71,7 @@ public class ArchievePropertiesReader {
         setLogo(xml);
         setLogo2(xml);
         setLogo3(xml);
+        setLogo4(xml);
     }
 
     /**
@@ -216,6 +217,14 @@ public class ArchievePropertiesReader {
         String fileName = child.getAttribute("Name", "");
 
         prop.setLogo3(fileName);
+    }
+    
+    private void setLogo4(XMLElement parent) throws XMLException {
+        ArrayList<XMLElement> v = parent.getChildrenNamed("Logos4");
+        XMLElement child = (XMLElement) v.get(0);
+        String fileName = child.getAttribute("Name", "");
+
+        prop.setLogo4(fileName);
     }
 
     /**

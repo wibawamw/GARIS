@@ -10,15 +10,11 @@ import java.util.Date;
 public class ExpeditionJournal {
 
     private Long journalIndex = Long.valueOf(0);
-    private String reportNumber = "";
-    private String reportPlace = "";
     private Date reportDate = null;
-
-    private AssignmentLetter letter = null;
-
-    private ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
+    
+    private Expedition expedition = null;
+    private String fundingSource = "";
     private ArrayList<ExpeditionResult> result = new ArrayList<ExpeditionResult>();
-
     private boolean styled = false;
 
     public ExpeditionJournal() {
@@ -26,14 +22,6 @@ public class ExpeditionJournal {
 
     public ExpeditionJournal(Long journalIndex) {
         this.journalIndex = journalIndex;
-    }
-
-    public String getReportNumber() {
-        return reportNumber;
-    }
-
-    public void setReportNumber(String reportNumber) {
-        this.reportNumber = reportNumber;
     }
 
     public boolean isStyled() {
@@ -60,20 +48,12 @@ public class ExpeditionJournal {
         this.reportDate = reportDate;
     }
 
-    public String getReportPlace() {
-        return reportPlace;
+    public Expedition getExpedition() {
+        return expedition;
     }
 
-    public void setReportPlace(String reportPlace) {
-        this.reportPlace = reportPlace;
-    }
-
-    public AssignmentLetter getLetter() {
-        return letter;
-    }
-
-    public void setLetter(AssignmentLetter letter) {
-        this.letter = letter;
+    public void setExpedition(Expedition expedition) {
+        this.expedition = expedition;
     }
 
     public ArrayList<ExpeditionResult> getResult() {
@@ -84,24 +64,23 @@ public class ExpeditionJournal {
         this.result = result;
     }
 
-    public ArrayList<Expedition> getExpeditions() {
-        return expeditions;
+    public String getFundingSource() {
+        return fundingSource;
     }
 
-    public void setExpeditions(ArrayList<Expedition> expeditions) {
-        this.expeditions = expeditions;
+    public void setFundingSource(String fundingSource) {
+        this.fundingSource = fundingSource;
     }
-
+    
     @Override
     public String toString() {
         if (isStyled()) {
-            return "<html><b>" + reportNumber + "</b>"
-                    + "<br style=\"font-size:40%\">Laporan Atas Perjalanan Dinas Nomor</br>"
-                    + "<br style=\"font-size:40%\">"+ letter.getDocumentNumber()+ "</br>";
+            return "<html><b>" 
+                    + "Laporan SPPD Nomor" + "</b>"
+                    + "<br>"+ expedition.getDocumentNumber()+ "</br>";
         }
-        return "[" + reportNumber + "] "
-                + "Laporan Perjalanan Dinas "
-                + letter.getDocumentNumber() ;
+        return "Laporan SPPD "
+                + expedition.getDocumentNumber() ;
     }
 
 }

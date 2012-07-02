@@ -1,13 +1,11 @@
 package org.motekar.project.civics.archieve.expedition.reports;
 
-import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
-import javax.swing.ImageIcon;
 import javax.swing.SwingWorker;
 import javax.swing.table.DefaultTableModel;
 import net.sf.jasperreports.engine.JasperCompileManager;
@@ -15,6 +13,7 @@ import net.sf.jasperreports.engine.JasperReport;
 import org.motekar.project.civics.archieve.expedition.objects.AssignmentLetter;
 import org.motekar.project.civics.archieve.expedition.objects.Expedition;
 import org.motekar.project.civics.archieve.expedition.objects.ExpeditionJournal;
+import org.motekar.project.civics.archieve.master.objects.Employee;
 import org.motekar.project.civics.archieve.utils.misc.ArchieveProperties;
 import org.motekar.project.civics.archieve.utils.report.SimpleAbstractJasper;
 import org.openide.util.Exceptions;
@@ -78,94 +77,59 @@ public class ExpeditionJournalJasper extends SimpleAbstractJasper {
                     Map param = new HashMap();
                     if (journal != null) {
 
-                        AssignmentLetter letter = journal.getLetter();
-                        ArrayList<Expedition> expeditions = journal.getExpeditions();
+                        Expedition expedition = journal.getExpedition();
+                        Employee assignedEmployee = expedition.getAssignedEmployee();
+                        AssignmentLetter letter = expedition.getLetter();
 
                         ExpeditionResultJasper erj = new ExpeditionResultJasper(journal.getResult());
-                        ExpeditionReporterJasper ej = new ExpeditionReporterJasper(expeditions);
 
                         param.put("subreport", erj.loadReportFile());
                         param.put("datasource", erj.getDataSource());
 
-                        param.put("subreport2", ej.loadReportFile());
-                        param.put("datasource2", ej.getDataSource());
-
-                        StringBuilder stateName = new StringBuilder();
-
-                        if (properties.getStateType().equals(ArchieveProperties.KABUPATEN)) {
-                            stateName.append(ArchieveProperties.KABUPATEN.toUpperCase()).append(" ").
-                                    append(properties.getState().toUpperCase());
-                        }
-
-                        param.put("statename", stateName.toString());
-                        param.put("governname", properties.getCompany().toUpperCase());
-                        param.put("governaddress", properties.getAddress().toUpperCase());
-                        param.put("capital", properties.getCapital().toUpperCase());
-
-
-                        File file = properties.getLogo();
-
-                        if (!file.exists()) {
-                            file = new File("./images/logo_daerah.jpg");
-                        }
-
-                        ImageIcon ico = new ImageIcon(file.getPath());
-
-                        param.put("logo", ico.getImage());
-
-                        param.put("docnumber", journal.getReportNumber());
-                        param.put("purpose", letter.getPurpose());
 
                         SimpleDateFormat sdf = new SimpleDateFormat("dd MMMM yyyy", new Locale("in", "id", "id"));
 
-                        StringBuilder reportplace = new StringBuilder();
-                        reportplace.append(journal.getReportPlace()).
-                                append(", ").
-                                append(sdf.format(journal.getReportDate()));
+                        param.put("destination", expedition.getDestination());
+                        param.put("reportdate", sdf.format(journal.getReportDate()));
+                        param.put("expeditionnumber", expedition.getDocumentNumber());
+                        param.put("employeename", assignedEmployee.getName());
+                        param.put("employeenip", assignedEmployee.getNip());
 
-                        param.put("reportplace", reportplace.toString());
-
-                        StringBuilder letterNumber = new StringBuilder();
-
-                        letterNumber.append("Surat Tugas Nomor : ").
-                                append(letter.getDocumentNumber()).
-                                append(", Tanggal ").
-                                append(sdf.format(letter.getApprovalDate()));
-
-                        param.put("letternumber", letterNumber.toString());
-
-                        if (!expeditions.isEmpty()) {
-
-                            int size = expeditions.size();
-
-                            Expedition firstExp = expeditions.get(0);
-                            Expedition lastExp = expeditions.get(size - 1);
-
-                            StringBuilder expNumber = new StringBuilder();
-
-                            if (size > 1) {
-                                expNumber.append("SPPD Nomor : ").
-                                        append("090/ ").
-                                        append(firstExp.getIterationDocumentNumber()).
-                                        append(" - ").
-                                        append(lastExp.getIterationDocumentNumber()).
-                                        append(" /SPPD/").
-                                        append(firstExp.getYearDocumentNumber()).
-                                        append(", Tanggal ").
-                                        append(sdf.format(firstExp.getApprovalDate()));
-                            } else {
-                                expNumber.append("SPPD Nomor : ").
-                                        append("090/").
-                                        append(firstExp.getIterationDocumentNumber()).
-                                        append("/SPPD/").
-                                        append(firstExp.getYearDocumentNumber()).
-                                        append(", Tanggal ").
-                                        append(sdf.format(firstExp.getApprovalDate()));
-                            }
-
-                            param.put("expnumber", expNumber.toString());
+                        if (!assignedEmployee.isNonEmployee()) {
+                            param.put("employeenip2", "NIP. " + assignedEmployee.getNip());
+                        } else {
+                            param.put("employeenip2", "");
                         }
 
+                        StringBuilder position = new StringBuilder();
+
+                        if (!assignedEmployee.isNonEmployee()) {
+                            if (assignedEmployee.getStrukturalAsString().equals("")) {
+                                position.append(assignedEmployee.getFungsionalAsString());
+                                position.append(" ");
+                                position.append(assignedEmployee.getPositionNotes());
+                            } else {
+                                position.append(assignedEmployee.getStrukturalAsString());
+                                if (position.toString().equalsIgnoreCase(Employee.SEKRETARIS_DAERAH)) {
+                                    position.append(" ").append(properties.getStateType()).
+                                            append(" ").append(properties.getState());
+                                } else if (position.toString().equalsIgnoreCase(Employee.KEPALA_DINAS)
+                                        || position.toString().equalsIgnoreCase(Employee.KEPALA_BADAN)) {
+                                    position.append(" ").append(properties.getCompany());
+                                }
+                            }
+                        }
+
+                        if (!assignedEmployee.isNonEmployee()) {
+                            param.put("employeegrade", assignedEmployee.getGradeAsString());
+                            param.put("position", position.toString());
+                        } else {
+                            param.put("employeegrade", "");
+                            param.put("position", "");
+                        }
+                        
+                        param.put("fundingsource", journal.getFundingSource());
+                        param.put("purpose", letter.getPurpose());
 
                     }
                     return param;
@@ -181,4 +145,5 @@ public class ExpeditionJournalJasper extends SimpleAbstractJasper {
         }
         return params;
     }
+    
 }

@@ -89,12 +89,18 @@ public class AssignmentLetterJasper extends AbstractJasper {
                         CarbonCopyJasper ccj = new CarbonCopyJasper(letter.getCarbonCopy());
 
                         File file = properties.getLogo();
+                        File file2 = properties.getLogo4();
 
                         if (!file.exists()) {
                             file = new File("./images/logo_daerah.jpg");
                         }
+                        
+                        if (!file2.exists()) {
+                            file2 = new File("./images/logo_daerah.jpg");
+                        }
 
                         ImageIcon ico = new ImageIcon(file.getPath());
+                        ImageIcon ico2 = new ImageIcon(file2.getPath());
 
                         param.put("subreport", aej.loadReportFile());
                         param.put("datasource", aej.getDataSource());
@@ -115,6 +121,7 @@ public class AssignmentLetterJasper extends AbstractJasper {
                         param.put("capital", properties.getCapital().toUpperCase());
 
                         param.put("logo", ico.getImage());
+                        param.put("logo2", ico2.getImage());
 
                         param.put("docnumber", letter.getDocumentNumber());
                         param.put("purpose", letter.getPurpose());

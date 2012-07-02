@@ -229,22 +229,22 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
             double vgapScaleFactor) {
 
         RichTooltip addTooltip = new RichTooltip();
-        addTooltip.setTitle("Tambah Pegawai");
+        addTooltip.setTitle("Tambah Bagian");
 
         btAdd.setActionRichTooltip(addTooltip);
 
         RichTooltip editTooltip = new RichTooltip();
-        editTooltip.setTitle("Ubah Pegawai");
+        editTooltip.setTitle("Ubah Bagian");
 
         btEdit.setActionRichTooltip(editTooltip);
 
         RichTooltip saveTooltip = new RichTooltip();
-        saveTooltip.setTitle("Simpan Pegawai");
+        saveTooltip.setTitle("Simpan Bagian");
 
         btSave.setActionRichTooltip(saveTooltip);
 
         RichTooltip deleteTooltip = new RichTooltip();
-        deleteTooltip.setTitle("Hapus Pegawai");
+        deleteTooltip.setTitle("Hapus Bagian");
 
         btDelete.setActionRichTooltip(deleteTooltip);
 

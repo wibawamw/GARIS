@@ -5,44 +5,24 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
+import de.jgrid.JGrid;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.Icon;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingWorker;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
@@ -74,6 +54,8 @@ import org.motekar.project.civics.archieve.mail.objects.Outbox;
 import org.motekar.project.civics.archieve.mail.objects.OutboxFile;
 import org.motekar.project.civics.archieve.mail.sqlapi.MailBusinessLogic;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
+import org.motekar.project.civics.archieve.utils.viewer.ImageViewerDlg;
+import org.motekar.project.civics.archieve.utils.viewer.PicViewerRenderer;
 import org.motekar.util.user.misc.MotekarException;
 import org.motekar.util.user.misc.MotekarFocusTraversalPolicy;
 import org.motekar.util.user.ui.Mainframe;
@@ -109,7 +91,9 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
     private JXTextField fieldMailNumber = new JXTextField();
     private JXTextField fieldSubject = new JXTextField();
     private JTabbedPane tabbedPane = new JTabbedPane();
-    private OutboxFileTable ofTable = new OutboxFileTable();
+    private OutboxFileFileGrid ofList = new OutboxFileFileGrid();
+    private JSlider slider;
+    //
     private JCommandButton btAdd = new JCommandButton(Mainframe.getResizableIconFromSource("resource/mail_add.png"));
     private JCommandButton btEdit = new JCommandButton(Mainframe.getResizableIconFromSource("resource/mail_edit.png"));
     private JCommandButton btSave = new JCommandButton(Mainframe.getResizableIconFromSource("resource/mail_accept.png"));
@@ -173,7 +157,7 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
         helpLabel.setTextAlignment(JXLabel.TextAlignment.JUSTIFY);
 
         String text = "Penjelasan Singkat\n"
-                + "Fasilitas Pegawai untuk pengisian data-data pegawai yang ada di suatu dinas\n\n"
+                + "Fasilitas Surat Keluar untuk pengisian data-data pegawai yang ada di suatu dinas\n\n"
                 + "Tambah Surat Keluar\n"
                 + "Untuk menambah Surat Keluar klik tombol paling kiri "
                 + "kemudian isi data Surat Keluar baru yang akan ditambah "
@@ -187,7 +171,7 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
                 + "untuk melakukan pembatalan perubahan\n\n"
                 + "Hapus Surat Keluar\n"
                 + "Untuk menghapus Surat Keluar klik tombol paling kanan "
-                + "kemudian akan muncul peringatan untuk menghapus Pegawai "
+                + "kemudian akan muncul peringatan untuk menghapus Surat Keluar "
                 + "tersebut, pilih Ya untuk mengapus atau pilih Tidak untuk "
                 + "membatalkan penghapusan";
 
@@ -257,23 +241,64 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
     private Component createMainPanelPage2() {
         FormLayout lm = new FormLayout(
                 "pref,10px,fill:default:grow,10px",
-                "pref,10px,pref,fill:default:grow,5px,50px");
+                "pref,8px,pref,2px,fill:default:grow,5px,10px");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
 
-        lm.setRowGroups(new int[][]{{1, 2, 5}});
+//        lm.setRowGroups(new int[][]{{1, 2, 5}});
 
         JScrollPane scPane = new JScrollPane();
-        scPane.setViewportView(ofTable);
+        scPane.setViewportView(ofList);
+
 
         CellConstraints cc = new CellConstraints();
 
         builder.addSeparator("Scan Dokumen Surat", cc.xyw(1, 1, 4));
 
         builder.add(createStrip2(1.0, 1.0), cc.xy(1, 3));
-        builder.add(scPane, cc.xywh(1, 4, 3, 2));
+        builder.add(createSliderPanel(), cc.xy(3, 3));
+        builder.add(scPane, cc.xywh(1, 5, 3, 2));
 
-        return builder.getPanel();
+        JPanel panel = builder.getPanel();
+
+        ofList.setBackground(panel.getBackground());
+
+        return panel;
+    }
+
+    private JPanel createSliderPanel() {
+        slider = new JSlider(128, 256, ofList.getFixedCellDimension());
+        slider.setValue(ofList.getFixedCellDimension());
+        slider.putClientProperty("JComponent.sizeVariant", "small");
+        slider.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                ofList.setFixedCellDimension(slider.getValue());
+            }
+        });
+
+        JPanel sliderPanel = new JPanel();
+        sliderPanel.setLayout(new FlowLayout());
+        try {
+            sliderPanel.add(new JLabel(new ImageIcon(ImageIO.read(ArchieveMainframe.class.getResource(
+                    "/resource/dim_small.png")))));
+        } catch (IOException e1) {
+            Exceptions.printStackTrace(e1);
+        }
+        sliderPanel.add(slider);
+        try {
+            sliderPanel.add(new JLabel(new ImageIcon(ImageIO.read(ArchieveMainframe.class.getResource(
+                    "/resource/dim_large.png")))));
+        } catch (IOException e1) {
+            Exceptions.printStackTrace(e1);
+        }
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(sliderPanel, BorderLayout.EAST);
+
+        return panel;
     }
 
     protected JPanel createSearchPanel() {
@@ -314,22 +339,22 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
             double vgapScaleFactor) {
 
         RichTooltip addTooltip = new RichTooltip();
-        addTooltip.setTitle("Tambah Pegawai");
+        addTooltip.setTitle("Tambah Surat Keluar");
 
         btAdd.setActionRichTooltip(addTooltip);
 
         RichTooltip editTooltip = new RichTooltip();
-        editTooltip.setTitle("Ubah Pegawai");
+        editTooltip.setTitle("Ubah Surat Keluar");
 
         btEdit.setActionRichTooltip(editTooltip);
 
         RichTooltip saveTooltip = new RichTooltip();
-        saveTooltip.setTitle("Simpan Pegawai");
+        saveTooltip.setTitle("Simpan Surat Keluar");
 
         btSave.setActionRichTooltip(saveTooltip);
 
         RichTooltip deleteTooltip = new RichTooltip();
-        deleteTooltip.setTitle("Hapus Pegawai");
+        deleteTooltip.setTitle("Hapus Surat Keluar");
 
         btDelete.setActionRichTooltip(deleteTooltip);
 
@@ -409,11 +434,34 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
             }
         });
 
-        SubstanceSkin skin = SubstanceLookAndFeel.getCurrentSkin();
-        SubstanceColorScheme color = skin.getColorScheme(ofTable, ComponentState.DEFAULT);
+        ofList.addMouseListener(new MouseAdapter() {
 
-        ofTable.addHighlighter(HighlighterFactory.createSimpleStriping(color.getWatermarkDarkColor()));
-        ofTable.setShowGrid(false, false);
+            Cursor oldCursor = ofList.getCursor();
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int index = ofList.getCellAt(e.getPoint());
+                if (index >= 0) {
+                    Object o = ofList.getModel().getElementAt(index);
+                    if (o instanceof OutboxFile) {
+                        OutboxFile file = (OutboxFile) o;
+                        if (e.getClickCount() == 2) {
+                            onViewDocument(file);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                ofList.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                ofList.setCursor(oldCursor);
+            }
+        });
 
         fieldMailDate.setFormats("dd/MM/yyyy");
 
@@ -459,32 +507,6 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
 
     }
 
-    private void downloadFile() {
-        OutboxFile outboxFile = ofTable.getSelectedfile();
-        if (outboxFile != null) {
-            int retVal = saveChooser.showSaveDialog(this);
-            if (retVal == JFileChooser.APPROVE_OPTION) {
-                File file = saveChooser.getSelectedFile();
-                try {
-
-                    File fileToCopy = new File(file.getParent() + File.separator + file.getName() + "." + outboxFile.getFileExtension());
-
-                    OutputStream out = new FileOutputStream(fileToCopy);
-
-                    out.write(outboxFile.getFileStream());
-
-                    out.close();
-
-                    String[] commands = {"cmd", "/c", "start", "\"DummyTitle\"", fileToCopy.getPath()};
-                    Runtime.getRuntime().exec(commands);
-
-                } catch (Exception ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-            }
-        }
-    }
-
     public void filter() {
         outboxList.setRowFilter(new RowFilter<ListModel, Integer>() {
 
@@ -508,12 +530,16 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
                     return true;
                 }
                 String fileName = f.getName();
-                return (fileName.toLowerCase().endsWith(".doc"));
+                return (fileName.toLowerCase().endsWith(".png") || fileName.toLowerCase().endsWith(".jpg")
+                        || fileName.toLowerCase().endsWith(".gif") || fileName.toLowerCase().endsWith(".bmp")
+                        || fileName.toLowerCase().endsWith(".doc") || fileName.toLowerCase().endsWith(".docx")
+                        || fileName.toLowerCase().endsWith(".pdf") || fileName.toLowerCase().endsWith(".xls")
+                        || fileName.toLowerCase().endsWith(".xlsx"));
             }
 
             @Override
             public String getDescription() {
-                return "File Dokumen (*.doc)";
+                return "Scan Dokumen (*.png;*.jpg;*.gif;*.bmp;*.doc;*.docx;*.pdf;*.xls;*.xlsx)";
             }
         });
     }
@@ -531,12 +557,16 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
                     return true;
                 }
                 String fileName = f.getName();
-                return (fileName.toLowerCase().endsWith(".doc"));
+                return (fileName.toLowerCase().endsWith(".png") || fileName.toLowerCase().endsWith(".jpg")
+                        || fileName.toLowerCase().endsWith(".gif") || fileName.toLowerCase().endsWith(".bmp")
+                        || fileName.toLowerCase().endsWith(".doc") || fileName.toLowerCase().endsWith(".docx")
+                        || fileName.toLowerCase().endsWith(".pdf") || fileName.toLowerCase().endsWith(".xls")
+                        || fileName.toLowerCase().endsWith(".xlsx"));
             }
 
             @Override
             public String getDescription() {
-                return "File Dokumen (*.doc)";
+                return "Scan Dokumen (*.png;*.jpg;*.gif;*.bmp;*.doc;*.docx;*.pdf;*.xls;*.xlsx)";
             }
         });
     }
@@ -564,7 +594,7 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
             fieldMailDate.requestFocus();
         }
 
-        ofTable.clear();
+        ofList.clear();
     }
 
     private void setButtonState(String state) {
@@ -622,15 +652,15 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
                     outboxFile.setFileName(file.getName());
                     outboxFile.setFileStream(fileStream);
 
-                    ofTable.addFile(outboxFile);
+                    ofList.addOutboxFile(outboxFile);
 
                 } catch (Exception ex) {
                     Exceptions.printStackTrace(ex);
                 }
             }
         } else if (obj == btDelFile) {
-            ArrayList<OutboxFile> outboxFile = ofTable.getSelectedFiles();
-            if (!outboxFile.isEmpty()) {
+            OutboxFile outboxFile = ofList.getSelectedOutboxFile();
+            if (outboxFile != null) {
                 Object[] options = {"Ya", "Tidak"};
                 int choise = JOptionPane.showOptionDialog(this,
                         " Anda yakin menghapus semua data ini ? (Y/T)",
@@ -639,7 +669,7 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
                         JOptionPane.QUESTION_MESSAGE, null,
                         options, options[1]);
                 if (choise == JOptionPane.YES_OPTION) {
-                    ofTable.removeFiles(outboxFile);
+                    ofList.removeSelected(outboxFile);
                 }
             }
         }
@@ -703,6 +733,7 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
                 isedit = false;
                 iseditable = false;
                 outboxList.updateOutbox(newOutbox);
+                selectedOutbox = newOutbox;
                 setFormState();
                 setButtonState("Save");
             }
@@ -755,7 +786,7 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
             errorString.append("<br>- Perihal</br>");
         }
 
-        ArrayList<OutboxFile> outboxFiles = ofTable.getfiles();
+        ArrayList<OutboxFile> outboxFiles = ofList.getOutboxFiles();
 
         if (errorString.length() > 0) {
             throw new MotekarException("<html>Harap diperhatikan untuk diisi : " + errorString.toString() + "</html>");
@@ -768,6 +799,45 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
         outbox.setOutboxFiles(outboxFiles);
 
         return outbox;
+    }
+    
+    private void onViewDocument(OutboxFile file) {
+
+        String fileExtension = file.getFileName();
+
+        if (fileExtension.toLowerCase().endsWith(".png") || fileExtension.toLowerCase().endsWith(".jpg")
+                || fileExtension.toLowerCase().endsWith(".gif") || fileExtension.toLowerCase().endsWith(".bmp")) {
+
+            Cursor oldCursor = ofList.getCursor();
+            ofList.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            ImageViewerDlg dlg = new ImageViewerDlg(mainframe, file.getFileStream(), fileExtension, true);
+            dlg.showDialog();
+            ofList.setCursor(oldCursor);
+
+        } else if (fileExtension.toLowerCase().endsWith(".doc") || fileExtension.toLowerCase().endsWith(".docx")
+                || fileExtension.toLowerCase().endsWith(".xls") || fileExtension.toLowerCase().endsWith(".xlsx")
+                || fileExtension.toLowerCase().endsWith(".pdf")) {
+            OutputStream out = null;
+            try {
+                Cursor oldCursor = ofList.getCursor();
+                ofList.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                File fileToCopy = new File(System.getProperty("user.dir") + "\\temp" + File.separator + fileExtension);
+                out = new FileOutputStream(fileToCopy);
+                out.write(file.getFileStream());
+                out.close();
+                String[] commands = {"cmd", "/c", "start", "\"DummyTitle\"", fileToCopy.getPath()};
+                Runtime.getRuntime().exec(commands);
+                ofList.setCursor(oldCursor);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            } finally {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
     }
 
     private void defineCustomFocusTraversalPolicy() {
@@ -787,8 +857,8 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
                 fieldMailDate.setDate(selectedOutbox.getMailDate());
                 fieldMailNumber.setText(selectedOutbox.getMailNumber());
                 fieldSubject.setText(selectedOutbox.getSubject());
-                ofTable.clear();
-                ofTable.addFile(selectedOutbox.getOutboxFiles());
+                ofList.clear();
+                ofList.addOutboxFiles(selectedOutbox.getOutboxFiles());
                 setButtonState("Save");
             } catch (SQLException ex) {
                 Exceptions.printStackTrace(ex);
@@ -885,237 +955,78 @@ public class OutboxPanel extends JXPanel implements ActionListener, ListSelectio
         }
     }
 
-    private class OutboxFileTable extends JXTable {
+    private class OutboxFileFileGrid extends JGrid {
 
-        private OutboxFileTableModel model = new OutboxFileTableModel();
-
-        public OutboxFileTable() {
+        public OutboxFileFileGrid() {
+            DefaultListModel model = new DefaultListModel();
             setModel(model);
-            getTableHeader().setReorderingAllowed(false);
-            getColumnModel().getColumn(0).setMinWidth(100);
-            getColumnModel().getColumn(0).setMaxWidth(100);
+
+            getCellRendererManager().setDefaultRenderer(new PicViewerRenderer());
+            setFixedCellDimension(160);
+            setHorizonztalMargin(15);
+            setVerticalMargin(15);
         }
 
         public void clear() {
+            DefaultListModel model = (DefaultListModel) getModel();
             model.clear();
         }
 
-        public OutboxFile getSelectedfile() {
+        public OutboxFile getSelectedOutboxFile() {
             OutboxFile file = null;
-
-            int row = getSelectedRow();
-
-            Object obj = model.getValueAt(row, 1);
-
+            Object obj = this.getModel().getElementAt(this.getSelectedIndex());
             if (obj instanceof OutboxFile) {
                 file = (OutboxFile) obj;
             }
-
             return file;
         }
 
-        public ArrayList<OutboxFile> getfiles() {
-            return model.getfiles();
-        }
+        public ArrayList<OutboxFile> getOutboxFiles() {
+            ArrayList<OutboxFile> outboxFiles = new ArrayList<OutboxFile>();
 
-        public ArrayList<OutboxFile> getSelectedFiles() {
+            int size = this.getModel().getSize();
 
-            ArrayList<OutboxFile> files = new ArrayList<OutboxFile>();
-
-            int[] rows = getSelectedRows();
-
-            if (rows != null) {
-                for (int i = 0; i < rows.length; i++) {
+            if (size > 0) {
+                for (int i = 0; i < size; i++) {
                     OutboxFile file = null;
-                    Object obj = model.getValueAt(rows[i], 1);
+                    Object obj = this.getModel().getElementAt(i);
                     if (obj instanceof OutboxFile) {
                         file = (OutboxFile) obj;
-                        files.add(file);
+                    }
+
+                    if (file != null) {
+                        outboxFiles.add(file);
                     }
                 }
             }
 
-            return files;
-        }
-
-        public void updateSelectedfile(OutboxFile file) {
-            int row = getSelectedRow();
-            model.updateRow(row, getSelectedfile(), file);
-        }
-
-        public void removeFiles(ArrayList<OutboxFile> files) {
-            if (!files.isEmpty()) {
-                for (OutboxFile file : files) {
-                    model.remove(file);
-                }
-            }
-
-        }
-
-        public void addFile(OutboxFile file) {
-            model.add(file);
-        }
-
-        public void addFile(ArrayList<OutboxFile> files) {
-            if (!files.isEmpty()) {
-                for (OutboxFile file : files) {
-                    model.add(file);
-                }
-            }
-        }
-
-        @Override
-        public TableCellRenderer getCellRenderer(int row, int column) {
-            if (column == 0) {
-                EditorPaneLinkVisitor visitor = new EditorPaneLinkVisitor();
-                LinkModelAction<?> action = new LinkModelAction<LinkModel>(visitor) {
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        downloadFile();
-                    }
-
-                    @Override
-                    protected void updateFromTarget() {
-                        super.updateFromTarget();
-                        putValue(Action.SHORT_DESCRIPTION, null);
-                    }
-                };
-                return new DefaultTableRenderer(new HyperlinkProvider(action, LinkModel.class));
-            }
-            return super.getCellRenderer(row, column);
-        }
-    }
-
-    private static class OutboxFileTableModel extends AbstractTableModel {
-
-        public static final int COLUMN_COUNT = 2;
-        private static final String[] columnIds = {"Download File", "Nama File"};
-        private ArrayList<OutboxFile> outboxFiles = new ArrayList<OutboxFile>();
-
-        @Override
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return false;
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return columnIds[column];
-        }
-
-        public void add(ArrayList<OutboxFile> files) {
-            int first = files.size();
-            int last = first + files.size() - 1;
-            files.addAll(files);
-            fireTableRowsInserted(first, last);
-        }
-
-        public void add(OutboxFile file) {
-            if (!outboxFiles.contains(file)) {
-                insertRow(getRowCount(), file);
-            }
-        }
-
-        public void insertRow(int row, OutboxFile file) {
-            outboxFiles.add(row, file);
-            justifyRows(row, row + 1);
-            fireTableRowsInserted(row, row);
-        }
-
-        public void updateRow(int row, OutboxFile oldfile, OutboxFile newfile) {
-            int index = outboxFiles.indexOf(oldfile);
-            outboxFiles.set(index, newfile);
-            fireTableRowsUpdated(index, index);
-        }
-
-        public void remove(OutboxFile file) {
-            int row = outboxFiles.indexOf(file);
-            outboxFiles.remove(file);
-            fireTableRowsDeleted(row, row);
-        }
-
-        public void clear() {
-            setRowCount(0);
-        }
-
-        protected void setRowCount(int rowCount) {
-            int old = getRowCount();
-            if (old == rowCount) {
-                return;
-            }
-
-            if (rowCount <= old) {
-                outboxFiles.clear();
-                fireTableRowsDeleted(rowCount, old - 1);
-            } else {
-                outboxFiles.ensureCapacity(rowCount);
-                justifyRows(old, rowCount);
-                fireTableRowsInserted(old, rowCount - 1);
-            }
-        }
-
-        private void justifyRows(int from, int to) {
-            outboxFiles.ensureCapacity(getRowCount());
-
-            for (int i = from; i < to; i++) {
-                if (outboxFiles.get(i) == null) {
-                    outboxFiles.set(i, new OutboxFile());
-                }
-            }
-        }
-
-        public ArrayList<OutboxFile> getfiles() {
             return outboxFiles;
         }
 
-        @Override
-        public int getRowCount() {
-            return outboxFiles.size();
+        public void addOutboxFile(OutboxFile file) {
+            DefaultListModel model = (DefaultListModel) getModel();
+            model.addElement(file);
         }
 
-        @Override
-        public int getColumnCount() {
-            return COLUMN_COUNT;
-        }
+        public void addOutboxFiles(ArrayList<OutboxFile> files) {
+            DefaultListModel model = (DefaultListModel) getModel();
 
-        public OutboxFile getfile(int row) {
-            if (!outboxFiles.isEmpty()) {
-                return outboxFiles.get(row);
+            if (!files.isEmpty()) {
+                for (OutboxFile file : files) {
+                    model.addElement(file);
+                }
             }
-            return null;
+
         }
 
-        @Override
-        public void setValueAt(Object aValue, int row, int column) {
-            OutboxFile file = getfile(row);
-            switch (column) {
-                case 0:
-                    break;
-
-                case 1:
-                    file = (OutboxFile) aValue;
-                    break;
-            }
+        public void updateOutboxFile(OutboxFile file) {
+            DefaultListModel model = (DefaultListModel) getModel();
+            model.setElementAt(file, getSelectedIndex());
         }
 
-        @Override
-        public Object getValueAt(int row, int column) {
-            Object toBeDisplayed = "n/a";
-            OutboxFile file = getfile(row);
-            switch (column) {
-                case 0:
-                    if (file != null) {
-                        LinkModel link = new LinkModel("Download File", null, null);
-                        toBeDisplayed = link;
-                    }
-
-                    break;
-
-                case 1:
-                    toBeDisplayed = file;
-                    break;
-            }
-            return toBeDisplayed;
+        public void removeSelected(OutboxFile file) {
+            DefaultListModel model = (DefaultListModel) getModel();
+            model.removeElement(file);
         }
     }
 

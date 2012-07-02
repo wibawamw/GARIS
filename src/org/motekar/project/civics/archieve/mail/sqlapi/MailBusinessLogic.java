@@ -5,12 +5,15 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.StringTokenizer;
+import org.motekar.project.civics.archieve.mail.objects.ContractMail;
+import org.motekar.project.civics.archieve.mail.objects.HealthMail;
 import org.motekar.project.civics.archieve.mail.objects.Inbox;
 import org.motekar.project.civics.archieve.mail.objects.InboxDisposition;
 import org.motekar.project.civics.archieve.mail.objects.InboxFile;
 import org.motekar.project.civics.archieve.mail.objects.Outbox;
 import org.motekar.project.civics.archieve.mail.objects.OutboxDisposition;
 import org.motekar.project.civics.archieve.mail.objects.OutboxFile;
+import org.motekar.project.civics.archieve.mail.objects.ReferenceMail;
 import org.motekar.util.user.misc.MotekarException;
 import org.motekar.util.user.sqlapi.AuthBusinessLogic;
 
@@ -677,6 +680,485 @@ public class MailBusinessLogic {
             } 
 
             return number;
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    //
+    
+    public ReferenceMail insertReferenceMail(Long session,ReferenceMail referencemail) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.insertReferenceMail(conn, referencemail);
+
+
+            Long index = sql.getMaxIndex(conn, "referencemail", "autoindex");
+            referencemail.setIndex(index);
+            referencemail.setStyled(true);
+
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+        return referencemail;
+    }
+
+    public ReferenceMail updateReferenceMail(Long session,ReferenceMail oldReferenceMail, ReferenceMail newReferenceMail) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.updateReferenceMail(conn,oldReferenceMail.getIndex(), newReferenceMail);
+            newReferenceMail.setIndex(oldReferenceMail.getIndex());
+            newReferenceMail.setStyled(true);
+
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+        return newReferenceMail;
+    }
+
+
+    public void deleteReferenceMail(Long session,Long index) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.deleteReferenceMail(conn, index);
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<ReferenceMail> getReferenceMail(Long session) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getReferenceMail(conn);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<ReferenceMail> getReferenceMail(Long session,Integer month, Integer year) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            return sql.getReferenceMail(conn, month, year);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<ReferenceMail> getReferenceMail(Long session,Date date, Date date2) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            return sql.getReferenceMail(conn, date, date2);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    public ContractMail insertContractMail(Long session,ContractMail contractmail) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.insertContractMail(conn, contractmail);
+
+
+            Long index = sql.getMaxIndex(conn, "contractmail", "autoindex");
+            contractmail.setIndex(index);
+            contractmail.setStyled(true);
+
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+        return contractmail;
+    }
+
+    public ContractMail updateContractMail(Long session,ContractMail oldContractMail, ContractMail newContractMail) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.updateContractMail(conn,oldContractMail.getIndex(), newContractMail);
+            newContractMail.setIndex(oldContractMail.getIndex());
+            newContractMail.setStyled(true);
+
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+        return newContractMail;
+    }
+
+
+    public void deleteContractMail(Long session,Long index) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.deleteContractMail(conn, index);
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<ContractMail> getContractMail(Long session) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getContractMail(conn);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<ContractMail> getContractMail(Long session,Integer month, Integer year) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            return sql.getContractMail(conn, month, year);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<ContractMail> getContractMail(Long session,Date date, Date date2) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            return sql.getContractMail(conn, date, date2);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    public HealthMail insertHealthMail(Long session,HealthMail healthmail) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.insertHealthMail(conn, healthmail);
+
+
+            Long index = sql.getMaxIndex(conn, "healthmail", "autoindex");
+            healthmail.setIndex(index);
+            healthmail.setStyled(true);
+
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+        return healthmail;
+    }
+
+    public HealthMail updateHealthMail(Long session,HealthMail oldHealthMail, HealthMail newHealthMail) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.updateHealthMail(conn,oldHealthMail.getIndex(), newHealthMail);
+            newHealthMail.setIndex(oldHealthMail.getIndex());
+            newHealthMail.setStyled(true);
+
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+        return newHealthMail;
+    }
+
+
+    public void deleteHealthMail(Long session,Long index) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.deleteHealthMail(conn, index);
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<HealthMail> getHealthMail(Long session) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getHealthMail(conn);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<HealthMail> getHealthMail(Long session,Integer month, Integer year) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            return sql.getHealthMail(conn, month, year);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<HealthMail> getHealthMail(Long session,Date date, Date date2) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            return sql.getHealthMail(conn, date, date2);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {

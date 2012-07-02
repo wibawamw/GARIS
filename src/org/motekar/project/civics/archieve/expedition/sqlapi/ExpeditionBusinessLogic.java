@@ -178,13 +178,13 @@ public class ExpeditionBusinessLogic {
         }
     }
 
-    public ArrayList<Expedition> getExpedition(Long session, Date startDate, Date endDate) throws SQLException {
+    public ArrayList<Expedition> getExpedition(Long session, Date startDate, Date endDate, String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
 
-            return sql.getExpedition(conn, startDate, endDate);
+            return sql.getExpedition(conn, startDate, endDate,modifier);
         } catch (SQLException sqle) {
             Exceptions.printStackTrace(sqle);
             throw sqle;
@@ -193,12 +193,12 @@ public class ExpeditionBusinessLogic {
         }
     }
 
-    public ArrayList<Expedition> getExpedition(Long session, Integer month, Integer year) throws SQLException {
+    public ArrayList<Expedition> getExpedition(Long session, Integer month, Integer year, String modifier) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getExpedition(conn, month, year);
+            return sql.getExpedition(conn, month, year,modifier);
         } catch (SQLException sqle) {
             Exceptions.printStackTrace(sqle);
             throw sqle;
@@ -431,17 +431,14 @@ public class ExpeditionBusinessLogic {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
 
-            AssignmentLetter letter = sql.getAssignmentLetterByIndex(conn, journal.getLetter().getIndex());
+            Expedition expedition = sql.getExpeditionByIndex(conn, journal.getExpedition().getIndex());
 
-            letter = getCompleteAssignmentLetter(session, letter);
-
-            ArrayList<Expedition> expeditions = sql.getExpeditionByLetter(conn, letter.getIndex());
+            expedition = getCompleteExpedition(session, expedition);
 
             ArrayList<ExpeditionResult> result = sql.getExpeditionResult(conn, journal.getJournalIndex());
 
-            journal.setLetter(letter);
+            journal.setExpedition(expedition);
             journal.setResult(result);
-            journal.setExpeditions(expeditions);
 
             journal.setStyled(true);
 
@@ -607,12 +604,12 @@ public class ExpeditionBusinessLogic {
         }
     }
 
-    public ArrayList<AssignmentLetter> getAssignmentLetterInExpedition(Long session) throws SQLException {
+    public AssignmentLetter getAssignmentLetterInExpedition(Long session,Long index) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");
             }
-            return sql.getAssigmentLetterInExpedition(conn);
+            return sql.getAssigmentLetterInExpedition(conn,index);
         } catch (SQLException sqle) {
             throw sqle;
         } catch (Throwable anyOtherException) {
@@ -634,7 +631,7 @@ public class ExpeditionBusinessLogic {
         }
     }
 
-    public boolean getAssignmentLetterInExpedition(Long session, Long index) throws SQLException {
+    public boolean isAssignmentLetterInExpedition(Long session, Long index) throws SQLException {
         try {
             if (!auth.isSessionExpired(session)) {
                 throw new MotekarException("Session anda telah berakhir silahkan login kembali");

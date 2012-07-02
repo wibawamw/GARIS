@@ -23,6 +23,25 @@ public class Employee {
         "Penata Muda, IIIA", "Penata Muda Tingkat I, IIIB", "Penata, IIIC", "Penata Tingkat I, IIID",
         "Pembina, IVA", "Pembina Tingkat I, IVB", "Pembina Utama Muda, IVC", "Pembina Utama Madya, IVD", 
         "Pembina Utama, IVE"};
+    
+    public static final Integer GRADE_IA = Integer.valueOf(1);
+    public static final Integer GRADE_IB = Integer.valueOf(2);
+    public static final Integer GRADE_IC = Integer.valueOf(3);
+    public static final Integer GRADE_ID = Integer.valueOf(4);
+    public static final Integer GRADE_IIA = Integer.valueOf(5);
+    public static final Integer GRADE_IIB = Integer.valueOf(6);
+    public static final Integer GRADE_IIC = Integer.valueOf(7);
+    public static final Integer GRADE_IID = Integer.valueOf(8);
+    public static final Integer GRADE_IIIA = Integer.valueOf(9);
+    public static final Integer GRADE_IIIB = Integer.valueOf(10);
+    public static final Integer GRADE_IIIC = Integer.valueOf(11);
+    public static final Integer GRADE_IIID = Integer.valueOf(12);
+    public static final Integer GRADE_IVA = Integer.valueOf(13);
+    public static final Integer GRADE_IVB = Integer.valueOf(14);
+    public static final Integer GRADE_IVC = Integer.valueOf(15);
+    public static final Integer GRADE_IVD = Integer.valueOf(16);
+    public static final Integer GRADE_IVE = Integer.valueOf(17);
+    
     public static final String[] FUNGSIONAL = new String[]{"","Staf","Dokter", "Perawat",
         "Kepala Sekolah", "Guru", "Pengawas"};
     public static final String[] STRUKTURAL = new String[]{"","SEKRETARIS DAERAH",
@@ -34,7 +53,9 @@ public class Employee {
         "KEPALA SUB BAGIAN",
         "KEPALA SUB BIDANG",
         "KEPALA SUB SEKSI",
-        "SEKRETARIS DINAS"};
+        "SEKRETARIS DINAS",
+        "DIREKTUR RSUD",
+        "SEKRETARIS RSUD"};
 
 
     public static final String[] ESELON = new String[]{"", "IA", "IB",
@@ -46,7 +67,14 @@ public class Employee {
      public static final Integer[] CHILDREN = new Integer[]{0,1,2,3};
 
      public static final String[] EDUCATION = new String[]{"", "S3", "S2",
-        "S1","D3","D1","SMA","SMK","SMP","SD"};
+        "S1","D3","D1","SMA","SMK","SMP","SD","SMA Sederajat","DIV","SPK",
+        "PPB A","PPB C"};
+     
+     public static final String[] WORKFORCE = new String[]{"", "TENAGA KONTRAK", "TENAGA HONORER",
+        "PTTP"};
+     
+     public static final String[] RELIGION = new String[]{"", "Islam", "Kristen Protestan",
+        "Katolik", "Budha", "Hindu", "Konghucu", "Lainnya"};
 
     public static final String SEKRETARIS_DAERAH = STRUKTURAL[1];
     public static final String KEPALA_DINAS = STRUKTURAL[2];
@@ -63,11 +91,13 @@ public class Employee {
     private String birthPlace = "";
     private Date birthDate = new Date();
     private Integer sex = Integer.valueOf(0);
+    private Integer religion = Integer.valueOf(0);
     private Integer marital = Integer.valueOf(0);
     private String soulmate = "";
     private Integer children = Integer.valueOf(0);
     private Integer education = Integer.valueOf(0);
-
+    private String department = "";
+    private Integer workforce = Integer.valueOf(0);
 
     private Integer grade = Integer.valueOf(0);
     private Integer fungsional = Integer.valueOf(0);
@@ -83,6 +113,10 @@ public class Employee {
     //
     private boolean styled = false;
     private boolean gorvernor = false;
+    private boolean nonEmployee = false;
+    
+    private Integer mkYear = Integer.valueOf(0);
+    private Integer mkMonth = Integer.valueOf(0);
 
     private ArrayList<EmployeeCourses> courseses = new ArrayList<EmployeeCourses>();
     private ArrayList<EmployeeFacility> facilitys = new ArrayList<EmployeeFacility>();
@@ -278,6 +312,44 @@ public class Employee {
         this.styled = styled;
     }
 
+    public Integer getWorkforce() {
+        return workforce;
+    }
+
+    public void setWorkforce(Integer workforce) {
+        this.workforce = workforce;
+    }
+    
+    public String getWorkforceAsString() {
+        return WORKFORCE[workforce];
+    }
+
+    public static ArrayList<String> workforceAsList() {
+        ArrayList<String> workforce = new ArrayList<String>();
+        workforce.addAll(Arrays.asList(WORKFORCE));
+
+        return workforce;
+    }
+    
+    public Integer getReligion() {
+        return religion;
+    }
+
+    public void setReligion(Integer religion) {
+        this.religion = religion;
+    }
+
+    public String getReligionAsString() {
+        return RELIGION[religion];
+    }
+
+    public static ArrayList<String> religionAsList() {
+        ArrayList<String> religion = new ArrayList<String>();
+        religion.addAll(Arrays.asList(RELIGION));
+
+        return religion;
+    }
+    
     public String getPositionNotes() {
         return positionNotes;
     }
@@ -366,12 +438,46 @@ public class Employee {
         return str;
     }
 
+    public String getDepartment() {
+        return department;
+    }
 
+    public void setDepartment(String department) {
+        this.department = department;
+    }
+
+    public boolean isNonEmployee() {
+        return nonEmployee;
+    }
+
+    public void setNonEmployee(boolean nonEmployee) {
+        this.nonEmployee = nonEmployee;
+    }
+
+    public Integer getMkMonth() {
+        return mkMonth;
+    }
+
+    public void setMkMonth(Integer mkMonth) {
+        this.mkMonth = mkMonth;
+    }
+
+    public Integer getMkYear() {
+        return mkYear;
+    }
+
+    public void setMkYear(Integer mkYear) {
+        this.mkYear = mkYear;
+    }
+    
     @Override
     public String toString() {
         if (isStyled()) {
             if (isGorvernor()) {
                 return "<html><b>" + name + "</b>";
+            } else if (isNonEmployee()){
+                return "<html><b>" + name + "</b>"
+                    + "<br style=\"font-size:40%\"><i>" + getWorkforceAsString() + "</i></br>";
             } else {
                 return "<html><b>" + nip + "</b>"
                     + "<br style=\"font-size:40%\"><i>" + name + "</i></br>";

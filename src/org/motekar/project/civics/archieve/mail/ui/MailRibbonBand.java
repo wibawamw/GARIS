@@ -12,7 +12,11 @@ import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
 import org.motekar.util.user.ui.Mainframe;
 import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
+import org.pushingpixels.flamingo.api.common.JCommandMenuButton;
 import org.pushingpixels.flamingo.api.common.RichTooltip;
+import org.pushingpixels.flamingo.api.common.popup.JCommandPopupMenu;
+import org.pushingpixels.flamingo.api.common.popup.JPopupPanel;
+import org.pushingpixels.flamingo.api.common.popup.PopupPanelCallback;
 import org.pushingpixels.flamingo.api.ribbon.JRibbonBand;
 import org.pushingpixels.flamingo.api.ribbon.RibbonElementPriority;
 import org.pushingpixels.flamingo.api.ribbon.resize.CoreRibbonResizePolicies;
@@ -34,6 +38,16 @@ public class MailRibbonBand implements ActionListener {
             Mainframe.getResizableIconFromSource("resource/mail.png"));
     private JCommandButton btOutboxStatus = new JCommandButton("Status Surat Keluar",
             Mainframe.getResizableIconFromSource("resource/All mail.png"));
+    
+    private JCommandButton btOtherMail = new JCommandButton("Surat Keluar Lainnya",
+            Mainframe.getResizableIconFromSource("resource/othermail.png"));
+    
+    private JCommandMenuButton menuReferenceMail = new JCommandMenuButton("Surat Keluar Rujukan",
+            Mainframe.getResizableIconFromSource("resource/referencemail.png"));
+    private JCommandMenuButton menuContractMail = new JCommandMenuButton("Surat Keluar Kontrak",
+            Mainframe.getResizableIconFromSource("resource/contractmail.png"));
+    private JCommandMenuButton menuHealthMail = new JCommandMenuButton("Surat Keluar Keterangan Sehat",
+            Mainframe.getResizableIconFromSource("resource/healthmail.png"));
     
 
     private ArchieveMainframe mainframe;
@@ -118,15 +132,33 @@ public class MailRibbonBand implements ActionListener {
         }
 
         btOutboxStatus.setActionRichTooltip(outboxStatusTooltip);
+        
+        btOtherMail.setPopupCallback(new PopupPanelCallback() {
 
+            @Override
+            public JPopupPanel getPopupPanel(JCommandButton commandButton) {
+                JCommandPopupMenu popupMenu = new JCommandPopupMenu();
+                popupMenu.addMenuButton(menuReferenceMail);
+                popupMenu.addMenuButton(menuContractMail);
+                popupMenu.addMenuButton(menuHealthMail);
+                return popupMenu;
+            }
+        });
+        
+        btOtherMail.setCommandButtonKind(JCommandButton.CommandButtonKind.ACTION_AND_POPUP_MAIN_ACTION);
+        menuReferenceMail.addActionListener(this);
+        menuContractMail.addActionListener(this);
+        menuHealthMail.addActionListener(this);
         
 
         mailOutbox.addCommandButton(btOutbox, RibbonElementPriority.TOP);
         mailOutbox.addCommandButton(btOutboxStatus, RibbonElementPriority.MEDIUM);
+        mailOutbox.addCommandButton(btOtherMail, RibbonElementPriority.MEDIUM);
         
 
         btOutbox.addActionListener(this);
         btOutboxStatus.addActionListener(this);
+        
         
 
         mailOutbox.setResizePolicies((List) Arrays.asList(new CoreRibbonResizePolicies.None(mailOutbox.getControlPanel()),
@@ -145,7 +177,13 @@ public class MailRibbonBand implements ActionListener {
             mainframe.addChildFrame(btOutbox.getText(), new OutboxPanel(mainframe));
         } else if (source == btOutboxStatus) {
             mainframe.addChildFrame(btOutboxStatus.getText(), new OutboxStatusPanel(mainframe));
-        } 
+        } else if (source == menuReferenceMail) {
+            mainframe.addChildFrame(menuReferenceMail.getText(), new ReferenceMailPanel(mainframe));
+        } else if (source == menuContractMail) {
+            mainframe.addChildFrame(menuContractMail.getText(), new ContractMailPanel(mainframe));
+        } else if (source == menuHealthMail) {
+            mainframe.addChildFrame(menuHealthMail.getText(), new HealthMailPanel(mainframe));
+        }
     }
 
 }

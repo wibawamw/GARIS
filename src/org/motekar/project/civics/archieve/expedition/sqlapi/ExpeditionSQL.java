@@ -273,25 +273,24 @@ public class ExpeditionSQL extends CommonSQL {
         return expedition;
     }
 
-    ArrayList<Expedition> getExpedition(Connection conn, Date startDate, Date endDate) throws SQLException {
+    ArrayList<Expedition> getExpedition(Connection conn, Date startDate, Date endDate,String modifier) throws SQLException {
         ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
         StringBuilder query = new StringBuilder();
-        query.append("select exp.*,coalesce(al.autoindex,0,1) status,").
+        query.append("select exp.*,coalesce(al.journalindex,0,1) status,").
                 append("emp.nip assnip, emp.employeename assname,al2.purpose from expedition exp ").
                 append(" inner join employee emp ").
                 append("on emp.autoindex = exp.assignedemployee ").
                 append(" left join ").
-                append("(select * from assignmentletter ").
-                append("where autoindex in ").
-                append("(select letterindex from expeditionjournal)) al  ").
-                append("on al.autoindex = exp.letterindex ").
+                append("(select journalindex from expeditionjournal) al  ").
+                append("on al.journalindex = exp.autoindex ").
                 append(" left join assignmentletter al2 ").
                 append("on al2.autoindex = exp.letterindex ").
                 append("where startdate between ").
                 append("'").append(new java.sql.Date(startDate.getTime())).append("' ").
                 append(" and ").
-                append("'").append(new java.sql.Date(endDate.getTime())).append("' ");
+                append("'").append(new java.sql.Date(endDate.getTime())).append("' ").
+                append(modifier);
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
@@ -344,41 +343,37 @@ public class ExpeditionSQL extends CommonSQL {
         return expeditions;
     }
 
-    ArrayList<Expedition> getExpedition(Connection conn, Integer month, Integer year) throws SQLException {
+    ArrayList<Expedition> getExpedition(Connection conn, Integer month, Integer year,String modifier) throws SQLException {
         ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
         StringBuilder query = new StringBuilder();
 
         if (month == 0) {
-            query.append("select exp.*,coalesce(al.autoindex,0,1) status,").
+            query.append("select exp.*,coalesce(al.journalindex,0,1) status,").
                     append("emp.nip assnip, emp.employeename assname,al2.purpose from expedition exp ").
                     append(" inner join employee emp ").
                     append("on emp.autoindex = exp.assignedemployee ").
                     append(" left join ").
-                    append("(select * from assignmentletter ").
-                    append("where autoindex in ").
-                    append("(select letterindex from expeditionjournal)) al  ").
-                    append("on al.autoindex = exp.letterindex ").
+                    append("(select journalindex from expeditionjournal) al  ").
+                    append("on al.journalindex = exp.autoindex ").
                     append("left join assignmentletter al2 ").
                     append("on al2.autoindex = exp.letterindex ").
                     append("where date_part('year',startdate) = ").
-                    append(year);
+                    append(year).append(modifier);
         } else {
-            query.append("select exp.*,coalesce(al.autoindex,0,1) status,").
+            query.append("select exp.*,coalesce(al.journalindex,0,1) status,").
                     append("emp.nip assnip, emp.employeename assname,al2.purpose from expedition exp ").
                     append(" inner join employee emp ").
                     append("on emp.autoindex = exp.assignedemployee ").
                     append(" left join ").
-                    append("(select * from assignmentletter ").
-                    append("where autoindex in ").
-                    append("(select letterindex from expeditionjournal)) al  ").
-                    append("on al.autoindex = exp.letterindex ").
+                    append("(select journalindex from expeditionjournal) al  ").
+                    append("on al.journalindex = exp.autoindex ").
                     append("left join assignmentletter al2 ").
                     append("on al2.autoindex = exp.letterindex ").
                     append("where date_part('month',startdate) = ").
                     append(month).
                     append(" and date_part('year',startdate) = ").
-                    append(year);
+                    append(year).append(modifier);
         }
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
@@ -432,7 +427,7 @@ public class ExpeditionSQL extends CommonSQL {
         return expeditions;
     }
 
-    boolean getExpeditionRangeCheck(Connection conn, Date startdate,Date enddate, Long indexEmployee) throws SQLException {
+    boolean getExpeditionRangeCheck(Connection conn, Date startdate, Date enddate, Long indexEmployee) throws SQLException {
         StringBuilder query = new StringBuilder();
 
         query.append("SELECT (DATE (to_char(max(startdate), 'yyyy-MM-dd')), ").
@@ -578,17 +573,16 @@ public class ExpeditionSQL extends CommonSQL {
 
     void insertExpeditionJournal(Connection conn, ExpeditionJournal journal) throws SQLException {
         StringBuilder query = new StringBuilder();
-        query.append("insert into expeditionjournal(reportnumber,letterindex,").
-                append("reportplace,reportdate)").
-                append("values(?,?,?,?)");
+        query.append("insert into expeditionjournal(expeditionindex,").
+                append("reportdate,fundingsource)").
+                append("values(?,?,?)");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
         int col = 0;
 
-        pstm.setString(++col, journal.getReportNumber());
-        pstm.setLong(++col, journal.getLetter().getIndex());
-        pstm.setString(++col, journal.getReportPlace());
+        pstm.setLong(++col, journal.getExpedition().getIndex());
         pstm.setDate(++col, new java.sql.Date(journal.getReportDate().getTime()));
+        pstm.setString(++col, journal.getFundingSource());
 
         pstm.executeUpdate();
         pstm.close();
@@ -596,17 +590,16 @@ public class ExpeditionSQL extends CommonSQL {
 
     void updateExpeditionJournal(Connection conn, Long oldIndex, ExpeditionJournal journal) throws SQLException {
         StringBuilder query = new StringBuilder();
-        query.append("update expeditionjournal set reportnumber = ?, letterindex = ?,  ").
-                append("reportplace = ?, reportdate = ?  ").
+        query.append("update expeditionjournal set expeditionindex = ?,  ").
+                append("reportdate = ?, fundingsource = ? ").
                 append("where journalindex = ?");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
         int col = 0;
 
-        pstm.setString(++col, journal.getReportNumber());
-        pstm.setLong(++col, journal.getLetter().getIndex());
-        pstm.setString(++col, journal.getReportPlace());
+        pstm.setLong(++col, journal.getExpedition().getIndex());
         pstm.setDate(++col, new java.sql.Date(journal.getReportDate().getTime()));
+        pstm.setString(++col, journal.getFundingSource());
         pstm.setLong(++col, oldIndex);
         pstm.executeUpdate();
         pstm.close();
@@ -632,13 +625,11 @@ public class ExpeditionSQL extends CommonSQL {
         while (rs.next()) {
             ExpeditionJournal journal = new ExpeditionJournal();
             journal.setJournalIndex(rs.getLong("journalindex"));
-            journal.setReportNumber(rs.getString("reportnumber"));
-            journal.setReportPlace(rs.getString("reportplace"));
             journal.setReportDate(rs.getDate("reportdate"));
+            journal.setFundingSource(rs.getString("fundingsource"));
 
-            AssignmentLetter letter = new AssignmentLetter(rs.getLong("letterindex"));
-
-            journal.setLetter(letter);
+            Expedition expedition = new Expedition(rs.getLong("expeditionindex"));
+            journal.setExpedition(expedition);
 
             journal.setStyled(true);
 
@@ -668,13 +659,11 @@ public class ExpeditionSQL extends CommonSQL {
         while (rs.next()) {
             ExpeditionJournal journal = new ExpeditionJournal();
             journal.setJournalIndex(rs.getLong("journalindex"));
-            journal.setReportNumber(rs.getString("reportnumber"));
-            journal.setReportPlace(rs.getString("reportplace"));
             journal.setReportDate(rs.getDate("reportdate"));
+            journal.setFundingSource(rs.getString("fundingsource"));
 
-            AssignmentLetter letter = new AssignmentLetter(rs.getLong("letterindex"));
-
-            journal.setLetter(letter);
+            Expedition expedition = new Expedition(rs.getLong("expeditionindex"));
+            journal.setExpedition(expedition);
 
             journal.setStyled(true);
 
@@ -812,20 +801,22 @@ public class ExpeditionSQL extends CommonSQL {
         return letters;
     }
 
-    ArrayList<AssignmentLetter> getAssigmentLetterInExpedition(Connection conn) throws SQLException {
-        ArrayList<AssignmentLetter> letters = new ArrayList<AssignmentLetter>();
+    AssignmentLetter getAssigmentLetterInExpedition(Connection conn, Long index) throws SQLException {
+        AssignmentLetter letter = null;
 
         StringBuilder query = new StringBuilder();
         query.append("select * from assignmentletter ").
                 append("where autoindex in ").
-                append("(select letterindex from expedition)");
+                append("(select letterindex from expedition ").
+                append("where autoindex = ?)");
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
+        pstm.setLong(1, index);
 
         ResultSet rs = pstm.executeQuery();
 
         while (rs.next()) {
-            AssignmentLetter letter = new AssignmentLetter();
+            letter = new AssignmentLetter();
             letter.setIndex(rs.getLong("autoindex"));
             letter.setDocumentNumber(rs.getString("docnumber"));
             letter.setPurpose(rs.getString("purpose"));
@@ -837,13 +828,12 @@ public class ExpeditionSQL extends CommonSQL {
 
             letter.setStyled(true);
 
-            letters.add(letter);
         }
 
         rs.close();
         pstm.close();
 
-        return letters;
+        return letter;
     }
 
     AssignmentLetter getAssignmentLetterByIndex(Connection conn, Long index) throws SQLException {
@@ -966,7 +956,7 @@ public class ExpeditionSQL extends CommonSQL {
 
         StringBuilder query = new StringBuilder();
         query.append("select ae.*,employeename,nip,birthplace,birthdate,").
-                append("sex,grade,fungsional,struktural, positionnotes, isgorvernor ").
+                append("sex,grade,fungsional,struktural, positionnotes, isgorvernor,isnonemployee ").
                 append("from assignedemployee ae ").
                 append("inner join employee e ").
                 append("on e.autoindex = ae.employeeindex ").
@@ -990,6 +980,7 @@ public class ExpeditionSQL extends CommonSQL {
             employee.setStruktural(rs.getInt("struktural"));
             employee.setPositionNotes(rs.getString("positionnotes"));
             employee.setGorvernor(rs.getBoolean("isgorvernor"));
+            employee.setNonEmployee(rs.getBoolean("isnonemployee"));
 
             assignedEmployee.add(employee);
         }
@@ -1161,7 +1152,7 @@ public class ExpeditionSQL extends CommonSQL {
         return cheques;
     }
 
-    BigDecimal getBudgetUsed(Connection conn,Integer years,Integer budgetType) throws SQLException {
+    BigDecimal getBudgetUsed(Connection conn, Integer years, Integer budgetType) throws SQLException {
         BigDecimal used = BigDecimal.ZERO;
 
         StringBuilder query = new StringBuilder();
@@ -1189,7 +1180,7 @@ public class ExpeditionSQL extends CommonSQL {
         return used;
     }
 
-    BigDecimal getBudgetUsed(Connection conn,Long indexCheque,Integer years,Integer budgetType) throws SQLException {
+    BigDecimal getBudgetUsed(Connection conn, Long indexCheque, Integer years, Integer budgetType) throws SQLException {
         BigDecimal used = BigDecimal.ZERO;
 
         StringBuilder query = new StringBuilder();

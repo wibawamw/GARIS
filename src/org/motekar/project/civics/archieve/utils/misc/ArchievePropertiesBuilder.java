@@ -50,6 +50,7 @@ public class ArchievePropertiesBuilder {
         root.addChild(createLogosTag());
         root.addChild(createLogos2Tag());
         root.addChild(createLogos3Tag());
+        root.addChild(createLogos4Tag());
     }
 
     private XMLElement createServerTag() throws XMLException {
@@ -148,6 +149,13 @@ public class ArchievePropertiesBuilder {
     private XMLElement createLogos3Tag() throws XMLException {
         XMLElement child = new XMLElement("Logos3");
         child.setAttribute("Name", prop.getLogo3FileName());
+
+        return child;
+    }
+    
+    private XMLElement createLogos4Tag() throws XMLException {
+        XMLElement child = new XMLElement("Logos4");
+        child.setAttribute("Name", prop.getLogo4FileName());
 
         return child;
     }
