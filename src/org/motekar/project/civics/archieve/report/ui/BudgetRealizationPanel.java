@@ -3,46 +3,31 @@ package org.motekar.project.civics.archieve.report.ui;
 import com.jgoodies.forms.builder.DefaultFormBuilder;
 import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
+import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JasperCompileManager;
-import net.sf.jasperreports.engine.JasperFillManager;
-import net.sf.jasperreports.engine.JasperPrint;
-import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRTableModelDataSource;
-import org.jdesktop.swingx.JXCollapsiblePane;
-import org.jdesktop.swingx.JXComboBox;
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.JXLabel;
-import org.jdesktop.swingx.JXMultiSplitPane;
-import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.JXStatusBar;
-import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.JXTitledPanel;
-import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.*;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jdesktop.swingx.error.ErrorInfo;
+import org.motekar.project.civics.archieve.master.objects.Activity;
+import org.motekar.project.civics.archieve.master.objects.StandardPrice;
+import org.motekar.project.civics.archieve.master.sqlapi.MasterBusinessLogic;
 import org.motekar.project.civics.archieve.report.object.BudgetRealization;
 import org.motekar.project.civics.archieve.report.sqlapi.ReportBusinessLogic;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
@@ -57,11 +42,26 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
 
     private ArchieveMainframe mainframe = null;
     private ReportBusinessLogic logic;
+    private MasterBusinessLogic mLogic;
     private JXMultiSplitPane splitPane = new JXMultiSplitPane();
     private JXLabel statusLabel = new JXLabel("Ready");
     private JProgressBar viewerBar = new JProgressBar();
     private JYearChooser yearChooser = new JYearChooser();
     private JXComboBox comboBudgetType = new JXComboBox();
+    //
+    private JXComboBox comboActivity = new JXComboBox();
+    private JXComboBox comboEselon = new JXComboBox();
+    //
+    private JCheckBox checkBox = new JCheckBox("Kegiatan");
+    private JCheckBox checkBox2 = new JCheckBox("Eselon");
+    //
+    private JXDatePicker startDate = new JXDatePicker();
+    private JXDatePicker endDate = new JXDatePicker();
+    private JMonthChooser monthChooser = new JMonthChooser();
+    private JYearChooser yearChooser2 = new JYearChooser();
+    private JCheckBox checkBox3 = new JCheckBox("Tanggal");
+    private JCheckBox checkBox4 = new JCheckBox("Bulan");
+    //
     private ViewerPanel panelViewer = new ViewerPanel(null);
     private JasperPrint jasperPrint = new JasperPrint();
     private LoadPrintPanel printWorker;
@@ -70,6 +70,7 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
     public BudgetRealizationPanel(ArchieveMainframe mainframe) {
         this.mainframe = mainframe;
         logic = new ReportBusinessLogic(mainframe.getConnection());
+        mLogic = new MasterBusinessLogic(mainframe.getConnection());
         construct();
     }
 
@@ -144,6 +145,8 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
     private void construct() {
 
         loadBudgetType();
+        loadComboActivity();
+        loadEselon();
 
         yearChooser.addPropertyChangeListener("year", new PropertyChangeListener() {
 
@@ -156,6 +159,56 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
 
             public void actionPerformed(ActionEvent e) {
                 reloadPrintPanel();
+            }
+        });
+
+        comboActivity.setEnabled(checkBox.isSelected());
+        comboEselon.setEnabled(checkBox2.isSelected());
+        startDate.setEnabled(checkBox3.isSelected());
+        endDate.setEnabled(checkBox3.isSelected());
+        monthChooser.setEnabled(checkBox4.isSelected());
+        yearChooser2.setEnabled(checkBox4.isSelected());
+
+
+        startDate.setFormats("dd/MM/yyyy");
+        endDate.setFormats("dd/MM/yyyy");
+
+        monthChooser.addPropertyChangeListener("month", new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                reloadPrintPanel();
+            }
+        });
+
+        yearChooser2.addPropertyChangeListener("year", new PropertyChangeListener() {
+
+            public void propertyChange(PropertyChangeEvent evt) {
+                reloadPrintPanel();
+            }
+        });
+
+        checkBox.addActionListener(this);
+        checkBox2.addActionListener(this);
+        checkBox3.addActionListener(this);
+        checkBox4.addActionListener(this);
+        startDate.addActionListener(this);
+        endDate.addActionListener(this);
+
+        comboActivity.addItemListener(new ItemListener() {
+
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    reloadPrintPanel();
+                }
+            }
+        });
+
+        comboEselon.addItemListener(new ItemListener() {
+
+            public void itemStateChanged(ItemEvent e) {
+                if (e.getStateChange() == ItemEvent.SELECTED) {
+                    reloadPrintPanel();
+                }
             }
         });
 
@@ -188,8 +241,8 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
     private JPanel createSearchPanel() {
 
         FormLayout lm = new FormLayout(
-                "pref,5px,fill:default:grow,250dlu",
-                "pref,5px,pref");
+                "pref,5px,fill:default:grow,30px,pref,5px,pref,5px,pref,5px,fill:default:grow,70dlu",
+                "pref,1px,pref,1px,pref,1px,pref");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
 
@@ -197,10 +250,26 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
         CellConstraints cc = new CellConstraints();
 
         builder.addLabel("Tahun Anggaran ", cc.xy(1, 1));
-        builder.add(yearChooser, cc.xy(3, 1));
+        builder.add(yearChooser, cc.xyw(3, 1, 1));
 
         builder.addLabel("Tipe Anggaran ", cc.xy(1, 3));
-        builder.add(comboBudgetType, cc.xy(3, 3));
+        builder.add(comboBudgetType, cc.xyw(3, 3, 1));
+
+        builder.add(checkBox, cc.xy(5, 1));
+        builder.add(comboActivity, cc.xyw(7, 1, 5));
+
+        builder.add(checkBox2, cc.xy(5, 3));
+        builder.add(comboEselon, cc.xyw(7, 3, 5));
+
+        builder.add(checkBox3, cc.xy(5, 5));
+        builder.add(startDate, cc.xyw(7, 5, 1));
+        builder.addLabel("s.d. ", cc.xyw(9, 5, 1));
+        builder.add(endDate, cc.xyw(11, 5, 1));
+
+        builder.add(checkBox4, cc.xy(5, 7));
+        builder.add(monthChooser, cc.xyw(7, 7, 1));
+        builder.addLabel("Tahun", cc.xyw(9, 7, 1));
+        builder.add(yearChooser2, cc.xyw(11, 7, 1));
 
         return builder.getPanel();
     }
@@ -209,7 +278,7 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
 
         ArrayList<String> budgetTypes = new ArrayList<String>();
 
-        budgetTypes.add(0," ");
+        budgetTypes.add(0, " ");
         budgetTypes.add("APBD");
         budgetTypes.add("APBD Perubahan");
 
@@ -217,6 +286,25 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
         AutoCompleteDecorator.decorate(comboBudgetType);
 
         comboBudgetType.setSelectedIndex(1);
+    }
+
+    private void loadComboActivity() {
+        try {
+            ArrayList<Activity> activitys = mLogic.getActivity(mainframe.getSession());
+
+            activitys.add(0, new Activity());
+            comboActivity.setModel(new ListComboBoxModel<Activity>(activitys));
+            AutoCompleteDecorator.decorate(comboActivity);
+
+        } catch (SQLException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+
+    private void loadEselon() {
+        comboEselon.removeAllItems();
+        comboEselon.setModel(new ListComboBoxModel<String>(StandardPrice.eselonAsList()));
+        AutoCompleteDecorator.decorate(comboEselon);
     }
 
     public void reloadPrintPanel() {
@@ -230,7 +318,35 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
 
     public void actionPerformed(ActionEvent e) {
         Object source = e.getSource();
-
+        if (source == checkBox) {
+            checkBox2.setSelected(false);
+            comboActivity.setEnabled(checkBox.isSelected());
+            comboEselon.setEnabled(checkBox2.isSelected());
+            reloadPrintPanel();
+        } else if (source == checkBox2) {
+            checkBox.setSelected(false);
+            comboActivity.setEnabled(checkBox.isSelected());
+            comboEselon.setEnabled(checkBox2.isSelected());
+            reloadPrintPanel();
+        } else if (source == checkBox3) {
+            checkBox4.setSelected(false);
+            startDate.setEnabled(checkBox3.isSelected());
+            endDate.setEnabled(checkBox3.isSelected());
+            monthChooser.setEnabled(checkBox4.isSelected());
+            yearChooser2.setEnabled(checkBox4.isSelected());
+            reloadPrintPanel();
+        } else if (source == checkBox4) {
+            checkBox3.setSelected(false);
+            startDate.setEnabled(checkBox3.isSelected());
+            endDate.setEnabled(checkBox3.isSelected());
+            monthChooser.setEnabled(checkBox4.isSelected());
+            yearChooser2.setEnabled(checkBox4.isSelected());
+            reloadPrintPanel();
+        } else if (source == startDate) {
+            reloadPrintPanel();
+        } else if (source == endDate) {
+            reloadPrintPanel();
+        }
     }
 
     private class LoadPrintPanel extends SwingWorker<JasperPrint, Void> {
@@ -241,7 +357,7 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
         private Integer year = Integer.valueOf(0);
         private Integer budgetType = Integer.valueOf(0);
 
-        public LoadPrintPanel(JasperPrint jasperPrint, ViewerPanel viewerPanel, Integer year,Integer budgetType) {
+        public LoadPrintPanel(JasperPrint jasperPrint, ViewerPanel viewerPanel, Integer year, Integer budgetType) {
             this.jasperPrint = jasperPrint;
             this.viewerPanel = viewerPanel;
             this.year = year;
@@ -262,12 +378,12 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
             return exception;
         }
 
-        private JasperReport loadReportFile() throws InterruptedException, JRException {
+        private JasperReport loadReportFileAll() throws InterruptedException, JRException {
             if (isCancelled()) {
                 return null;
             }
 
-            String filename = "BudgetRealization.jrxml";
+            String filename = "BudgetRealizationAll.jrxml";
             JasperReport jasperReport = JasperCompileManager.compileReport("printing/" + filename);
             setProgress(25);
             Thread.sleep(100L);
@@ -275,15 +391,15 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
             return jasperReport;
         }
 
-        private DefaultTableModel constructModel(ArrayList<BudgetRealization> data) throws InterruptedException {
+        private DefaultTableModel constructModelAll(ArrayList<BudgetRealization> data) throws InterruptedException {
 
             DefaultTableModel model = new DefaultTableModel();
-            model.addColumn("Code");
-            model.addColumn("Description");
-            model.addColumn("Opening");
-            model.addColumn("Debet");
+            model.addColumn("Eselon");
+            model.addColumn("Budget");
             model.addColumn("Credit");
             model.addColumn("Closing");
+            model.addColumn("Description");
+            model.addColumn("Activity");
 
             double progress = 0.0;
 
@@ -292,15 +408,10 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
 
                     BudgetRealization br = data.get(i);
 
-                    if (br.getMarker().equals("Detail")) {
-                        model.addRow(new Object[]{"", br.getDescription(),
-                                    br.getOpening(),br.getDebet(),br.getCredit(),
-                                    br.getClosing()});
-                    } else {
-                        model.addRow(new Object[]{br.getCode(), br.getDescription(),
-                                    br.getOpening(),br.getDebet(),br.getCredit(),
-                                    br.getClosing()});
-                    }
+                    model.addRow(new Object[]{br.getEselon(),
+                                br.getBudget(), br.getCredit(),
+                                br.getClosing(), br.getDescription(),
+                                br.getActivity()});
 
 
 
@@ -315,7 +426,7 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
             return model;
         }
 
-        private Map constructParameter() throws InterruptedException {
+        private Map constructParameterAll() throws InterruptedException {
             Map param = new HashMap();
 
             StringBuilder builder = new StringBuilder();
@@ -326,7 +437,212 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
                 builder.append("APBD Perubahan Tahun ").append(year);
             }
 
+            SimpleDateFormat sdf;
+
+            Date sDate = startDate.getDate();
+            Date eDate = endDate.getDate();
+
+            Integer month = monthChooser.getMonth() + 1;
+            Integer year2 = yearChooser2.getYear();
+
+            if (sDate != null && eDate != null && checkBox3.isSelected()) {
+                sdf = new SimpleDateFormat("dd MMM yyyy", new Locale("in", "id", "id"));
+                builder.append(" (").
+                        append(sdf.format(sDate)).
+                        append(" - ").
+                        append(sdf.format(eDate)).
+                        append(") ");
+            } else if (month != 0 && checkBox4.isSelected()) {
+                sdf = new SimpleDateFormat("MMMM yyyy", new Locale("in", "id", "id"));
+                GregorianCalendar cal = new GregorianCalendar(year2, month - 1, 1);
+                builder.append(" (").
+                        append(sdf.format(cal.getTime())).
+                        append(") ");
+            }
+
             param.put("periode", builder.toString());
+            setProgress(80);
+            Thread.sleep(100L);
+
+            return param;
+        }
+
+        private JasperReport loadReportFileActivity() throws InterruptedException, JRException {
+            if (isCancelled()) {
+                return null;
+            }
+
+            String filename = "BudgetRealization.jrxml";
+            JasperReport jasperReport = JasperCompileManager.compileReport("printing/" + filename);
+            setProgress(25);
+            Thread.sleep(100L);
+
+            return jasperReport;
+        }
+
+        private DefaultTableModel constructModelActivity(ArrayList<BudgetRealization> data) throws InterruptedException {
+
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("No");
+            model.addColumn("Eselon");
+            model.addColumn("Budget");
+            model.addColumn("Credit");
+            model.addColumn("Closing");
+            model.addColumn("Description");
+
+            double progress = 0.0;
+
+            if (!data.isEmpty()) {
+                for (int i = 0; i < data.size() && !isCancelled(); i++) {
+
+                    BudgetRealization br = data.get(i);
+
+                    model.addRow(new Object[]{Integer.valueOf(i + 1), br.getEselon(),
+                                br.getBudget(), br.getCredit(),
+                                br.getClosing(), br.getDescription()});
+
+
+
+                    progress = 50 * (i + 1) / data.size();
+                    setProgress((int) progress);
+                    Thread.sleep(100L);
+                }
+            } else {
+                setProgress(75);
+            }
+
+            return model;
+        }
+
+        private Map constructParameterActivity(Activity activity) throws InterruptedException {
+            Map param = new HashMap();
+
+            StringBuilder builder = new StringBuilder();
+
+            if (budgetType.equals(Integer.valueOf(1))) {
+                builder.append("APBD Tahun ").append(year);
+            } else {
+                builder.append("APBD Perubahan Tahun ").append(year);
+            }
+
+            SimpleDateFormat sdf;
+
+            Date sDate = startDate.getDate();
+            Date eDate = endDate.getDate();
+
+            Integer month = monthChooser.getMonth() + 1;
+            Integer year2 = yearChooser2.getYear();
+
+            if (sDate != null && eDate != null && checkBox3.isSelected()) {
+                sdf = new SimpleDateFormat("dd MMM yyyy", new Locale("in", "id", "id"));
+                builder.append(" (").
+                        append(sdf.format(sDate)).
+                        append(" - ").
+                        append(sdf.format(eDate)).
+                        append(") ");
+            } else if (month != 0 && checkBox4.isSelected()) {
+                sdf = new SimpleDateFormat("MMMM yyyy", new Locale("in", "id", "id"));
+                GregorianCalendar cal = new GregorianCalendar(year2, month - 1, 1);
+                builder.append(" (").
+                        append(sdf.format(cal.getTime())).
+                        append(") ");
+            }
+
+            param.put("periode", builder.toString());
+
+            param.put("actname", activity.getActivityCode() + " " + activity.getActivityName());
+
+            setProgress(80);
+            Thread.sleep(100L);
+
+            return param;
+        }
+
+        private JasperReport loadReportFileEselon() throws InterruptedException, JRException {
+            if (isCancelled()) {
+                return null;
+            }
+
+            String filename = "BudgetRealization2.jrxml";
+            JasperReport jasperReport = JasperCompileManager.compileReport("printing/" + filename);
+            setProgress(25);
+            Thread.sleep(100L);
+
+            return jasperReport;
+        }
+
+        private DefaultTableModel constructModelEselon(ArrayList<BudgetRealization> data) throws InterruptedException {
+
+            DefaultTableModel model = new DefaultTableModel();
+            model.addColumn("No");
+            model.addColumn("Activity");
+            model.addColumn("Budget");
+            model.addColumn("Credit");
+            model.addColumn("Closing");
+            model.addColumn("Description");
+
+            double progress = 0.0;
+
+            if (!data.isEmpty()) {
+                for (int i = 0; i < data.size() && !isCancelled(); i++) {
+
+                    BudgetRealization br = data.get(i);
+
+                    model.addRow(new Object[]{Integer.valueOf(i + 1), br.getActivity(),
+                                br.getBudget(), br.getCredit(),
+                                br.getClosing(), br.getDescription()});
+
+
+
+                    progress = 50 * (i + 1) / data.size();
+                    setProgress((int) progress);
+                    Thread.sleep(100L);
+                }
+            } else {
+                setProgress(75);
+            }
+
+            return model;
+        }
+
+        private Map constructParameterEselon(Integer eselon) throws InterruptedException {
+            Map param = new HashMap();
+
+            StringBuilder builder = new StringBuilder();
+
+            if (budgetType.equals(Integer.valueOf(1))) {
+                builder.append("APBD Tahun ").append(year);
+            } else {
+                builder.append("APBD Perubahan Tahun ").append(year);
+            }
+
+            SimpleDateFormat sdf;
+
+            Date sDate = startDate.getDate();
+            Date eDate = endDate.getDate();
+
+            Integer month = monthChooser.getMonth() + 1;
+            Integer year2 = yearChooser2.getYear();
+
+            if (sDate != null && eDate != null && checkBox3.isSelected()) {
+                sdf = new SimpleDateFormat("dd MMM yyyy", new Locale("in", "id", "id"));
+                builder.append(" (").
+                        append(sdf.format(sDate)).
+                        append(" - ").
+                        append(sdf.format(eDate)).
+                        append(") ");
+            } else if (month != 0 && checkBox4.isSelected()) {
+                sdf = new SimpleDateFormat("MMMM yyyy", new Locale("in", "id", "id"));
+                GregorianCalendar cal = new GregorianCalendar(year2, month - 1, 1);
+                builder.append(" (").
+                        append(sdf.format(cal.getTime())).
+                        append(") ");
+            }
+
+            param.put("periode", builder.toString());
+
+            param.put("EselonName", StandardPrice.ESELON[eselon]);
+
             setProgress(80);
             Thread.sleep(100L);
 
@@ -355,17 +671,125 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
             viewerPanel.reload(jasperPrint);
         }
 
+        private String generateDateModifier() {
+            StringBuilder builder = new StringBuilder();
+
+            Date sDate = startDate.getDate();
+            Date eDate = endDate.getDate();
+
+            if (sDate != null && eDate != null) {
+                builder.append(" and exp.startdate between '").
+                        append(new java.sql.Date(sDate.getTime())).
+                        append("' and '").
+                        append(new java.sql.Date(eDate.getTime())).append("' ");
+            }
+
+            return builder.toString();
+        }
+
+        private String generateMonthModifier() {
+            StringBuilder builder = new StringBuilder();
+
+            Integer month = monthChooser.getMonth() + 1;
+            Integer year2 = yearChooser2.getYear();
+
+            if (!month.equals(Integer.valueOf(0)) && !year2.equals(Integer.valueOf(0))) {
+                builder.append(" and date_part('month',exp.startdate) = ").
+                        append(month).
+                        append(" and date_part('year',exp.startdate) = ").
+                        append(year2).append(" ");
+            }
+
+            return builder.toString();
+        }
+
         @Override
         protected JasperPrint doInBackground() throws Exception {
             try {
 
-                ArrayList<BudgetRealization> realization = logic.getBudgetRealization(mainframe.getSession(), year, budgetType);
+                ArrayList<BudgetRealization> realization = new ArrayList<BudgetRealization>();
+                Activity activity = null;
+                Integer eselon = Integer.valueOf(0);
+                String dateModifier = generateDateModifier();
+                String monthModifier = generateMonthModifier();
+
+                if (checkBox.isSelected()) {
+                    Object obj = comboActivity.getSelectedItem();
+
+                    if (obj instanceof Activity) {
+                        activity = (Activity) obj;
+                    }
+
+                    if (checkBox3.isSelected()) {
+                        if (activity != null) {
+                            if (!dateModifier.equals("")) {
+                                realization = logic.getBudgetRealizationByActivity(mainframe.getSession(), year, budgetType, activity, dateModifier);
+                            }
+                        }
+                    } else if (checkBox4.isSelected()) {
+                        if (activity != null) {
+                            if (!monthModifier.equals("")) {
+                                realization = logic.getBudgetRealizationByActivity(mainframe.getSession(), year, budgetType, activity, monthModifier);
+                            }
+                        }
+                    } else {
+                        if (activity != null) {
+                            realization = logic.getBudgetRealizationByActivity(mainframe.getSession(), year, budgetType, activity, "");
+                        }
+                    }
+
+                } else if (checkBox2.isSelected()) {
+                    eselon = comboEselon.getSelectedIndex();
+
+                    if (checkBox3.isSelected()) {
+                        if (!eselon.equals(Integer.valueOf(0))) {
+                            if (!dateModifier.equals("")) {
+                                realization = logic.getBudgetRealizationByEselon(mainframe.getSession(), year, budgetType, eselon, dateModifier);
+                            }
+                        }
+                    } else if (checkBox4.isSelected()) {
+                        if (!eselon.equals(Integer.valueOf(0))) {
+                            if (!monthModifier.equals("")) {
+                                realization = logic.getBudgetRealizationByEselon(mainframe.getSession(), year, budgetType, eselon, monthModifier);
+                            }
+                        }
+                    } else {
+                        if (!eselon.equals(Integer.valueOf(0))) {
+                            realization = logic.getBudgetRealizationByEselon(mainframe.getSession(), year, budgetType, eselon, "");
+                        }
+                    }
+                } else {
+                    if (checkBox3.isSelected()) {
+                        if (!dateModifier.equals("")) {
+                            realization = logic.getBudgetRealizationAll(mainframe.getSession(), year, budgetType, dateModifier);
+                        }
+                    } else if (checkBox4.isSelected()) {
+                        if (!monthModifier.equals("")) {
+                            realization = logic.getBudgetRealizationAll(mainframe.getSession(), year, budgetType, monthModifier);
+                        }
+                    } else {
+                        realization = logic.getBudgetRealizationAll(mainframe.getSession(), year, budgetType, "");
+                    }
+                }
 
                 if (!realization.isEmpty()) {
-                    JasperReport jrReport = loadReportFile();
-                    DefaultTableModel model = constructModel(realization);
-                    Map param = constructParameter();
-                    jasperPrint = createJasperPrint(jrReport, model, param);
+                    if (checkBox.isSelected()) {
+                        JasperReport jrReport = loadReportFileActivity();
+                        DefaultTableModel model = constructModelActivity(realization);
+                        Map param = constructParameterActivity(activity);
+                        jasperPrint = createJasperPrint(jrReport, model, param);
+                    } else if (checkBox2.isSelected()) {
+                        JasperReport jrReport = loadReportFileEselon();
+                        DefaultTableModel model = constructModelEselon(realization);
+                        Map param = constructParameterEselon(eselon);
+                        jasperPrint = createJasperPrint(jrReport, model, param);
+                    } else {
+                        JasperReport jrReport = loadReportFileAll();
+                        DefaultTableModel model = constructModelAll(realization);
+                        Map param = constructParameterAll();
+                        jasperPrint = createJasperPrint(jrReport, model, param);
+                    }
+
                 } else {
                     jasperPrint = null;
                 }

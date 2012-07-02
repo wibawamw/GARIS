@@ -19,20 +19,26 @@ public class ArchieveTableCreatorSQL {
                 append("birthplace text,").
                 append("birthdate date,").
                 append("sex smallint,").
+                append("religion smallint,").
                 append("marital smallint,").
                 append("soulmate text,").
                 append("children smallint,").
                 append("education smallint,").
+                append("department text,").
                 append("grade smallint,").
                 append("fungsional smallint,").
                 append("eselon smallint,").
                 append("struktural smallint,").
+                append("workforce smallint,").
                 append("cpnstmt date,").
                 append("pnstmt date,").
                 append("gradetmt date,").
                 append("eselontmt date,").
                 append("positionnotes text,").
                 append("isgorvernor boolean,").
+                append("isnonemployee boolean,").
+                append("mkyear smallint,").
+                append("mkmonth smallint,").
 
                 append("CONSTRAINT employee_pkey PRIMARY KEY (autoindex)").
 
@@ -399,6 +405,7 @@ public class ArchieveTableCreatorSQL {
                 append("(").
                 append("autoindex bigserial NOT NULL,").
                 append("transactionname text,").
+                append("esselon smallint,").
                 append("transactiontype smallint,").
                 append("transporttype smallint,").
                 append("departure text,").
@@ -756,5 +763,169 @@ public class ArchieveTableCreatorSQL {
         stm.executeUpdate(query.toString());
         System.out.println("BudgetSubDetail Table Uninstalled");
     }
+    
+    public void installBudgetSubDetailChildTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("CREATE TABLE budgetsubdetailchild").
+                append("(").
+                append("subdetailindex bigint NOT NULL,").
+                append("description text,").
+                append("eselon smallint,").
+                append("counted integer,").
+                append("units text,").
+                append("amount numeric(1000,2),").
+
+
+                append("CONSTRAINT budgetsubdetailchild_budgetsubdetail_fkey FOREIGN KEY (subdetailindex)").
+                append("    REFERENCES budgetsubdetail (autoindex) MATCH SIMPLE").
+                append("    ON UPDATE CASCADE ON DELETE CASCADE ").
+
+                append(")");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("BudgetSubDetailChild Table Installed");
+    }
+
+    public void uninstallBudgetSubDetailChildTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("DROP TABLE budgetsubdetailchild CASCADE");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("BudgetSubDetailChild Table Uninstalled");
+    }
+    
+    public void installContractMailTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("CREATE TABLE contractmail").
+                append("(").
+                append("autoindex bigserial NOT NULL,").
+                append("mailnumber text,").
+                append("maildate date,").
+                append("receiver text,").
+                append("receiveraddress text,").
+                append("subject text,").
+                append("description text,").
+                append("CONSTRAINT contractmail_pkey PRIMARY KEY (autoindex)").
+
+                append(")");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("ContractMail Table Installed");
+    }
+
+    public void uninstallContractMailTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("DROP TABLE contractmail CASCADE");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("ContractMail Table Uninstalled");
+    }
+    
+    //
+    public void installSKPDTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("CREATE TABLE skpd").
+                append("(").
+                append("autoindex bigserial NOT NULL,").
+                append("skpdcode text,").
+                append("skpdname text,").
+                append("CONSTRAINT skpd_pkey PRIMARY KEY (autoindex)").
+
+                append(")");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("SKPD Table Installed");
+    }
+
+    public void uninstallSKPDTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("DROP TABLE skpd CASCADE");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("SKPD Table Uninstalled");
+    }
+    
+    public void installSP2DTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("CREATE TABLE sp2d").
+                append("(").
+                append("autoindex bigserial NOT NULL,").
+                append("skpdindex bigint NOT NULL,").
+                append("sp2dnumber text,").
+                append("sp2ddate date,").
+                append("receiver text,").
+                append("purpose text,").
+                append("amount numeric(1000,2),").
+                append("description text,").
+
+                append("CONSTRAINT sp2d_pkey PRIMARY KEY (autoindex),").
+                append("CONSTRAINT sp2d_skpd_fkey FOREIGN KEY (skpdindex)").
+                append("    REFERENCES skpd (autoindex) MATCH SIMPLE").
+                append("    ON UPDATE CASCADE ON DELETE CASCADE ").
+
+                append(")");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("SP2D Table Installed");
+    }
+
+    public void uninstallSP2DTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("DROP TABLE sp2d CASCADE");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("SP2D Table Uninstalled");
+    }
+    
+    public void installSP2DFileTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("CREATE TABLE sp2dfile").
+                append("(").
+                append("sp2dindex bigint,").
+                append("filename text NOT NULL,").
+                append("filebyte bytea,").
+                append("CONSTRAINT sp2dfile_sp2d_fkey FOREIGN KEY (sp2dindex)").
+                append("    REFERENCES sp2d (autoindex) MATCH SIMPLE").
+                append("    ON UPDATE CASCADE ON DELETE CASCADE").
+                append(")");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("SP2Dfile Table Installed");
+    }
+
+    public void uninstallSP2DFileTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("DROP TABLE sp2dfile CASCADE");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("SP2Dfile Table Uninstalled");
+    }
+    
+    public void installItemStandardPriceTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("CREATE TABLE itemstandardprice").
+                append("(").
+                append("autoindex bigserial NOT NULL,").
+                append("itemname text,").
+                append("specification text,").
+                append("itemsunit text,").
+                append("price numeric(1000,2),").
+                append("description text,").
+                append("CONSTRAINT itemstandardprice_pkey PRIMARY KEY (autoindex)").
+
+                append(")");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("ItemStandardPrice Table Installed");
+    }
+
+    public void uninstallItemStandardPriceTable(Statement stm) throws SQLException {
+        StringBuilder query = new StringBuilder();
+        query.append("DROP TABLE itemstandardprice CASCADE");
+
+        stm.executeUpdate(query.toString());
+        System.out.println("ItemStandardPrice Table Uninstalled");
+    }
+    //
 
 }

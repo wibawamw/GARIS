@@ -49,6 +49,7 @@ import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.renderer.StringValue;
 import org.jdesktop.swingx.util.WindowUtils;
+import org.motekar.project.civics.archieve.master.objects.Activity;
 import org.motekar.project.civics.archieve.master.objects.StandardPrice;
 import org.motekar.project.civics.archieve.master.sqlapi.MasterBusinessLogic;
 import org.motekar.util.user.ui.Mainframe;
@@ -78,11 +79,13 @@ public class StandardPricePickDlg implements ActionListener, ListSelectionListen
     private JXLabel labelBudget = new JXLabel("");
     private JXLabel labelSelected = new JXLabel("");
     private Color foreColor = labelBudget.getForeground();
+    private Activity activity = null;
 
-    public StandardPricePickDlg(JFrame frame, Long session, Connection conn, BigDecimal budget, int selectionType) {
+    public StandardPricePickDlg(JFrame frame, Long session, Connection conn, BigDecimal budget,Activity activity, int selectionType) {
         this.frame = frame;
         this.session = session;
         this.budget = budget;
+        this.activity = activity;
         logic = new MasterBusinessLogic(conn);
         priceList.getSelectionModel().setSelectionMode(selectionType);
         priceList.loadData();
@@ -293,10 +296,12 @@ public class StandardPricePickDlg implements ActionListener, ListSelectionListen
 
     private class StandardPriceList extends JXList {
 
+        private Icon CAR_ICON = Mainframe.getResizableIconFromSource("resource/Cars.png", new Dimension(36, 36));
         private Icon PLANE_ICON = Mainframe.getResizableIconFromSource("resource/Mini_Plane.png", new Dimension(36, 36));
         private Icon BUS_ICON = Mainframe.getResizableIconFromSource("resource/Travel_Bus.png", new Dimension(36, 36));
         private Icon TRAIN_ICON = Mainframe.getResizableIconFromSource("resource/Train.png", new Dimension(36, 36));
         private Icon SAIL_ICON = Mainframe.getResizableIconFromSource("resource/Sailing_Ship.png", new Dimension(36, 36));
+        private Icon OTHER_ICON = Mainframe.getResizableIconFromSource("resource/OtherTrans.png", new Dimension(36, 36));
         private Icon NULL_ICON = Mainframe.getResizableIconFromSource("resource/Question.png", new Dimension(36, 36));
 
         public StandardPriceList() {
@@ -379,14 +384,23 @@ public class StandardPricePickDlg implements ActionListener, ListSelectionListen
                     }
 
                     if (price != null) {
-                        if (price.getTransportType() == StandardPrice.TYPE_BUS) {
+                        if (price.getTransportType() == StandardPrice.TYPE_CAR) {
+                            return StandardPriceList.this.CAR_ICON;
+                        } else if (price.getTransportType() == StandardPrice.TYPE_BUS || 
+                                price.getTransportType() == StandardPrice.TYPE_LAND) {
                             return StandardPriceList.this.BUS_ICON;
-                        } else if (price.getTransportType() == StandardPrice.TYPE_PLANE) {
+                        } else if (price.getTransportType() == StandardPrice.TYPE_PLANE || 
+                                price.getTransportType() == StandardPrice.TYPE_AIR) {
                             return StandardPriceList.this.PLANE_ICON;
-                        } else if (price.getTransportType() == StandardPrice.TYPE_SAILING) {
+                        } else if (price.getTransportType() == StandardPrice.TYPE_SAILING || 
+                                price.getTransportType() == StandardPrice.TYPE_SEA) {
                             return StandardPriceList.this.SAIL_ICON;
                         } else if (price.getTransportType() == StandardPrice.TYPE_TRAIN) {
                             return StandardPriceList.this.TRAIN_ICON;
+                        } else if (price.getTransportType() == StandardPrice.TYPE_LAND_AIR || 
+                                price.getTransportType() == StandardPrice.TYPE_LAND_SEA || 
+                                price.getTransportType() == StandardPrice.TYPE_LAND_SEA_AIR) {
+                            return StandardPriceList.this.OTHER_ICON;
                         }
                     }
 
@@ -423,7 +437,7 @@ public class StandardPricePickDlg implements ActionListener, ListSelectionListen
         @Override
         protected DefaultListModel doInBackground() throws Exception {
             try {
-                ArrayList<StandardPrice> price = logic.getStandardPrice(session);
+                ArrayList<StandardPrice> price = logic.getStandardPrice(session, activity);
 
                 double progress = 0.0;
                 if (!price.isEmpty()) {

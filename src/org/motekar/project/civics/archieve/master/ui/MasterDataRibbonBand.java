@@ -26,8 +26,12 @@ import org.pushingpixels.flamingo.api.ribbon.resize.IconRibbonBandResizePolicy;
 public class MasterDataRibbonBand extends JRibbonBand implements ActionListener {
 
     private JCommandButton btEmployee = new JCommandButton("Pegawai", Mainframe.getResizableIconFromSource("resource/business_user.png"));
+    private JCommandButton btEmployeeNonPNS = new JCommandButton("Pegawai Non PNS", Mainframe.getResizableIconFromSource("resource/emblem-people.png"));
+    private JCommandButton btSKPD = new JCommandButton("SKPD", Mainframe.getResizableIconFromSource("resource/SKPD.png"));
+    
     private JCommandButton btDivision = new JCommandButton("Bagian", Mainframe.getResizableIconFromSource("resource/Division.png"));
-    private JCommandButton btPrice = new JCommandButton("Standar Harga", Mainframe.getResizableIconFromSource("resource/Postage stamp.png"));
+    private JCommandButton btPrice = new JCommandButton("Standar Harga Perjalanan Dinas", Mainframe.getResizableIconFromSource("resource/Postage stamp.png"));
+    private JCommandButton btItemPrice = new JCommandButton("Standar Harga Barang", Mainframe.getResizableIconFromSource("resource/ItemsPrice.png"));
     private JCommandButton btAccount = new JCommandButton("Struktur Rekening", Mainframe.getResizableIconFromSource("resource/Account.png"));
     private JCommandButton btProgram = new JCommandButton("Program dan Kegiatan", Mainframe.getResizableIconFromSource("resource/program.png"));
     private JCommandButton btBudget = new JCommandButton("Anggaran", Mainframe.getResizableIconFromSource("resource/Coins.png"));
@@ -57,7 +61,34 @@ public class MasterDataRibbonBand extends JRibbonBand implements ActionListener 
 
         btEmployee.setActionRichTooltip(employeeTooltip);
 
+        
+        RichTooltip employeeNonPNSTooltip = new RichTooltip();
+        employeeNonPNSTooltip.setTitle("Pegawai Non PNS");
+        employeeNonPNSTooltip.addDescriptionSection("Pengelolaan Pegawai selain PNS seperti tenaga kontrak, tenaga honorer, PTTP, "
+                + "yang ada di lingkungan SKPD");
+        try {
+            BufferedImage img = ImageIO.read(ArchieveMainframe.class.getResource("/resource/emblem-people.png"));
+            Image scaleImage = img.getScaledInstance(48, 48, Image.SCALE_SMOOTH);
+            employeeNonPNSTooltip.setMainImage(scaleImage);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
 
+        btEmployeeNonPNS.setActionRichTooltip(employeeNonPNSTooltip);
+        
+        RichTooltip skpdTooltip = new RichTooltip();
+        skpdTooltip.setTitle("SKPD");
+        skpdTooltip.addDescriptionSection("Satuan Kerja Perangkat Daerah berisi semua dinas/badan/kantor");
+        try {
+            BufferedImage img = ImageIO.read(ArchieveMainframe.class.getResource("/resource/SKPD.png"));
+            Image scaleImage = img.getScaledInstance(48, 48, Image.SCALE_SMOOTH);
+            skpdTooltip.setMainImage(scaleImage);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        btSKPD.setActionRichTooltip(skpdTooltip);
+        
         RichTooltip divisionTooltip = new RichTooltip();
         divisionTooltip.setTitle("Bagian / Bidang");
         divisionTooltip.addDescriptionSection("Pengelolaan Bagian yang ada di di lingkungan Dinas / Badan / Kantor");
@@ -72,7 +103,7 @@ public class MasterDataRibbonBand extends JRibbonBand implements ActionListener 
         btDivision.setActionRichTooltip(divisionTooltip);
 
         RichTooltip priceTooltip = new RichTooltip();
-        priceTooltip.setTitle("Standar Harga");
+        priceTooltip.setTitle("Standar Harga Perjalanan Dinas");
         priceTooltip.addDescriptionSection("Pengelolaan dan penetapan standar harga untuk perjalanan dinas");
         try {
             BufferedImage img = ImageIO.read(ArchieveMainframe.class.getResource("/resource/Postage stamp.png"));
@@ -83,6 +114,19 @@ public class MasterDataRibbonBand extends JRibbonBand implements ActionListener 
         }
 
         btPrice.setActionRichTooltip(priceTooltip);
+        
+        RichTooltip itemsPriceTooltip = new RichTooltip();
+        itemsPriceTooltip.setTitle("Standar Harga Barang");
+        itemsPriceTooltip.addDescriptionSection("Pengelolaan dan penetapan standar harga barang");
+        try {
+            BufferedImage img = ImageIO.read(ArchieveMainframe.class.getResource("/resource/ItemsPrice.png"));
+            Image scaleImage = img.getScaledInstance(48, 48, Image.SCALE_SMOOTH);
+            itemsPriceTooltip.setMainImage(scaleImage);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        btItemPrice.setActionRichTooltip(itemsPriceTooltip);
 
         RichTooltip accountTooltip = new RichTooltip();
         accountTooltip.setTitle("Struktur Rekening");
@@ -125,15 +169,21 @@ public class MasterDataRibbonBand extends JRibbonBand implements ActionListener 
         btBudget.setActionRichTooltip(budgetTooltip);
 
         addCommandButton(btEmployee, RibbonElementPriority.TOP);
+        addCommandButton(btEmployeeNonPNS, RibbonElementPriority.MEDIUM);
+        addCommandButton(btSKPD, RibbonElementPriority.MEDIUM);
         addCommandButton(btDivision, RibbonElementPriority.MEDIUM);
         addCommandButton(btPrice, RibbonElementPriority.MEDIUM);
+        addCommandButton(btItemPrice, RibbonElementPriority.MEDIUM);
         addCommandButton(btProgram, RibbonElementPriority.MEDIUM);
         addCommandButton(btAccount, RibbonElementPriority.MEDIUM);
         addCommandButton(btBudget, RibbonElementPriority.MEDIUM);
 
         btEmployee.addActionListener(this);
+        btEmployeeNonPNS.addActionListener(this);
+        btSKPD.addActionListener(this);
         btDivision.addActionListener(this);
         btPrice.addActionListener(this);
+        btItemPrice.addActionListener(this);
         btProgram.addActionListener(this);
         btAccount.addActionListener(this);
         btBudget.addActionListener(this);
@@ -147,6 +197,8 @@ public class MasterDataRibbonBand extends JRibbonBand implements ActionListener 
         Object source = e.getSource();
         if (source == btEmployee) {
             mainframe.addChildFrame(btEmployee.getText(), new EmployeePanel(mainframe));
+        } else if (source == btEmployeeNonPNS) {
+            mainframe.addChildFrame(btEmployeeNonPNS.getText(), new EmployeeNonPNSPanel(mainframe));
         } else if (source == btPrice) {
             mainframe.addChildFrame(btPrice.getText(), new StandardPricePanel(mainframe));
         } else if (source == btDivision) {
@@ -157,6 +209,10 @@ public class MasterDataRibbonBand extends JRibbonBand implements ActionListener 
             mainframe.addChildFrame(btProgram.getText(), new ProgramActivityPanel(mainframe));
         } else if (source == btBudget) {
             mainframe.addChildFrame(btBudget.getText(), new BudgetPanel(mainframe));
+        } else if (source == btSKPD) {
+            mainframe.addChildFrame(btSKPD.getText(), new SKPDPanel(mainframe));
+        } else if (source == btItemPrice) {
+            mainframe.addChildFrame(btItemPrice.getText(), new ItemStandardPricePanel(mainframe));
         }
     }
 

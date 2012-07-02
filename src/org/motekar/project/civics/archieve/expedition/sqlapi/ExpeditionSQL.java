@@ -1,25 +1,11 @@
 package org.motekar.project.civics.archieve.expedition.sqlapi;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
-import org.motekar.project.civics.archieve.expedition.objects.AssignmentLetter;
-import org.motekar.project.civics.archieve.expedition.objects.Expedition;
-import org.motekar.project.civics.archieve.expedition.objects.ExpeditionCheque;
-import org.motekar.project.civics.archieve.expedition.objects.ExpeditionCost;
-import org.motekar.project.civics.archieve.expedition.objects.ExpeditionFollower;
-import org.motekar.project.civics.archieve.expedition.objects.ExpeditionJournal;
-import org.motekar.project.civics.archieve.expedition.objects.ExpeditionResult;
-import org.motekar.project.civics.archieve.master.objects.Account;
-import org.motekar.project.civics.archieve.master.objects.Activity;
-import org.motekar.project.civics.archieve.master.objects.Employee;
-import org.motekar.project.civics.archieve.master.objects.Program;
-import org.motekar.project.civics.archieve.master.objects.StandardPrice;
+import org.motekar.project.civics.archieve.expedition.objects.*;
+import org.motekar.project.civics.archieve.master.objects.*;
 import org.motekar.project.civics.archieve.sqlapi.CommonSQL;
 
 /**
@@ -273,7 +259,7 @@ public class ExpeditionSQL extends CommonSQL {
         return expedition;
     }
 
-    ArrayList<Expedition> getExpedition(Connection conn, Date startDate, Date endDate) throws SQLException {
+    ArrayList<Expedition> getExpedition(Connection conn, Date startDate, Date endDate, String modifier) throws SQLException {
         ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
         StringBuilder query = new StringBuilder();
@@ -291,7 +277,8 @@ public class ExpeditionSQL extends CommonSQL {
                 append("where startdate between ").
                 append("'").append(new java.sql.Date(startDate.getTime())).append("' ").
                 append(" and ").
-                append("'").append(new java.sql.Date(endDate.getTime())).append("' ");
+                append("'").append(new java.sql.Date(endDate.getTime())).append("' ").
+                append(modifier);
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
 
@@ -344,7 +331,7 @@ public class ExpeditionSQL extends CommonSQL {
         return expeditions;
     }
 
-    ArrayList<Expedition> getExpedition(Connection conn, Integer month, Integer year) throws SQLException {
+    ArrayList<Expedition> getExpedition(Connection conn, Integer month, Integer year, String modifier) throws SQLException {
         ArrayList<Expedition> expeditions = new ArrayList<Expedition>();
 
         StringBuilder query = new StringBuilder();
@@ -362,7 +349,8 @@ public class ExpeditionSQL extends CommonSQL {
                     append("left join assignmentletter al2 ").
                     append("on al2.autoindex = exp.letterindex ").
                     append("where date_part('year',startdate) = ").
-                    append(year);
+                    append(year).
+                    append(modifier);
         } else {
             query.append("select exp.*,coalesce(al.autoindex,0,1) status,").
                     append("emp.nip assnip, emp.employeename assname,al2.purpose from expedition exp ").
@@ -378,7 +366,8 @@ public class ExpeditionSQL extends CommonSQL {
                     append("where date_part('month',startdate) = ").
                     append(month).
                     append(" and date_part('year',startdate) = ").
-                    append(year);
+                    append(year).
+                    append(modifier);
         }
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
@@ -432,7 +421,7 @@ public class ExpeditionSQL extends CommonSQL {
         return expeditions;
     }
 
-    boolean getExpeditionRangeCheck(Connection conn, Date startdate,Date enddate, Long indexEmployee) throws SQLException {
+    boolean getExpeditionRangeCheck(Connection conn, Date startdate, Date enddate, Long indexEmployee) throws SQLException {
         StringBuilder query = new StringBuilder();
 
         query.append("SELECT (DATE (to_char(max(startdate), 'yyyy-MM-dd')), ").
@@ -966,7 +955,7 @@ public class ExpeditionSQL extends CommonSQL {
 
         StringBuilder query = new StringBuilder();
         query.append("select ae.*,employeename,nip,birthplace,birthdate,").
-                append("sex,grade,fungsional,struktural, positionnotes, isgorvernor ").
+                append("sex,grade,fungsional,struktural, positionnotes, isgorvernor,isnonemployee ").
                 append("from assignedemployee ae ").
                 append("inner join employee e ").
                 append("on e.autoindex = ae.employeeindex ").
@@ -1161,7 +1150,7 @@ public class ExpeditionSQL extends CommonSQL {
         return cheques;
     }
 
-    BigDecimal getBudgetUsed(Connection conn,Integer years,Integer budgetType) throws SQLException {
+    BigDecimal getBudgetUsed(Connection conn, Integer years, Integer budgetType) throws SQLException {
         BigDecimal used = BigDecimal.ZERO;
 
         StringBuilder query = new StringBuilder();
@@ -1189,7 +1178,7 @@ public class ExpeditionSQL extends CommonSQL {
         return used;
     }
 
-    BigDecimal getBudgetUsed(Connection conn,Long indexCheque,Integer years,Integer budgetType) throws SQLException {
+    BigDecimal getBudgetUsed(Connection conn, Long indexCheque, Integer years, Integer budgetType) throws SQLException {
         BigDecimal used = BigDecimal.ZERO;
 
         StringBuilder query = new StringBuilder();

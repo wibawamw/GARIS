@@ -14,35 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.Icon;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import org.jdesktop.swingx.JXCollapsiblePane;
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.JXLabel;
-import org.jdesktop.swingx.JXList;
-import org.jdesktop.swingx.JXMultiSplitPane;
-import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.JXStatusBar;
-import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.JXTextField;
-import org.jdesktop.swingx.JXTitledPanel;
-import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.*;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.renderer.DefaultListRenderer;
 import org.jdesktop.swingx.renderer.IconValue;
@@ -229,22 +206,22 @@ public class DivisionPanel extends JXPanel implements ActionListener, ListSelect
             double vgapScaleFactor) {
 
         RichTooltip addTooltip = new RichTooltip();
-        addTooltip.setTitle("Tambah Pegawai");
+        addTooltip.setTitle("Tambah Bagian");
 
         btAdd.setActionRichTooltip(addTooltip);
 
         RichTooltip editTooltip = new RichTooltip();
-        editTooltip.setTitle("Ubah Pegawai");
+        editTooltip.setTitle("Ubah Bagian");
 
         btEdit.setActionRichTooltip(editTooltip);
 
         RichTooltip saveTooltip = new RichTooltip();
-        saveTooltip.setTitle("Simpan Pegawai");
+        saveTooltip.setTitle("Simpan Bagian");
 
         btSave.setActionRichTooltip(saveTooltip);
 
         RichTooltip deleteTooltip = new RichTooltip();
-        deleteTooltip.setTitle("Hapus Pegawai");
+        deleteTooltip.setTitle("Hapus Bagian");
 
         btDelete.setActionRichTooltip(deleteTooltip);
 

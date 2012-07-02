@@ -20,40 +20,14 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.Icon;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingWorker;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.NumberFormatter;
-import org.jdesktop.swingx.JXCollapsiblePane;
-import org.jdesktop.swingx.JXComboBox;
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.JXFormattedTextField;
-import org.jdesktop.swingx.JXLabel;
-import org.jdesktop.swingx.JXList;
-import org.jdesktop.swingx.JXMultiSplitPane;
-import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.JXStatusBar;
-import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.JXTextArea;
-import org.jdesktop.swingx.JXTextField;
-import org.jdesktop.swingx.JXTitledPanel;
-import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.*;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
 import org.jdesktop.swingx.error.ErrorInfo;
@@ -84,6 +58,7 @@ public class StandardPricePanel extends JXPanel implements ActionListener, ListS
     private JXTextField fieldSearch = new JXTextField();
     private StandardPriceList priceList = new StandardPriceList();
     private JXTextField fieldName = new JXTextField();
+    private JXComboBox comboEselon = new JXComboBox();
     private JXTextField fieldDeparture = new JXTextField();
     private JXTextField fieldDestination = new JXTextField();
     private JXComboBox comboTranscType = new JXComboBox();
@@ -208,7 +183,7 @@ public class StandardPricePanel extends JXPanel implements ActionListener, ListS
 
         FormLayout lm = new FormLayout(
                 "right:pref,10px,fill:default:grow,50px",
-                "pref,4px,pref,4px,pref,4px,pref,4px,pref,4px,pref,4px,fill:default,pref,fill:default:grow,4px,50px");
+                "pref,4px,pref,4px,pref,4px,pref,4px,pref,4px,pref,4px,pref,4px,fill:default,pref,fill:default:grow,4px,50px");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
 
@@ -224,24 +199,27 @@ public class StandardPricePanel extends JXPanel implements ActionListener, ListS
         builder.addLabel("Nama", cc.xy(1, 1));
         builder.add(fieldName, cc.xy(3, 1));
 
-        builder.addLabel("Dari", cc.xy(1, 3));
-        builder.add(fieldDeparture, cc.xy(3, 3));
+        builder.addLabel("Eselon", cc.xy(1, 3));
+        builder.add(comboEselon, cc.xy(3, 3));
+        
+        builder.addLabel("Dari", cc.xy(1, 5));
+        builder.add(fieldDeparture, cc.xy(3, 5));
 
-        builder.addLabel("Tujuan", cc.xy(1, 5));
-        builder.add(fieldDestination, cc.xy(3, 5));
+        builder.addLabel("Tujuan", cc.xy(1, 7));
+        builder.add(fieldDestination, cc.xy(3, 7));
 
-        builder.addLabel("Tipe", cc.xy(1, 7));
-        builder.add(comboTranscType, cc.xy(3, 7));
+        builder.addLabel("Tipe", cc.xy(1, 9));
+        builder.add(comboTranscType, cc.xy(3, 9));
 
-        builder.addLabel("Transportasi", cc.xy(1, 9));
-        builder.add(comboTransportType, cc.xy(3, 9));
+        builder.addLabel("Transportasi", cc.xy(1, 11));
+        builder.add(comboTransportType, cc.xy(3, 11));
 
-        builder.addLabel("Harga", cc.xy(1, 11));
-        builder.add(fieldPrice, cc.xy(3, 11));
+        builder.addLabel("Harga", cc.xy(1, 13));
+        builder.add(fieldPrice, cc.xy(3, 13));
 
-        builder.addLabel("Keterangan", cc.xy(1, 13));
-        builder.addLabel("(Opsional)", cc.xy(1, 14));
-        builder.add(scPane, cc.xywh(3, 13, 1, 4));
+        builder.addLabel("Keterangan", cc.xy(1, 15));
+        builder.addLabel("(Opsional)", cc.xy(1, 16));
+        builder.add(scPane, cc.xywh(3, 15, 1, 4));
 
         return builder.getPanel();
     }
@@ -312,6 +290,7 @@ public class StandardPricePanel extends JXPanel implements ActionListener, ListS
 
         loadTransactionType();
         loadTransportType();
+        loadEselon();
 
         fieldSearch.getDocument().addDocumentListener(new DocumentListener() {
 
@@ -386,6 +365,7 @@ public class StandardPricePanel extends JXPanel implements ActionListener, ListS
 
     private void setFormState() {
         fieldName.setEnabled(iseditable);
+        comboEselon.setEnabled(iseditable);
         fieldDeparture.setEnabled(iseditable);
         fieldDestination.setEnabled(iseditable);
         fieldPrice.setEnabled(iseditable);
@@ -398,6 +378,7 @@ public class StandardPricePanel extends JXPanel implements ActionListener, ListS
 
     private void clearForm() {
         fieldName.setText("");
+        comboEselon.setSelectedIndex(0);
         fieldDeparture.setText("");
         fieldDestination.setText("");
         fieldPrice.setValue(BigDecimal.ZERO);
@@ -420,6 +401,12 @@ public class StandardPricePanel extends JXPanel implements ActionListener, ListS
         comboTransportType.removeAllItems();
         comboTransportType.setModel(new ListComboBoxModel<String>(StandardPrice.transportTypeAsList()));
         AutoCompleteDecorator.decorate(comboTransportType);
+    }
+    
+    private void loadEselon() {
+        comboEselon.removeAllItems();
+        comboEselon.setModel(new ListComboBoxModel<String>(StandardPrice.eselonAsList()));
+        AutoCompleteDecorator.decorate(comboEselon);
     }
 
     private void setButtonState(String state) {
@@ -483,6 +470,12 @@ public class StandardPricePanel extends JXPanel implements ActionListener, ListS
         if (name.equals("")) {
             errorString.append("<br>- Nama</br>");
         }
+        
+        Integer eselon = comboEselon.getSelectedIndex();
+        
+        if (eselon == 0) {
+            errorString.append("<br>- Eselon</br>");
+        }
 
         String departure = fieldDeparture.getText();
 
@@ -530,6 +523,7 @@ public class StandardPricePanel extends JXPanel implements ActionListener, ListS
 
         StandardPrice price = new StandardPrice();
         price.setTransactionName(name);
+        price.setEselon(eselon);
         price.setDeparture(departure);
         price.setDestination(destination);
         price.setPrice(pr);
@@ -640,6 +634,7 @@ public class StandardPricePanel extends JXPanel implements ActionListener, ListS
     private void defineCustomFocusTraversalPolicy() {
         ArrayList<Component> comp = new ArrayList<Component>();
         comp.add(fieldName);
+        comp.add(comboEselon.getEditor().getEditorComponent());
         comp.add(fieldDeparture);
         comp.add(fieldDestination);
         comp.add(comboTranscType.getEditor().getEditorComponent());
@@ -654,6 +649,7 @@ public class StandardPricePanel extends JXPanel implements ActionListener, ListS
     private void setFormValues() {
         if (selectedPrice != null) {
             fieldName.setText(selectedPrice.getTransactionName());
+            comboEselon.setSelectedIndex(selectedPrice.getEselon());
             fieldDeparture.setText(selectedPrice.getDeparture());
             fieldDestination.setText(selectedPrice.getDestination());
             fieldPrice.setValue(selectedPrice.getPrice());
@@ -676,6 +672,7 @@ public class StandardPricePanel extends JXPanel implements ActionListener, ListS
         private Icon BUS_ICON = Mainframe.getResizableIconFromSource("resource/Travel_Bus.png", new Dimension(36, 36));
         private Icon TRAIN_ICON = Mainframe.getResizableIconFromSource("resource/Train.png", new Dimension(36, 36));
         private Icon SAIL_ICON = Mainframe.getResizableIconFromSource("resource/Sailing_Ship.png", new Dimension(36, 36));
+        private Icon OTHER_ICON = Mainframe.getResizableIconFromSource("resource/OtherTrans.png", new Dimension(36, 36));
         private Icon NULL_ICON = Mainframe.getResizableIconFromSource("resource/Question.png", new Dimension(36, 36));
 
         public StandardPriceList() {
@@ -740,14 +737,21 @@ public class StandardPricePanel extends JXPanel implements ActionListener, ListS
                     if (price != null) {
                         if (price.getTransportType() == StandardPrice.TYPE_CAR) {
                             return StandardPriceList.this.CAR_ICON;
-                        } else if (price.getTransportType() == StandardPrice.TYPE_BUS) {
+                        } else if (price.getTransportType() == StandardPrice.TYPE_BUS || 
+                                price.getTransportType() == StandardPrice.TYPE_LAND) {
                             return StandardPriceList.this.BUS_ICON;
-                        } else if (price.getTransportType() == StandardPrice.TYPE_PLANE) {
+                        } else if (price.getTransportType() == StandardPrice.TYPE_PLANE || 
+                                price.getTransportType() == StandardPrice.TYPE_AIR) {
                             return StandardPriceList.this.PLANE_ICON;
-                        } else if (price.getTransportType() == StandardPrice.TYPE_SAILING) {
+                        } else if (price.getTransportType() == StandardPrice.TYPE_SAILING || 
+                                price.getTransportType() == StandardPrice.TYPE_SEA) {
                             return StandardPriceList.this.SAIL_ICON;
                         } else if (price.getTransportType() == StandardPrice.TYPE_TRAIN) {
                             return StandardPriceList.this.TRAIN_ICON;
+                        } else if (price.getTransportType() == StandardPrice.TYPE_LAND_AIR || 
+                                price.getTransportType() == StandardPrice.TYPE_LAND_SEA || 
+                                price.getTransportType() == StandardPrice.TYPE_LAND_SEA_AIR) {
+                            return StandardPriceList.this.OTHER_ICON;
                         }
                     }
 

@@ -1,25 +1,7 @@
 package org.motekar.project.civics.archieve.ui;
 
-import org.motekar.project.civics.archieve.mail.ui.MailRibbonBand;
-import org.motekar.project.civics.archieve.expedition.ui.ExpeditionRibbonBand;
-import org.motekar.project.civics.archieve.master.ui.MasterDataRibbonBand;
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Component;
-import java.awt.ComponentOrientation;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GraphicsEnvironment;
-import java.awt.Insets;
-import java.awt.KeyEventPostProcessor;
-import java.awt.KeyboardFocusManager;
-import java.awt.Rectangle;
-import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.*;
+import java.awt.event.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -31,18 +13,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.logging.Level;
 import javax.imageio.ImageIO;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.KeyStroke;
-import javax.swing.LookAndFeel;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.JXLoginPane;
@@ -52,6 +23,9 @@ import org.jdesktop.swingx.auth.LoginService;
 import org.jdesktop.swingx.auth.UserNameStore;
 import org.jdesktop.swingx.error.ErrorInfo;
 import org.jdesktop.swingx.util.WindowUtils;
+import org.motekar.project.civics.archieve.expedition.ui.ExpeditionRibbonBand;
+import org.motekar.project.civics.archieve.mail.ui.MailRibbonBand;
+import org.motekar.project.civics.archieve.master.ui.MasterDataRibbonBand;
 import org.motekar.project.civics.archieve.report.ui.ReportRibbonBand;
 import org.motekar.project.civics.archieve.sqlapi.ConnectionManager;
 import org.motekar.project.civics.archieve.utils.misc.ArchieveProperties;
@@ -59,26 +33,14 @@ import org.motekar.util.user.misc.InactivityListener;
 import org.motekar.util.user.objects.SessionType;
 import org.motekar.util.user.objects.UserAccount;
 import org.motekar.util.user.sqlapi.AuthBusinessLogic;
-import org.motekar.util.user.ui.BackupDialog;
-import org.motekar.util.user.ui.ChangePasswordDialog;
-import org.motekar.util.user.ui.LoginDialog;
-import org.motekar.util.user.ui.Mainframe;
-import org.motekar.util.user.ui.RestoreDialog;
+import org.motekar.util.user.ui.*;
 import org.openide.awt.TabbedPaneFactory;
 import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
 import org.pushingpixels.flamingo.api.common.JCommandButton.CommandButtonKind;
 import org.pushingpixels.flamingo.api.common.RichTooltip;
 import org.pushingpixels.flamingo.api.common.icon.LayeredIcon;
-import org.pushingpixels.flamingo.api.ribbon.JRibbon;
-import org.pushingpixels.flamingo.api.ribbon.JRibbonBand;
-import org.pushingpixels.flamingo.api.ribbon.JRibbonFrame;
-import org.pushingpixels.flamingo.api.ribbon.RibbonApplicationMenu;
-import org.pushingpixels.flamingo.api.ribbon.RibbonApplicationMenuEntryFooter;
-import org.pushingpixels.flamingo.api.ribbon.RibbonApplicationMenuEntryPrimary;
-import org.pushingpixels.flamingo.api.ribbon.RibbonApplicationMenuEntrySecondary;
-import org.pushingpixels.flamingo.api.ribbon.RibbonElementPriority;
-import org.pushingpixels.flamingo.api.ribbon.RibbonTask;
+import org.pushingpixels.flamingo.api.ribbon.*;
 import org.pushingpixels.flamingo.api.ribbon.resize.CoreRibbonResizePolicies;
 import org.pushingpixels.flamingo.api.ribbon.resize.IconRibbonBandResizePolicy;
 import org.pushingpixels.substance.api.SubstanceLookAndFeel;
@@ -123,7 +85,7 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener{
     private BackgroundPanel background;
 
     public ArchieveMainframe() {
-        super("Government Archieves Information System (GARIS) 1.0.3");
+        super("Government Archieves Information System (GARIS) 1.0.5");
         setApplicationIcon(Mainframe.getResizableIconFromSource("resource/mail_logo.png"));
         constructMainframe();
         constructAndShowLoginPane();
@@ -299,10 +261,11 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener{
         });
 
         RibbonTask task1 = new RibbonTask("Menu Aplikasi",nav1, rBandMasterData,
-                mail.getMailInboxRibbon(),mail.getMailOutboxRibbon(),rBandExpedition);
+                mail.getMailInboxRibbon(),mail.getMailOutboxRibbon(),mail.getBudgetRibbon());
 
-        RibbonTask task2 = new RibbonTask("Laporan-Laporan", nav2,report.getDataMasterRibbon(),report.getMailReportRibbon(),
-                report.getExpeditionReport());
+        RibbonTask task2 = new RibbonTask("Perjalanan Dinas & Laporan-Laporan", nav2,rBandExpedition,
+                report.getDataMasterRibbon(),report.getMailReportRibbon(),
+                report.getExpeditionReport(),report.getOtherReportRibbon());
         RibbonTask task3 = new RibbonTask("Konfigurasi & Bantuan",nav3, rBandDB, rBandHelp,skinBand);
 
         ribbon.addTask(task1);

@@ -5,73 +5,30 @@ import com.jgoodies.forms.layout.CellConstraints;
 import com.jgoodies.forms.layout.FormLayout;
 import com.toedter.calendar.JMonthChooser;
 import com.toedter.calendar.JYearChooser;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
+import de.jgrid.JGrid;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.Icon;
-import javax.swing.JCheckBox;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.RowFilter;
-import javax.swing.ScrollPaneConstants;
-import javax.swing.SwingWorker;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.imageio.ImageIO;
+import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.filechooser.FileFilter;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
-import org.jdesktop.swingx.JXCollapsiblePane;
-import org.jdesktop.swingx.JXComboBox;
-import org.jdesktop.swingx.JXDatePicker;
-import org.jdesktop.swingx.JXErrorPane;
-import org.jdesktop.swingx.JXLabel;
-import org.jdesktop.swingx.JXList;
-import org.jdesktop.swingx.JXMultiSplitPane;
-import org.jdesktop.swingx.JXPanel;
-import org.jdesktop.swingx.JXStatusBar;
-import org.jdesktop.swingx.JXTable;
-import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.JXTextArea;
-import org.jdesktop.swingx.JXTextField;
-import org.jdesktop.swingx.JXTitledPanel;
-import org.jdesktop.swingx.MultiSplitLayout;
+import org.jdesktop.swingx.*;
 import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 import org.jdesktop.swingx.combobox.ListComboBoxModel;
-import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.error.ErrorInfo;
-import org.jdesktop.swingx.hyperlink.EditorPaneLinkVisitor;
-import org.jdesktop.swingx.hyperlink.LinkModel;
-import org.jdesktop.swingx.hyperlink.LinkModelAction;
 import org.jdesktop.swingx.renderer.DefaultListRenderer;
-import org.jdesktop.swingx.renderer.DefaultTableRenderer;
-import org.jdesktop.swingx.renderer.HyperlinkProvider;
 import org.jdesktop.swingx.renderer.IconValue;
 import org.jdesktop.swingx.renderer.StringValue;
 import org.motekar.project.civics.archieve.mail.objects.Inbox;
@@ -80,6 +37,8 @@ import org.motekar.project.civics.archieve.mail.sqlapi.MailBusinessLogic;
 import org.motekar.project.civics.archieve.master.objects.Division;
 import org.motekar.project.civics.archieve.master.sqlapi.MasterBusinessLogic;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
+import org.motekar.project.civics.archieve.utils.viewer.ImageViewerDlg;
+import org.motekar.project.civics.archieve.utils.viewer.PicViewerRenderer;
 import org.motekar.util.user.misc.MotekarException;
 import org.motekar.util.user.misc.MotekarFocusTraversalPolicy;
 import org.motekar.util.user.ui.Mainframe;
@@ -87,10 +46,6 @@ import org.openide.util.Exceptions;
 import org.pushingpixels.flamingo.api.common.JCommandButton;
 import org.pushingpixels.flamingo.api.common.JCommandButtonStrip;
 import org.pushingpixels.flamingo.api.common.RichTooltip;
-import org.pushingpixels.substance.api.ComponentState;
-import org.pushingpixels.substance.api.SubstanceColorScheme;
-import org.pushingpixels.substance.api.SubstanceLookAndFeel;
-import org.pushingpixels.substance.api.SubstanceSkin;
 
 /**
  *
@@ -110,7 +65,7 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
     private JMonthChooser monthChooser = new JMonthChooser();
     private JCheckBox checkBox = new JCheckBox();
     /**
-     * 
+     *
      */
     private JXDatePicker fieldMailDate = new JXDatePicker();
     private JXTextField fieldMailNumber = new JXTextField();
@@ -120,9 +75,10 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
     private JXDatePicker fieldDispositionDate = new JXDatePicker();
     private JXComboBox comboReceiver = new JXComboBox();
     private JTabbedPane tabbedPane = new JTabbedPane();
-    private InboxFileTable ifTable = new InboxFileTable();
+    private InboxFileFileGrid ifList = new InboxFileFileGrid();
+    private JSlider slider;
     /**
-     * 
+     *
      */
     private JCommandButton btAdd = new JCommandButton(Mainframe.getResizableIconFromSource("resource/new_mail_add.png"));
     private JCommandButton btEdit = new JCommandButton(Mainframe.getResizableIconFromSource("resource/new_mail_edit.png"));
@@ -132,7 +88,7 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
     private JCommandButton btInsFile = new JCommandButton(Mainframe.getResizableIconFromSource("resource/Add.png"));
     private JCommandButton btDelFile = new JCommandButton(Mainframe.getResizableIconFromSource("resource/Del.png"));
     /**
-     * 
+     *
      */
     private boolean iseditable = false;
     private boolean isnew = false;
@@ -188,7 +144,7 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
         helpLabel.setTextAlignment(JXLabel.TextAlignment.JUSTIFY);
 
         String text = "Penjelasan Singkat\n"
-                + "Fasilitas Pegawai untuk pengisian data-data pegawai yang ada di suatu dinas\n\n"
+                + "Fasilitas Surat Masuk untuk pengisian surat masuk pada suatu dinas/kantor/badan\n\n"
                 + "Tambah Surat Masuk\n"
                 + "Untuk menambah Surat Masuk klik tombol paling kiri "
                 + "kemudian isi data Surat Masuk baru yang akan ditambah "
@@ -202,7 +158,7 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
                 + "untuk melakukan pembatalan perubahan\n\n"
                 + "Hapus Surat Masuk\n"
                 + "Untuk menghapus Surat Masuk klik tombol paling kanan "
-                + "kemudian akan muncul peringatan untuk menghapus Pegawai "
+                + "kemudian akan muncul peringatan untuk menghapus Surat Masuk "
                 + "tersebut, pilih Ya untuk mengapus atau pilih Tidak untuk "
                 + "membatalkan penghapusan";
 
@@ -288,23 +244,64 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
     private Component createMainPanelPage2() {
         FormLayout lm = new FormLayout(
                 "pref,10px,fill:default:grow,10px",
-                "pref,10px,pref,fill:default:grow,5px,50px");
+                "pref,8px,pref,2px,fill:default:grow,5px,10px");
         DefaultFormBuilder builder = new DefaultFormBuilder(lm);
         builder.setDefaultDialogBorder();
 
-        lm.setRowGroups(new int[][]{{1, 2, 5}});
+//        lm.setRowGroups(new int[][]{{1, 2, 5}});
 
         JScrollPane scPane = new JScrollPane();
-        scPane.setViewportView(ifTable);
+        scPane.setViewportView(ifList);
+
 
         CellConstraints cc = new CellConstraints();
 
         builder.addSeparator("Scan Dokumen Surat", cc.xyw(1, 1, 4));
 
         builder.add(createStrip2(1.0, 1.0), cc.xy(1, 3));
-        builder.add(scPane, cc.xywh(1, 4, 3, 2));
+        builder.add(createSliderPanel(), cc.xy(3, 3));
+        builder.add(scPane, cc.xywh(1, 5, 3, 2));
 
-        return builder.getPanel();
+        JPanel panel = builder.getPanel();
+
+        ifList.setBackground(panel.getBackground());
+
+        return panel;
+    }
+
+    private JPanel createSliderPanel() {
+        slider = new JSlider(128, 256, ifList.getFixedCellDimension());
+        slider.setValue(ifList.getFixedCellDimension());
+        slider.putClientProperty("JComponent.sizeVariant", "small");
+        slider.addChangeListener(new ChangeListener() {
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                ifList.setFixedCellDimension(slider.getValue());
+            }
+        });
+
+        JPanel sliderPanel = new JPanel();
+        sliderPanel.setLayout(new FlowLayout());
+        try {
+            sliderPanel.add(new JLabel(new ImageIcon(ImageIO.read(ArchieveMainframe.class.getResource(
+                    "/resource/dim_small.png")))));
+        } catch (IOException e1) {
+            Exceptions.printStackTrace(e1);
+        }
+        sliderPanel.add(slider);
+        try {
+            sliderPanel.add(new JLabel(new ImageIcon(ImageIO.read(ArchieveMainframe.class.getResource(
+                    "/resource/dim_large.png")))));
+        } catch (IOException e1) {
+            Exceptions.printStackTrace(e1);
+        }
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.add(sliderPanel, BorderLayout.EAST);
+
+        return panel;
     }
 
     protected JPanel createSearchPanel() {
@@ -345,22 +342,22 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
             double vgapScaleFactor) {
 
         RichTooltip addTooltip = new RichTooltip();
-        addTooltip.setTitle("Tambah Pegawai");
+        addTooltip.setTitle("Tambah Surat Masuk");
 
         btAdd.setActionRichTooltip(addTooltip);
 
         RichTooltip editTooltip = new RichTooltip();
-        editTooltip.setTitle("Ubah Pegawai");
+        editTooltip.setTitle("Ubah Surat Masuk");
 
         btEdit.setActionRichTooltip(editTooltip);
 
         RichTooltip saveTooltip = new RichTooltip();
-        saveTooltip.setTitle("Simpan Pegawai");
+        saveTooltip.setTitle("Simpan Surat Masuk");
 
         btSave.setActionRichTooltip(saveTooltip);
 
         RichTooltip deleteTooltip = new RichTooltip();
-        deleteTooltip.setTitle("Hapus Pegawai");
+        deleteTooltip.setTitle("Hapus Surat Masuk");
 
         btDelete.setActionRichTooltip(deleteTooltip);
 
@@ -441,6 +438,35 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
             }
         });
 
+        ifList.addMouseListener(new MouseAdapter() {
+
+            Cursor oldCursor = ifList.getCursor();
+
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int index = ifList.getCellAt(e.getPoint());
+                if (index >= 0) {
+                    Object o = ifList.getModel().getElementAt(index);
+                    if (o instanceof InboxFile) {
+                        InboxFile file = (InboxFile) o;
+                        if (e.getClickCount() == 2) {
+                            onViewDocument(file);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                ifList.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                ifList.setCursor(oldCursor);
+            }
+        });
+
         comboReceiver.setEditable(true);
 
         fieldSenderAddress.setWrapStyleWord(true);
@@ -448,12 +474,6 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
 
         fieldDispositionDate.setFormats("dd/MM/yyyy");
         fieldMailDate.setFormats("dd/MM/yyyy");
-
-        SubstanceSkin skin = SubstanceLookAndFeel.getCurrentSkin();
-        SubstanceColorScheme color = skin.getColorScheme(ifTable, ComponentState.DEFAULT);
-
-        ifTable.addHighlighter(HighlighterFactory.createSimpleStriping(color.getWatermarkDarkColor()));
-        ifTable.setShowGrid(false, false);
 
         inboxList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         inboxList.setAutoCreateRowSorter(true);
@@ -496,32 +516,6 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
         setButtonState("");
     }
 
-    private void downloadFile() {
-        InboxFile inboxFile = ifTable.getSelectedfile();
-        if (inboxFile != null) {
-            int retVal = saveChooser.showSaveDialog(this);
-            if (retVal == JFileChooser.APPROVE_OPTION) {
-                File file = saveChooser.getSelectedFile();
-                try {
-
-                    File fileToCopy = new File(file.getParent() + File.separator + file.getName() + "." + inboxFile.getFileExtension());
-
-                    OutputStream out = new FileOutputStream(fileToCopy);
-
-                    out.write(inboxFile.getFileStream());
-
-                    out.close();
-
-                    String[] commands = {"cmd", "/c", "start", "\"DummyTitle\"", fileToCopy.getPath()};
-                    Runtime.getRuntime().exec(commands);
-
-                } catch (Exception ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-            }
-        }
-    }
-
     public void filter() {
         inboxList.setRowFilter(new RowFilter<ListModel, Integer>() {
 
@@ -558,12 +552,16 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
                     return true;
                 }
                 String fileName = f.getName();
-                return (fileName.toLowerCase().endsWith(".doc"));
+                return (fileName.toLowerCase().endsWith(".png") || fileName.toLowerCase().endsWith(".jpg")
+                        || fileName.toLowerCase().endsWith(".gif") || fileName.toLowerCase().endsWith(".bmp")
+                        || fileName.toLowerCase().endsWith(".doc") || fileName.toLowerCase().endsWith(".docx")
+                        || fileName.toLowerCase().endsWith(".pdf") || fileName.toLowerCase().endsWith(".xls")
+                        || fileName.toLowerCase().endsWith(".xlsx"));
             }
 
             @Override
             public String getDescription() {
-                return "File Dokumen (*.doc)";
+                return "Scan Dokumen (*.png;*.jpg;*.gif;*.bmp;*.doc;*.docx;*.pdf;*.xls;*.xlsx)";
             }
         });
     }
@@ -581,12 +579,16 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
                     return true;
                 }
                 String fileName = f.getName();
-                return (fileName.toLowerCase().endsWith(".doc"));
+                return (fileName.toLowerCase().endsWith(".png") || fileName.toLowerCase().endsWith(".jpg")
+                        || fileName.toLowerCase().endsWith(".gif") || fileName.toLowerCase().endsWith(".bmp")
+                        || fileName.toLowerCase().endsWith(".doc") || fileName.toLowerCase().endsWith(".docx")
+                        || fileName.toLowerCase().endsWith(".pdf") || fileName.toLowerCase().endsWith(".xls")
+                        || fileName.toLowerCase().endsWith(".xlsx"));
             }
 
             @Override
             public String getDescription() {
-                return "File Dokumen (*.doc)";
+                return "Scan Dokumen (*.png;*.jpg;*.gif;*.bmp;*.doc;*.docx;*.pdf;*.xls;*.xlsx)";
             }
         });
     }
@@ -628,7 +630,7 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
             fieldMailDate.requestFocus();
         }
 
-        ifTable.clear();
+        ifList.clear();
 
     }
 
@@ -688,15 +690,15 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
                     inboxFile.setFileName(file.getName());
                     inboxFile.setFileStream(fileStream);
 
-                    ifTable.addFile(inboxFile);
+                    ifList.addInboxFile(inboxFile);
 
                 } catch (Exception ex) {
                     Exceptions.printStackTrace(ex);
                 }
             }
         } else if (obj == btDelFile) {
-            ArrayList<InboxFile> inboxFiles = ifTable.getSelectedFiles();
-            if (!inboxFiles.isEmpty()) {
+            InboxFile inboxFile = ifList.getSelectedInboxFile();
+            if (inboxFile != null) {
                 Object[] options = {"Ya", "Tidak"};
                 int choise = JOptionPane.showOptionDialog(this,
                         " Anda yakin menghapus semua data ini ? (Y/T)",
@@ -705,7 +707,7 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
                         JOptionPane.QUESTION_MESSAGE, null,
                         options, options[1]);
                 if (choise == JOptionPane.YES_OPTION) {
-                    ifTable.removeFiles(inboxFiles);
+                    ifList.removeSelected(inboxFile);
                 }
             }
         }
@@ -847,7 +849,7 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
             receiver = null;
         }
 
-        ArrayList<InboxFile> inboxFiles = ifTable.getfiles();
+        ArrayList<InboxFile> inboxFiles = ifList.getInboxFiles();
 
         if (errorString.length() > 0) {
             throw new MotekarException("<html>Harap diperhatikan untuk diisi : " + errorString.toString() + "</html>");
@@ -864,6 +866,45 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
         inbox.setInboxFiles(inboxFiles);
 
         return inbox;
+    }
+
+    private void onViewDocument(InboxFile file) {
+
+        String fileExtension = file.getFileName();
+
+        if (fileExtension.toLowerCase().endsWith(".png") || fileExtension.toLowerCase().endsWith(".jpg")
+                || fileExtension.toLowerCase().endsWith(".gif") || fileExtension.toLowerCase().endsWith(".bmp")) {
+
+            Cursor oldCursor = ifList.getCursor();
+            ifList.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+            ImageViewerDlg dlg = new ImageViewerDlg(mainframe, file.getFileStream(), fileExtension, true);
+            dlg.showDialog();
+            ifList.setCursor(oldCursor);
+
+        } else if (fileExtension.toLowerCase().endsWith(".doc") || fileExtension.toLowerCase().endsWith(".docx")
+                || fileExtension.toLowerCase().endsWith(".xls") || fileExtension.toLowerCase().endsWith(".xlsx")
+                || fileExtension.toLowerCase().endsWith(".pdf")) {
+            OutputStream out = null;
+            try {
+                Cursor oldCursor = ifList.getCursor();
+                ifList.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+                File fileToCopy = new File(System.getProperty("user.dir") + "\\temp" + File.separator + fileExtension);
+                out = new FileOutputStream(fileToCopy);
+                out.write(file.getFileStream());
+                out.close();
+                String[] commands = {"cmd", "/c", "start", "\"DummyTitle\"", fileToCopy.getPath()};
+                Runtime.getRuntime().exec(commands);
+                ifList.setCursor(oldCursor);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            } finally {
+                try {
+                    out.close();
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        }
     }
 
     private void defineCustomFocusTraversalPolicy() {
@@ -895,8 +936,8 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
                 } else {
                     comboReceiver.setSelectedItem(selectedInbox.getReceipient());
                 }
-                ifTable.clear();
-                ifTable.addFile(selectedInbox.getInboxFiles());
+                ifList.clear();
+                ifList.addInboxFiles(selectedInbox.getInboxFiles());
                 setButtonState("Save");
             } catch (SQLException ex) {
                 Exceptions.printStackTrace(ex);
@@ -993,237 +1034,78 @@ public class InboxPanel extends JXPanel implements ActionListener, ListSelection
         }
     }
 
-    private class InboxFileTable extends JXTable {
+    private class InboxFileFileGrid extends JGrid {
 
-        private InboxFileTableModel model = new InboxFileTableModel();
-
-        public InboxFileTable() {
+        public InboxFileFileGrid() {
+            DefaultListModel model = new DefaultListModel();
             setModel(model);
-            getTableHeader().setReorderingAllowed(false);
-            getColumnModel().getColumn(0).setMinWidth(100);
-            getColumnModel().getColumn(0).setMaxWidth(100);
+
+            getCellRendererManager().setDefaultRenderer(new PicViewerRenderer());
+            setFixedCellDimension(160);
+            setHorizonztalMargin(15);
+            setVerticalMargin(15);
         }
 
         public void clear() {
+            DefaultListModel model = (DefaultListModel) getModel();
             model.clear();
         }
 
-        public InboxFile getSelectedfile() {
+        public InboxFile getSelectedInboxFile() {
             InboxFile file = null;
-
-            int row = getSelectedRow();
-
-            Object obj = model.getValueAt(row, 1);
-
+            Object obj = this.getModel().getElementAt(this.getSelectedIndex());
             if (obj instanceof InboxFile) {
                 file = (InboxFile) obj;
             }
-
             return file;
         }
 
-        public ArrayList<InboxFile> getfiles() {
-            return model.getfiles();
-        }
+        public ArrayList<InboxFile> getInboxFiles() {
+            ArrayList<InboxFile> inboxFiles = new ArrayList<InboxFile>();
 
-        public ArrayList<InboxFile> getSelectedFiles() {
+            int size = this.getModel().getSize();
 
-            ArrayList<InboxFile> files = new ArrayList<InboxFile>();
-
-            int[] rows = getSelectedRows();
-
-            if (rows != null) {
-                for (int i = 0; i < rows.length; i++) {
+            if (size > 0) {
+                for (int i = 0; i < size; i++) {
                     InboxFile file = null;
-                    Object obj = model.getValueAt(rows[i], 1);
+                    Object obj = this.getModel().getElementAt(i);
                     if (obj instanceof InboxFile) {
                         file = (InboxFile) obj;
-                        files.add(file);
-                    }
-                }
-            }
-
-            return files;
-        }
-
-        public void updateSelectedfile(InboxFile file) {
-            int row = getSelectedRow();
-            model.updateRow(row, getSelectedfile(), file);
-        }
-
-        public void removeFiles(ArrayList<InboxFile> files) {
-            if (!files.isEmpty()) {
-                for (InboxFile file : files) {
-                    model.remove(file);
-                }
-            }
-
-        }
-
-        public void addFile(InboxFile file) {
-            model.add(file);
-        }
-
-        public void addFile(ArrayList<InboxFile> files) {
-            if (!files.isEmpty()) {
-                for (InboxFile file : files) {
-                    model.add(file);
-                }
-            }
-        }
-
-        @Override
-        public TableCellRenderer getCellRenderer(int row, int column) {
-            if (column == 0) {
-                EditorPaneLinkVisitor visitor = new EditorPaneLinkVisitor();
-                LinkModelAction<?> action = new LinkModelAction<LinkModel>(visitor) {
-
-                    @Override
-                    public void actionPerformed(ActionEvent e) {
-                        downloadFile();
                     }
 
-                    @Override
-                    protected void updateFromTarget() {
-                        super.updateFromTarget();
-                        putValue(Action.SHORT_DESCRIPTION, null);
-                    }
-                };
-                return new DefaultTableRenderer(new HyperlinkProvider(action, LinkModel.class));
-            }
-            return super.getCellRenderer(row, column);
-        }
-    }
-
-    private static class InboxFileTableModel extends AbstractTableModel {
-
-        public static final int COLUMN_COUNT = 2;
-        private static final String[] columnIds = {"Download File", "Nama File"};
-        private ArrayList<InboxFile> InboxFiles = new ArrayList<InboxFile>();
-
-        @Override
-        public boolean isCellEditable(int rowIndex, int columnIndex) {
-            return false;
-        }
-
-        @Override
-        public String getColumnName(int column) {
-            return columnIds[column];
-        }
-
-        public void add(ArrayList<InboxFile> files) {
-            int first = files.size();
-            int last = first + files.size() - 1;
-            files.addAll(files);
-            fireTableRowsInserted(first, last);
-        }
-
-        public void add(InboxFile file) {
-            if (!InboxFiles.contains(file)) {
-                insertRow(getRowCount(), file);
-            }
-        }
-
-        public void insertRow(int row, InboxFile file) {
-            InboxFiles.add(row, file);
-            justifyRows(row, row + 1);
-            fireTableRowsInserted(row, row);
-        }
-
-        public void updateRow(int row, InboxFile oldfile, InboxFile newfile) {
-            int index = InboxFiles.indexOf(oldfile);
-            InboxFiles.set(index, newfile);
-            fireTableRowsUpdated(index, index);
-        }
-
-        public void remove(InboxFile file) {
-            int row = InboxFiles.indexOf(file);
-            InboxFiles.remove(file);
-            fireTableRowsDeleted(row, row);
-        }
-
-        public void clear() {
-            setRowCount(0);
-        }
-
-        protected void setRowCount(int rowCount) {
-            int old = getRowCount();
-            if (old == rowCount) {
-                return;
-            }
-
-            if (rowCount <= old) {
-                InboxFiles.clear();
-                fireTableRowsDeleted(rowCount, old - 1);
-            } else {
-                InboxFiles.ensureCapacity(rowCount);
-                justifyRows(old, rowCount);
-                fireTableRowsInserted(old, rowCount - 1);
-            }
-        }
-
-        private void justifyRows(int from, int to) {
-            InboxFiles.ensureCapacity(getRowCount());
-
-            for (int i = from; i < to; i++) {
-                if (InboxFiles.get(i) == null) {
-                    InboxFiles.set(i, new InboxFile());
-                }
-            }
-        }
-
-        public ArrayList<InboxFile> getfiles() {
-            return InboxFiles;
-        }
-
-        @Override
-        public int getRowCount() {
-            return InboxFiles.size();
-        }
-
-        @Override
-        public int getColumnCount() {
-            return COLUMN_COUNT;
-        }
-
-        public InboxFile getfile(int row) {
-            if (!InboxFiles.isEmpty()) {
-                return InboxFiles.get(row);
-            }
-            return null;
-        }
-
-        @Override
-        public void setValueAt(Object aValue, int row, int column) {
-            InboxFile file = getfile(row);
-            switch (column) {
-                case 0:
-                    break;
-
-                case 1:
-                    file = (InboxFile) aValue;
-                    break;
-            }
-        }
-
-        @Override
-        public Object getValueAt(int row, int column) {
-            Object toBeDisplayed = "n/a";
-            InboxFile file = getfile(row);
-            switch (column) {
-                case 0:
                     if (file != null) {
-                        LinkModel link = new LinkModel("Download File", null, null);
-                        toBeDisplayed = link;
+                        inboxFiles.add(file);
                     }
-
-                    break;
-
-                case 1:
-                    toBeDisplayed = file;
-                    break;
+                }
             }
-            return toBeDisplayed;
+
+            return inboxFiles;
+        }
+
+        public void addInboxFile(InboxFile file) {
+            DefaultListModel model = (DefaultListModel) getModel();
+            model.addElement(file);
+        }
+
+        public void addInboxFiles(ArrayList<InboxFile> files) {
+            DefaultListModel model = (DefaultListModel) getModel();
+
+            if (!files.isEmpty()) {
+                for (InboxFile file : files) {
+                    model.addElement(file);
+                }
+            }
+
+        }
+
+        public void updateInboxFile(InboxFile file) {
+            DefaultListModel model = (DefaultListModel) getModel();
+            model.setElementAt(file, getSelectedIndex());
+        }
+
+        public void removeSelected(InboxFile file) {
+            DefaultListModel model = (DefaultListModel) getModel();
+            model.removeElement(file);
         }
     }
 

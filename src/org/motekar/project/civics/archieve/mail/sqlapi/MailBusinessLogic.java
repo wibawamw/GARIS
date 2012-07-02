@@ -5,12 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.StringTokenizer;
-import org.motekar.project.civics.archieve.mail.objects.Inbox;
-import org.motekar.project.civics.archieve.mail.objects.InboxDisposition;
-import org.motekar.project.civics.archieve.mail.objects.InboxFile;
-import org.motekar.project.civics.archieve.mail.objects.Outbox;
-import org.motekar.project.civics.archieve.mail.objects.OutboxDisposition;
-import org.motekar.project.civics.archieve.mail.objects.OutboxFile;
+import org.motekar.project.civics.archieve.mail.objects.*;
 import org.motekar.util.user.misc.MotekarException;
 import org.motekar.util.user.sqlapi.AuthBusinessLogic;
 
@@ -682,5 +677,373 @@ public class MailBusinessLogic {
         } catch (Throwable anyOtherException) {
             throw new RuntimeException(anyOtherException);
         }
+    }
+    
+    //
+    
+    public ContractMail insertContractMail(Long session,ContractMail contractmail) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.insertContractMail(conn, contractmail);
+
+
+            Long index = sql.getMaxIndex(conn, "contractmail", "autoindex");
+            contractmail.setIndex(index);
+            contractmail.setStyled(true);
+
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+        return contractmail;
+    }
+
+    public ContractMail updateContractMail(Long session,ContractMail oldContractMail, ContractMail newContractMail) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.updateContractMail(conn,oldContractMail.getIndex(), newContractMail);
+            newContractMail.setIndex(oldContractMail.getIndex());
+            newContractMail.setStyled(true);
+
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+        return newContractMail;
+    }
+
+
+    public void deleteContractMail(Long session,Long index) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.deleteContractMail(conn, index);
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<ContractMail> getContractMail(Long session) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getContractMail(conn);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<ContractMail> getContractMail(Long session,Integer month, Integer year) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            return sql.getContractMail(conn, month, year);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<ContractMail> getContractMail(Long session,Date date, Date date2) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            return sql.getContractMail(conn, date, date2);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    //
+    
+    public SP2D insertSP2D(Long session, SP2D sp2d) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.insertSP2D(conn, sp2d);
+            
+            Long index = sql.getMaxIndex(conn, "sp2d", "autoindex");
+            sp2d.setIndex(index);
+            sp2d.setStyled(true);
+            
+            ArrayList<SP2DFile> files = sp2d.getsP2DFiles();
+            
+            if (!files.isEmpty()) {
+                for (SP2DFile file : files) {
+                    file.setSp2dIndex(index);
+                    sql.insertSP2DFile(conn, file);
+                }
+            }
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+        return sp2d;
+    }
+
+    public SP2D updateSP2D(Long session, SP2D oldSP2D, SP2D newSP2D) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.updateSP2D(conn, oldSP2D, newSP2D);
+            newSP2D.setStyled(true);
+            newSP2D.setIndex(oldSP2D.getIndex());
+            
+            sql.deleteSP2DFile(conn, oldSP2D.getIndex());
+            
+            ArrayList<SP2DFile> files = newSP2D.getsP2DFiles();
+            
+            if (!files.isEmpty()) {
+                for (SP2DFile file : files) {
+                    file.setSp2dIndex(newSP2D.getIndex());
+                    sql.insertSP2DFile(conn, file);
+                }
+            }
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+        return newSP2D;
+    }
+
+    public void deleteSP2D(Long session, SP2D sp2d) throws SQLException {
+        int trans = Connection.TRANSACTION_READ_COMMITTED;
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            trans = conn.getTransactionIsolation();
+            conn.setAutoCommit(false);
+            conn.setTransactionIsolation(Connection.TRANSACTION_SERIALIZABLE);
+
+            sql.deleteSP2D(conn, sp2d);
+
+            conn.commit();
+            conn.setAutoCommit(true);
+            conn.setTransactionIsolation(trans);
+        } catch (SQLException sqle) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                conn.setTransactionIsolation(trans);
+            } catch (Throwable e) {
+            }
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+
+    public ArrayList<SP2D> getSP2D(Long session) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getSP2D(conn);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    public ArrayList<SP2D> getSP2D(Long session,Integer month, Integer year,String modifier) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getSP2D(conn, month, year,modifier);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    public ArrayList<SP2D> getSP2D(Long session,Date date, Date date2,String modifier) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getSP2D(conn, date, date2,modifier);
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    public SP2D getSP2DByIndex(Long session,SP2D sp2d) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+            return sql.getSP2DByIndex(conn,sp2d.getIndex());
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+    }
+    
+    
+    public SP2D getCompleteSP2D(Long session, SP2D sp2d) throws SQLException {
+        try {
+            if (!auth.isSessionExpired(session)) {
+                throw new MotekarException("Session anda telah berakhir silahkan login kembali");
+            }
+
+            ArrayList<SP2DFile> sP2DFiles = sql.getSP2DFile(conn, sp2d.getIndex());
+
+            sp2d.setsP2DFiles(sP2DFiles);
+
+        } catch (SQLException sqle) {
+            throw sqle;
+        } catch (Throwable anyOtherException) {
+            throw new RuntimeException(anyOtherException);
+        }
+        return sp2d;
     }
 }

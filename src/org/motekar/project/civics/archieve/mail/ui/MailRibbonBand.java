@@ -28,14 +28,15 @@ public class MailRibbonBand implements ActionListener {
             Mainframe.getResizableIconFromSource("resource/new_mail.png"));
     private JCommandButton btInboxStatus = new JCommandButton("Status Surat Masuk",
             Mainframe.getResizableIconFromSource("resource/Spam.png"));
-    
-
     private JCommandButton btOutbox = new JCommandButton("Surat Keluar",
             Mainframe.getResizableIconFromSource("resource/mail.png"));
     private JCommandButton btOutboxStatus = new JCommandButton("Status Surat Keluar",
             Mainframe.getResizableIconFromSource("resource/All mail.png"));
-    
-
+    private JCommandButton btContractMail = new JCommandButton("Surat Keluar Kontrak",
+            Mainframe.getResizableIconFromSource("resource/contractmail.png"));
+    //
+    private JCommandButton btSP2D = new JCommandButton("Surat Perintah Pencairan Dana",
+            Mainframe.getResizableIconFromSource("resource/SP2D.png"));
     private ArchieveMainframe mainframe;
 
     public MailRibbonBand(ArchieveMainframe mainframe) {
@@ -76,7 +77,7 @@ public class MailRibbonBand implements ActionListener {
 
         mailInbox.addCommandButton(btInbox, RibbonElementPriority.TOP);
         mailInbox.addCommandButton(btInboxStatus, RibbonElementPriority.MEDIUM);
-        
+
 
         btInbox.addActionListener(this);
         btInboxStatus.addActionListener(this);
@@ -119,20 +120,65 @@ public class MailRibbonBand implements ActionListener {
 
         btOutboxStatus.setActionRichTooltip(outboxStatusTooltip);
 
-        
+        RichTooltip contractMailTooltip = new RichTooltip();
+        contractMailTooltip.setTitle("Surat Keluar Kontrak");
+        contractMailTooltip.addDescriptionSection("Pengelolaan surat-surat perjanjian kontrak");
+        try {
+            BufferedImage img = ImageIO.read(ArchieveMainframe.class.getResource("/resource/contractmail.png"));
+            Image scaleImage = img.getScaledInstance(48, 48, Image.SCALE_SMOOTH);
+            contractMailTooltip.setMainImage(scaleImage);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        btContractMail.setActionRichTooltip(contractMailTooltip);
+
+
 
         mailOutbox.addCommandButton(btOutbox, RibbonElementPriority.TOP);
         mailOutbox.addCommandButton(btOutboxStatus, RibbonElementPriority.MEDIUM);
-        
+        mailOutbox.addCommandButton(btContractMail, RibbonElementPriority.MEDIUM);
+
 
         btOutbox.addActionListener(this);
         btOutboxStatus.addActionListener(this);
-        
+        btContractMail.addActionListener(this);
+
 
         mailOutbox.setResizePolicies((List) Arrays.asList(new CoreRibbonResizePolicies.None(mailOutbox.getControlPanel()),
                 new IconRibbonBandResizePolicy(mailOutbox.getControlPanel())));
 
         return mailOutbox;
+    }
+
+    public JRibbonBand getBudgetRibbon() {
+        JRibbonBand budgetRibbon = new JRibbonBand("Kauangan", null);
+
+        budgetRibbon.setResizePolicies((List) Arrays.asList(new IconRibbonBandResizePolicy(budgetRibbon.getControlPanel())));
+
+
+        RichTooltip sp2dTooltip = new RichTooltip();
+        sp2dTooltip.setTitle("Surat Perintah Pencairan Dana (SP2D)");
+        sp2dTooltip.addDescriptionSection("Pengelolaan arsip-arsip Surat Perintah Pencairan Dana");
+        try {
+            BufferedImage img = ImageIO.read(ArchieveMainframe.class.getResource("/resource/SP2D.png"));
+            Image scaleImage = img.getScaledInstance(48, 48, Image.SCALE_SMOOTH);
+            sp2dTooltip.setMainImage(scaleImage);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+
+        btSP2D.setActionRichTooltip(sp2dTooltip);
+
+
+        budgetRibbon.addCommandButton(btSP2D, RibbonElementPriority.TOP);
+
+        btSP2D.addActionListener(this);
+
+        budgetRibbon.setResizePolicies((List) Arrays.asList(new CoreRibbonResizePolicies.None(budgetRibbon.getControlPanel()),
+                new IconRibbonBandResizePolicy(budgetRibbon.getControlPanel())));
+
+        return budgetRibbon;
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -145,7 +191,10 @@ public class MailRibbonBand implements ActionListener {
             mainframe.addChildFrame(btOutbox.getText(), new OutboxPanel(mainframe));
         } else if (source == btOutboxStatus) {
             mainframe.addChildFrame(btOutboxStatus.getText(), new OutboxStatusPanel(mainframe));
-        } 
+        } else if (source == btContractMail) {
+            mainframe.addChildFrame(btContractMail.getText(), new ContractMailPanel(mainframe));
+        } else if (source == btSP2D) {
+            mainframe.addChildFrame(btSP2D.getText(), new SP2DPanel(mainframe));
+        }
     }
-
 }
