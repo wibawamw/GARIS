@@ -88,7 +88,7 @@ public class ReportSQL {
                 append(" group by esselon,activitycode,activityname) c ").
                 append("on  a.eselon = c.esselon ").
                 append("order by activitycode,eselon ");
-        
+
         PreparedStatement pstm = conn.prepareStatement(query.toString());
         int col = 0;
 
@@ -105,17 +105,22 @@ public class ReportSQL {
 
             Integer eselon = rs.getInt("eselon");
 
-            real.setEselon(StandardPrice.ESELON[eselon]);
+            if (eselon.compareTo(Integer.valueOf(0)) > 0) {
+                real.setEselon(StandardPrice.ESELON[eselon]);
+            } else {
+                real.setEselon("");
+            }
+
             real.setCounted(rs.getInt("counted"));
             real.setDiff(rs.getInt("countdiff"));
-            
+
             BigDecimal budget = rs.getBigDecimal("budget");
             BigDecimal credit = rs.getBigDecimal("price");
-            
+
             BigDecimal closing = BigDecimal.ZERO;
             closing = closing.add(budget);
             closing = closing.subtract(credit);
-            
+
             real.setBudget(budget);
             real.setCredit(credit);
             real.setClosing(closing);
@@ -132,12 +137,12 @@ public class ReportSQL {
 
             String actCode = rs.getString("activitycode");
             String actName = rs.getString("activityname");
-            
+
             if (!actName.toLowerCase().contains("kegiatan")) {
-                actName = "Kegiatan "+actName;
+                actName = "Kegiatan " + actName;
             }
 
-            real.setActivity(actCode+" "+actName);
+            real.setActivity(actCode + " " + actName);
 
             realizations.add(real);
         }
@@ -222,7 +227,7 @@ public class ReportSQL {
                 append(" group by esselon) c ").
                 append("on  a.eselon = c.esselon ").
                 append("order by eselon ");
-        
+
 
         PreparedStatement pstm = conn.prepareStatement(query.toString());
         int col = 0;
@@ -243,17 +248,21 @@ public class ReportSQL {
 
             Integer eselon = rs.getInt("eselon");
 
-            real.setEselon(StandardPrice.ESELON[eselon]);
+            if (eselon.compareTo(Integer.valueOf(0)) > 0) {
+                real.setEselon(StandardPrice.ESELON[eselon]);
+            } else {
+                real.setEselon("");
+            }
             real.setCounted(rs.getInt("counted"));
             real.setDiff(rs.getInt("countdiff"));
-            
+
             BigDecimal budget = rs.getBigDecimal("budget");
             BigDecimal credit = rs.getBigDecimal("price");
-            
+
             BigDecimal closing = BigDecimal.ZERO;
             closing = closing.add(budget);
             closing = closing.subtract(credit);
-            
+
             real.setBudget(budget);
             real.setCredit(credit);
             real.setClosing(closing);
@@ -279,7 +288,7 @@ public class ReportSQL {
         return realizations;
     }
 
-    ArrayList<BudgetRealization> getBudgetRealizationByEselon(Connection conn, Integer years, Integer budgetType,Integer eselon, String modifier) throws SQLException {
+    ArrayList<BudgetRealization> getBudgetRealizationByEselon(Connection conn, Integer years, Integer budgetType, Integer eselon, String modifier) throws SQLException {
         ArrayList<BudgetRealization> realizations = new ArrayList<BudgetRealization>();
 
         StringBuilder query = new StringBuilder();
@@ -374,14 +383,14 @@ public class ReportSQL {
             real.setEselon("");
             real.setCounted(rs.getInt("counted"));
             real.setDiff(rs.getInt("countdiff"));
-            
+
             BigDecimal budget = rs.getBigDecimal("budget");
             BigDecimal credit = rs.getBigDecimal("price");
-            
+
             BigDecimal closing = BigDecimal.ZERO;
             closing = closing.add(budget);
             closing = closing.subtract(credit);
-            
+
             real.setBudget(budget);
             real.setCredit(credit);
             real.setClosing(closing);
@@ -395,15 +404,15 @@ public class ReportSQL {
             }
 
             real.setDescription(builder.toString());
-            
+
             String actCode = rs.getString("activitycode");
             String actName = rs.getString("activityname");
-            
+
             if (!actName.toLowerCase().contains("kegiatan")) {
-                actName = "Kegiatan "+actName;
+                actName = "Kegiatan " + actName;
             }
 
-            real.setActivity(actCode+" "+actName);
+            real.setActivity(actCode + " " + actName);
 
             realizations.add(real);
         }

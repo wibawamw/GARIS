@@ -641,7 +641,11 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
 
             param.put("periode", builder.toString());
 
-            param.put("EselonName", StandardPrice.ESELON[eselon]);
+            if (eselon.compareTo(Integer.valueOf(0)) > 0) {
+                param.put("EselonName", StandardPrice.ESELON[eselon]);
+            } else {
+                param.put("EselonName", "");
+            }
 
             setProgress(80);
             Thread.sleep(100L);
@@ -741,21 +745,23 @@ public class BudgetRealizationPanel extends JXPanel implements ActionListener {
                 } else if (checkBox2.isSelected()) {
                     eselon = comboEselon.getSelectedIndex();
 
-                    if (checkBox3.isSelected()) {
-                        if (!eselon.equals(Integer.valueOf(0))) {
-                            if (!dateModifier.equals("")) {
-                                realization = logic.getBudgetRealizationByEselon(mainframe.getSession(), year, budgetType, eselon, dateModifier);
+                    if (eselon.compareTo(Integer.valueOf(0)) > 0) {
+                        if (checkBox3.isSelected()) {
+                            if (!eselon.equals(Integer.valueOf(0))) {
+                                if (!dateModifier.equals("")) {
+                                    realization = logic.getBudgetRealizationByEselon(mainframe.getSession(), year, budgetType, eselon, dateModifier);
+                                }
                             }
-                        }
-                    } else if (checkBox4.isSelected()) {
-                        if (!eselon.equals(Integer.valueOf(0))) {
-                            if (!monthModifier.equals("")) {
-                                realization = logic.getBudgetRealizationByEselon(mainframe.getSession(), year, budgetType, eselon, monthModifier);
+                        } else if (checkBox4.isSelected()) {
+                            if (!eselon.equals(Integer.valueOf(0))) {
+                                if (!monthModifier.equals("")) {
+                                    realization = logic.getBudgetRealizationByEselon(mainframe.getSession(), year, budgetType, eselon, monthModifier);
+                                }
                             }
-                        }
-                    } else {
-                        if (!eselon.equals(Integer.valueOf(0))) {
-                            realization = logic.getBudgetRealizationByEselon(mainframe.getSession(), year, budgetType, eselon, "");
+                        } else {
+                            if (!eselon.equals(Integer.valueOf(0))) {
+                                realization = logic.getBudgetRealizationByEselon(mainframe.getSession(), year, budgetType, eselon, "");
+                            }
                         }
                     }
                 } else {

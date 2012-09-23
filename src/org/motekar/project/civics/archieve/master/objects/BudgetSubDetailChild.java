@@ -9,19 +9,16 @@ import java.util.Arrays;
  * @author Muhamad Wibawa
  */
 public class BudgetSubDetailChild {
-    
-    public static final String[] ESELON = new String[]{"", "I", "II","III","IV"};
-    
+
+    public static final String[] ESELON = new String[]{"", "I", "II", "III", "IV"};
     private Long parentIndex = Long.valueOf(0);
-    
     private String description = "";
     private Integer eselon = Integer.valueOf(0);
     private Integer counted = Integer.valueOf(0);
     private String units = "";
     private BigDecimal amount = BigDecimal.ZERO;
-    
     private boolean selected = false;
-    
+
     public BudgetSubDetailChild() {
     }
 
@@ -80,18 +77,21 @@ public class BudgetSubDetailChild {
     public void setEselon(Integer eselon) {
         this.eselon = eselon;
     }
-    
+
     public String getEselonAsString() {
-        return ESELON[eselon];
+        if (this.eselon.compareTo(Integer.valueOf(0)) > 0) {
+            return ESELON[eselon];
+        }
+        return "";
     }
-    
+
     public static ArrayList<String> eselonAsList() {
         ArrayList<String> str = new ArrayList<String>();
         str.addAll(Arrays.asList(ESELON));
 
         return str;
     }
-    
+
     @Override
     public String toString() {
         return description;

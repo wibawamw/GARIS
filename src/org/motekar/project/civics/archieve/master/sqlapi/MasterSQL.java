@@ -1716,7 +1716,7 @@ public class MasterSQL extends CommonSQL {
         return skpds;
     }
     
-    SKPD getSKPDByIndex(Connection conn,Long index) throws SQLException {
+    public SKPD getSKPDByIndex(Connection conn,Long index) throws SQLException {
         SKPD skpd = null;
 
         StringBuilder query = new StringBuilder();

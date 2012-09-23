@@ -12,6 +12,8 @@ import javax.swing.JComponent;
 import org.motekar.project.civics.archieve.mail.objects.InboxFile;
 import org.motekar.project.civics.archieve.mail.objects.OutboxFile;
 import org.motekar.project.civics.archieve.mail.objects.SP2DFile;
+import org.motekar.project.civics.archieve.payroll.objects.PayrollSubmission;
+import org.motekar.project.civics.archieve.payroll.objects.PayrollSubmissionFile;
 import org.motekar.project.civics.archieve.ui.ArchieveMainframe;
 import org.openide.util.Exceptions;
 
@@ -36,6 +38,9 @@ public class PicViewerRenderer extends JComponent implements GridCellRenderer {
             image = getImageFromFileStream(file.getFileExtension(), file.getFileStream());
         } else if (value instanceof SP2DFile) {
             SP2DFile file = (SP2DFile) value;
+            image = getImageFromFileStream(file.getFileExtension(), file.getFileStream());
+        } else if (value instanceof PayrollSubmissionFile) {
+            PayrollSubmissionFile file = (PayrollSubmissionFile) value;
             image = getImageFromFileStream(file.getFileExtension(), file.getFileStream());
         }
         return this;

@@ -26,6 +26,7 @@ import org.jdesktop.swingx.util.WindowUtils;
 import org.motekar.project.civics.archieve.expedition.ui.ExpeditionRibbonBand;
 import org.motekar.project.civics.archieve.mail.ui.MailRibbonBand;
 import org.motekar.project.civics.archieve.master.ui.MasterDataRibbonBand;
+import org.motekar.project.civics.archieve.payroll.ui.PayrollSubmissionRibbonBand;
 import org.motekar.project.civics.archieve.report.ui.ReportRibbonBand;
 import org.motekar.project.civics.archieve.sqlapi.ConnectionManager;
 import org.motekar.project.civics.archieve.utils.misc.ArchieveProperties;
@@ -79,13 +80,14 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener{
     private NavigationRibbonBand nav1 = new NavigationRibbonBand(this, "Navigasi", null);
     private NavigationRibbonBand nav2 = new NavigationRibbonBand(this, "Navigasi", null);
     private NavigationRibbonBand nav3 = new NavigationRibbonBand(this, "Navigasi", null);
+    private NavigationRibbonBand nav4 = new NavigationRibbonBand(this, "Navigasi", null);
 
     private JPanel cardPanel = new JPanel();
 
     private BackgroundPanel background;
 
     public ArchieveMainframe() {
-        super("Government Archieves Information System (GARIS) 1.0.5");
+        super("Government Archieves Information System (GARIS) 1.0.6");
         setApplicationIcon(Mainframe.getResizableIconFromSource("resource/mail_logo.png"));
         constructMainframe();
         constructAndShowLoginPane();
@@ -174,6 +176,8 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener{
         ExpeditionRibbonBand rBandExpedition = new ExpeditionRibbonBand(this, "Perjalanan Dinas", null);
         MailRibbonBand mail = new MailRibbonBand(this);
         ReportRibbonBand report = new ReportRibbonBand(this);
+        
+        PayrollSubmissionRibbonBand submission = new PayrollSubmissionRibbonBand(this);
 
         JRibbonBand rBandDB = new JRibbonBand("Database", null);
         rBandDB.setResizePolicies((List) Arrays.asList(new IconRibbonBandResizePolicy(rBandDB.getControlPanel())));
@@ -263,14 +267,15 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener{
         RibbonTask task1 = new RibbonTask("Menu Aplikasi",nav1, rBandMasterData,
                 mail.getMailInboxRibbon(),mail.getMailOutboxRibbon(),mail.getBudgetRibbon());
 
-        RibbonTask task2 = new RibbonTask("Perjalanan Dinas & Laporan-Laporan", nav2,rBandExpedition,
-                report.getDataMasterRibbon(),report.getMailReportRibbon(),
-                report.getExpeditionReport(),report.getOtherReportRibbon());
-        RibbonTask task3 = new RibbonTask("Konfigurasi & Bantuan",nav3, rBandDB, rBandHelp,skinBand);
+        RibbonTask task2 = new RibbonTask("Perjalanan Dinas & Penggajian", nav2,rBandExpedition,submission.getSubmisionMasterRibbon());
+        RibbonTask task3 = new RibbonTask("Laporan-Laporan",nav3,report.getDataMasterRibbon(),report.getMailReportRibbon(),
+                report.getExpeditionReport(),submission.getSubmisionReportRibbon(), report.getOtherReportRibbon());
+        RibbonTask task4 = new RibbonTask("Konfigurasi & Bantuan",nav4, rBandDB, rBandHelp,skinBand);
 
         ribbon.addTask(task1);
         ribbon.addTask(task2);
         ribbon.addTask(task3);
+        ribbon.addTask(task4);
         configureApplicationMenu();
 
         configureApplicationMenu();
@@ -553,6 +558,7 @@ public class ArchieveMainframe extends JRibbonFrame implements ActionListener{
         nav1.setButtonFlags(flag);
         nav2.setButtonFlags(flag);
         nav3.setButtonFlags(flag);
+        nav4.setButtonFlags(flag);
     }
 
     public Long getSession() {
